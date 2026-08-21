@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Landing de ejemplo — widget prometIO</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        background: #f4efe6;
+        color: #2b241c;
+      }
+      header {
+        padding: 2.5rem 1.5rem 1rem;
+        max-width: 40rem;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 400;
+        margin: 0 0 0.5rem;
+      }
+      p {
+        margin: 0;
+        color: #6a5e50;
+        font-size: 0.95rem;
+      }
+      main {
+        padding: 1.5rem;
+        max-width: 40rem;
+        margin: 0 auto;
+      }
+      .nota {
+        margin-top: 1.5rem;
+        font-size: 0.8rem;
+        color: #6a5e50;
+      }
+      code {
+        font-family: ui-monospace, monospace;
+        font-size: 0.78rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Academia de ejemplo</h1>
+      <p>
+        Sitio ajeno a propósito: serif, fondo crema, sin la UI de prometIO. El
+        formulario de abajo es el widget embebido.
+      </p>
+    </header>
+    <main>
+      <prometio-formulario api="http://127.0.0.1:8000/formulario"></prometio-formulario>
+      <p class="nota">
+        Para probar UTM, abrí
+        <code>?utm_source=meta&amp;utm_medium=cpc&amp;utm_campaign=abril&amp;gclid=demo</code>
+        sobre esta misma URL. El backend tiene que estar en
+        <code>http://127.0.0.1:8000</code>.
+      </p>
+    </main>
+    <script src="./prometio-form.js"></script>
+  </body>
+</html>

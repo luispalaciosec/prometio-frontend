@@ -1,0 +1,43 @@
+---
+description: "Contexto general de prometIO — stack, diseño, y cómo consumir el backend. Se aplica siempre."
+alwaysApply: true
+---
+
+# prometIO — Contexto del repo frontend
+
+Este es el frontend de **prometIO**, el CRM interno de Geeks Ecuador. El backend (FastAPI + Supabase) vive en el repo hermano `prometio-backend` y lo desarrolla otro agente (Claude Code) en paralelo. Tu contrato con ese repo es `prometio-backend/docs/DATA_MODEL.md` + el OpenAPI que FastAPI expone.
+
+Antes de cuestionar una decisión de stack, revisa `../docs/DECISIONS.md` en la raíz del proyecto prometIO.
+
+## Stack
+
+- React 18 + TypeScript + Vite
+- Tailwind CSS + shadcn/ui
+- TanStack Table (listas/tablas)
+- `@dnd-kit` (Kanban del pipeline)
+- Zustand (estado global)
+- React Router v6
+- Desplegado en Vercel
+
+## Punto de partida
+
+Este repo se construye **desde cero** — `npm create vite@latest` limpio, sin reutilizar código de ningún proyecto de cliente (ver ADR-018 en `../docs/DECISIONS.md`). La arquitectura de carpetas sugerida (`components/`, `pages/`, `lib/`, `store/`, `types/`) y el uso de `@dnd-kit` para el Kanban son patrones de ingeniería estándar para este tipo de app, no código copiado de ningún repo existente.
+
+## Dirección visual
+
+Referencia principal: **Apollo.io** — tablas limpias, buen uso de badges de estado, sidebar delgado, alto contraste entre texto primario y secundario. Templa esa base con el minimalismo de Linear/Notion en navegación y formularios (menos bordes, más espacio en blanco, transiciones suaves). Nada de estética recargada tipo HubSpot clásico.
+
+**Theming por organización, no hardcodeado:** logo, color primario y color secundario vienen de la tabla `organizacion` (vía API), no de constantes en el código. Cada usuario elige claro/oscuro individualmente (`perfil.tema_preferido`).
+
+## Fase actual
+
+Ver `../docs/ROADMAP.md`. Fase 0 (fundaciones) la lleva el backend primero — el frontend arranca en paralelo desde Fase 1 una vez el contrato de datos esté fijo.
+
+## Reglas de negocio que la UI debe respetar (no las reinventes en el frontend)
+
+- El pipeline de Oportunidad tiene 9 etapas fijas, visualizado en Kanban arrastrable. La "vista por servicio" es un filtro sobre el mismo pipeline, no una pantalla distinta.
+- El valor de una Oportunidad se muestra siempre etiquetado: "estimado" (`valor_referencial`) hasta que exista `valor_cotizado` en firme.
+- El PDF de cotización para cliente **nunca** muestra el desglose de costo/margen — solo el total. La vista interna (con desglose) depende de permisos del usuario logueado, no es una opción de toggle libre.
+- El wizard de creación de Servicio es de 8 pasos, guardable como borrador, y el botón final de "Activar" solo se habilita si el usuario es del equipo `administrativo` (verificado también server-side, la UI no es la única barrera).
+- Una conversación de la bandeja NO es un Contacto hasta que el usuario hace clic explícito en "Convertir a contacto" — no lo automatices en la UI.
+- Ver más detalle de pantallas en `docs/UI_GUIDE.md`.

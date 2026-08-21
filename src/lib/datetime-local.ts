@@ -1,0 +1,39 @@
+/** ISO → valor de `<input type="datetime-local">` (hora local). */
+export function toDatetimeLocalValue(iso: string | null): string {
+  if (!iso) {
+    return ""
+  }
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) {
+    return ""
+  }
+  const pad = (n: number) => String(n).padStart(2, "0")
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+/** Vacío → null. Valor local → ISO. */
+export function fromDatetimeLocalValue(raw: string): string | null {
+  const trimmed = raw.trim()
+  if (trimmed === "") {
+    return null
+  }
+  const date = new Date(trimmed)
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("fecha inválida")
+  }
+  return date.toISOString()
+}
+
+export function formatDateTime(iso: string | null): string {
+  if (!iso) {
+    return "—"
+  }
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) {
+    return "—"
+  }
+  return date.toLocaleString("es-EC", {
+    dateStyle: "short",
+    timeStyle: "short",
+  })
+}
