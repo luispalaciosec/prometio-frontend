@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react"
+import { useSearchParams } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 
 import { PrometioLogo } from "@/components/prometio-logo"
@@ -50,9 +51,12 @@ function GoogleIcon() {
 }
 
 export function LoginPage() {
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get("error_description") || searchParams.get("error"),
+  )
   const [submitting, setSubmitting] = useState<"password" | "google" | null>(null)
 
   async function handlePasswordSignIn(event: FormEvent<HTMLFormElement>) {
@@ -88,7 +92,7 @@ export function LoginPage() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
     setSubmitting(null)

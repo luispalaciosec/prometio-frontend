@@ -6,6 +6,7 @@ import { AdminRoute, GuestRoute, ProtectedRoute, VentasRoute } from "@/component
 import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardPage"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
 import { AlertasPage } from "@/pages/AlertasPage"
 import { BandejaPage } from "@/pages/BandejaPage"
 import { CausasPerdidaPage } from "@/pages/CausasPerdidaPage"
@@ -31,6 +32,7 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route
               path="/login"
               element={
