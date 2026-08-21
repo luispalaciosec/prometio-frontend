@@ -52,14 +52,23 @@
       </p>
     </header>
     <main>
-      <prometio-formulario api="http://127.0.0.1:8000/formulario"></prometio-formulario>
-      <p class="nota">
-        Para probar UTM, abrí
-        <code>?utm_source=meta&amp;utm_medium=cpc&amp;utm_campaign=abril&amp;gclid=demo</code>
-        sobre esta misma URL. El backend tiene que estar en
-        <code>http://127.0.0.1:8000</code>.
+      <prometio-formulario id="widget"></prometio-formulario>
+      <p class="nota" id="nota">
+        Pasá el endpoint en la query:
+        <code>?api=https://tu-backend/formulario</code>.
+        Para UTM, sumá
+        <code>&amp;utm_source=meta&amp;utm_medium=cpc&amp;utm_campaign=abril&amp;gclid=demo</code>.
       </p>
     </main>
     <script src="./prometio-form.js"></script>
+    <script>
+      const api = new URLSearchParams(location.search).get("api")
+      const widget = document.getElementById("widget")
+      if (api) {
+        widget.setAttribute("api", api)
+      } else {
+        widget.remove()
+      }
+    </script>
   </body>
 </html>
