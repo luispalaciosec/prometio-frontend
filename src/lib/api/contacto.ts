@@ -1,9 +1,9 @@
 /**
  * Fachada de contacto. Apunta al backend real (GET/POST/PATCH /contactos).
  */
+import { listEmpresas } from "@/lib/api/empresa"
 import { apiFetch } from "@/lib/api-client"
 import type { Contacto, ContactoCreate, ContactoUpdate, ListContactosQuery } from "@/types/contacto"
-import type { Empresa } from "@/types/empresa"
 
 function vacio(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? ""
@@ -104,9 +104,9 @@ export function reactivarContacto(id: string): Promise<Contacto> {
   return apiFetch(`/contactos/${id}/reactivar`, { method: "POST" })
 }
 
-/** Empresas reales del backend (no el mock de la pantalla Empresas). */
+/** Empresas reales para el selector de Contactos. */
 export async function listEmpresasParaContacto(): Promise<{ id: string; nombre: string }[]> {
-  const rows = await apiFetch<Empresa[]>("/empresas")
+  const rows = await listEmpresas()
   return [...rows].sort((a, b) => a.nombre.localeCompare(b.nombre, "es")).map((row) => ({
     id: row.id,
     nombre: row.nombre,

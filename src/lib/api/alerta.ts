@@ -1,4 +1,15 @@
 /**
- * Fachada de alertas de estancamiento. Hoy apunta al mock; cuando exista OpenAPI se cambia este archivo.
+ * Fachada de alertas. Apunta al backend real (GET /alertas).
  */
-export { listAlertas } from "../mock-alerta"
+import { refrescarEtiquetasOportunidad } from "@/lib/api/oportunidad"
+import { apiFetch } from "@/lib/api-client"
+import type { Alerta } from "@/types/alerta"
+import type { Perfil } from "@/types/perfil"
+
+export async function listAlertas(_perfil?: Perfil): Promise<Alerta[]> {
+  const [rows] = await Promise.all([
+    apiFetch<Alerta[]>("/alertas"),
+    refrescarEtiquetasOportunidad(),
+  ])
+  return rows
+}

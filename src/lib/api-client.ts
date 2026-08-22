@@ -69,6 +69,51 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   return (await response.json()) as T
 }
 
+function extraerFilename(disposition: string | null): string | null {
+  if (!disposition) {
+    return null
+  }
+  const utf8 = disposition.match(/filename\*=UTF-8''([^;]+)/i)
+  if (utf8?.[1]) {
+    try {
+      return decodeURIComponent(utf8[1])
+    } catch {
+      return utf8[1]
+    }
+  }
+  const quoted = disposition.match(/filename="([^"]+)"/i)
+  if (quoted?.[1]) {
+    return quoted[1]
+  }
+  const plain = disposition.match(/filename=([^;]+)/i)
+  return plain?.[1]?.trim() ?? null
+}
+
+export async function apiFetchBlob(
+  path: string,
+  init: RequestInit = {},
+): Promise<{ blob: Blob; filename: string | null }> {
+  const session = useAuthStore.getState().session
+  const headers = new Headers(init.headers)
+  if (session?.access_token) {
+    headers.set("Authorization", `Bearer ${session.access_token}`)
+  }
+  const response = await fetch(`${apiBase()}${path}`, { ...init, headers })
+  if (!response.ok) {
+    let detail = response.statusText
+    try {
+      detail = leerDetail(await response.json())
+    } catch {
+      /* cuerpo no JSON */
+    }
+    throw new ApiError(response.status, detail)
+  }
+  return {
+    blob: await response.blob(),
+    filename: extraerFilename(response.headers.get("Content-Disposition")),
+  }
+}
+
 const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
 
 export function extraerUuid(texto: string): string | null {
