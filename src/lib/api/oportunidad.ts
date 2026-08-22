@@ -7,7 +7,7 @@ import { listPerfiles } from "@/lib/api/perfiles"
 import { ApiError, apiFetch } from "@/lib/api-client"
 import { puedeVerEquipo, scopeEfectivo } from "@/lib/pipeline-acceso"
 import type { EtapaPipelineCodigo } from "@/types/etapa-pipeline"
-import type { Oportunidad, OportunidadKanban, PipelineScope } from "@/types/oportunidad"
+import type { Oportunidad, OportunidadCreate, OportunidadKanban, PipelineScope } from "@/types/oportunidad"
 import type { Perfil } from "@/types/perfil"
 
 export {
@@ -132,6 +132,19 @@ export async function listOportunidades(query: ListOportunidadesQuery): Promise<
   } catch (error) {
     mapearError(error)
   }
+}
+
+export async function createOportunidad(input: OportunidadCreate): Promise<Oportunidad> {
+  const servicios = input.servicios_ids?.filter(Boolean) ?? []
+  return apiFetch("/oportunidades", {
+    method: "POST",
+    body: JSON.stringify({
+      contacto_id: input.contacto_id,
+      empresa_id: input.empresa_id,
+      valor_referencial: input.valor_referencial ?? null,
+      servicios_ids: servicios.length > 0 ? servicios : null,
+    }),
+  })
 }
 
 export async function getOportunidad(id: string, perfil: Perfil): Promise<OportunidadKanban> {

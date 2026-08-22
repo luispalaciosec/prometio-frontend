@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import { CierrePerdidoDialog } from "@/components/pipeline/CierrePerdidoDialog"
+import { OportunidadAltaDialog } from "@/components/pipeline/OportunidadAltaDialog"
 import { PipelineBoard } from "@/components/pipeline/PipelineBoard"
 import { PipelineLista } from "@/components/pipeline/PipelineLista"
 import {
@@ -11,9 +12,13 @@ import {
 } from "@/components/pipeline/PipelineToolbar"
 import { ReasignarOportunidadDialog } from "@/components/pipeline/ReasignarOportunidadDialog"
 import { PageHeader } from "@/components/page-header"
+import { Button } from "@/components/ui/button"
 import { listAlertas } from "@/lib/api/alerta"
+import { listContactos } from "@/lib/api/contacto"
+import { listEmpresas } from "@/lib/api/empresa"
 import { listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles"
 import {
+  createOportunidad,
   listOportunidades,
   moverOportunidad,
   puedeVerEquipo,
@@ -25,7 +30,9 @@ import { useAuthStore } from "@/store/auth-store"
 import type { EstadoAlerta } from "@/types/alerta"
 import type { CausaPerdida } from "@/types/causa-perdida"
 import type { EtapaPipeline, EtapaPipelineCodigo } from "@/types/etapa-pipeline"
-import type { OportunidadKanban, PipelineScope } from "@/types/oportunidad"
+import type { Contacto } from "@/types/contacto"
+import type { Empresa } from "@/types/empresa"
+import type { OportunidadCreate, OportunidadKanban, PipelineScope } from "@/types/oportunidad"
 import type { Perfil } from "@/types/perfil"
 import type { Servicio } from "@/types/servicio"
 
@@ -57,6 +64,10 @@ export function PipelinePage() {
   const [pendientePerdido, setPendientePerdido] = useState<string | null>(null)
   const [pendienteReasignar, setPendienteReasignar] = useState<string | null>(null)
   const [perfilesElegibles, setPerfilesElegibles] = useState<Perfil[]>([])
+  const [contactosAlta, setContactosAlta] = useState<Contacto[]>([])
+  const [empresasAlta, setEmpresasAlta] = useState<Empresa[]>([])
+  const [altaOpen, setAltaOpen] = useState(false)
+  const [enviando, setEnviando] = useState(false)
 
   const reload = useCallback(async () => {
     if (!perfil) {
@@ -139,6 +150,23 @@ export function PipelinePage() {
 
   const hayFiltroLocal = Boolean(busqueda.trim() || etapaId || ejecutivoId)
 
+  async function crear(input: OportunidadCreate) {
+    if (!perfil) {
+      return
+    }
+    setEnviando(true)
+    try {
+      const created = await createOportunidad(input)
+      setAltaOpen(false)
+      toast.success("Oportunidad creada.")
+      navigate(`/pipeline/${created.id}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo crear la oportunidad.")
+    } finally {
+      setEnviando(false)
+    }
+  }
+
   async function mover(id: string, etapa: EtapaPipelineCodigo) {
     if (!perfil) {
       return
@@ -195,6 +223,26 @@ export function PipelinePage() {
       <PageHeader
         title="Pipeline"
         description="9 etapas fijas. El valor cotizado manda; si no hay, se muestra el referencial como estimado."
+        action={
+          <Button
+            type="button"
+            onClick={() => {
+              void Promise.all([listContactos(), listEmpresas()])
+                .then(([contactos, empresas]) => {
+                  setContactosAlta(contactos)
+                  setEmpresasAlta(empresas)
+                  setAltaOpen(true)
+                })
+                .catch((error: unknown) => {
+                  toast.error(
+                    error instanceof Error ? error.message : "No se pudo abrir el alta.",
+                  )
+                })
+            }}
+          >
+            Nueva oportunidad
+          </Button>
+        }
       />
       <div className="mb-6">
         <PipelineToolbar
@@ -258,6 +306,15 @@ export function PipelinePage() {
         perfiles={perfilesElegibles}
         onConfirm={(id) => void confirmarReasignar(id)}
         onCancel={() => setPendienteReasignar(null)}
+      />
+      <OportunidadAltaDialog
+        open={altaOpen}
+        enviando={enviando}
+        contactos={contactosAlta}
+        empresas={empresasAlta}
+        servicios={servicios}
+        onConfirm={(input) => void crear(input)}
+        onCancel={() => setAltaOpen(false)}
       />
     </>
   )

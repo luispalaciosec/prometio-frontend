@@ -26,3 +26,10 @@ export type OportunidadKanban = Oportunidad & {
 }
 
 export type PipelineScope = "mio" | "equipo"
+
+export type OportunidadCreate = {
+  contacto_id: string
+  empresa_id: string
+  valor_referencial?: number | null
+  servicios_ids?: string[] | null
+}
