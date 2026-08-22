@@ -19,7 +19,7 @@ import { EmpresaPage } from "@/pages/EmpresaPage"
 import { EmpresasPage } from "@/pages/EmpresasPage"
 import { EtapasConfigPage } from "@/pages/EtapasConfigPage"
 import { FormularioWebPage } from "@/pages/FormularioWebPage"
-import { HomePlaceholderPage } from "@/pages/HomePlaceholderPage"
+import { HomePage } from "@/pages/HomePage"
 import { LoginPage } from "@/pages/LoginPage"
 import { MarcaPage } from "@/pages/MarcaPage"
 import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
@@ -51,7 +51,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="/" element={<HomePlaceholderPage />} />
+              <Route path="/" element={<HomePage />} />
               <Route
                 path="/pipeline"
                 element={

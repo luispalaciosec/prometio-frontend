@@ -1,7 +1,21 @@
+import type { LucideIcon } from "lucide-react"
+import {
+  CircleOff,
+  Clock,
+  Code2,
+  FileText,
+  ListOrdered,
+  Package,
+  Palette,
+  Percent,
+  Plug,
+} from "lucide-react"
+
 export type ConfigNavItem = {
   to: string
   label: string
   body: string
+  icon: LucideIcon
 }
 
 export type ConfigNavGroup = {
@@ -17,16 +31,19 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         to: "/configuracion/servicios",
         label: "Servicios",
         body: "Catálogo y wizard de creación (borrador → activo).",
+        icon: Package,
       },
       {
         to: "/configuracion/tarifas-internas",
         label: "Tarifas internas",
         body: "Costo/hora por rol. Nunca por persona.",
+        icon: Clock,
       },
       {
         to: "/configuracion/tipos-documento",
         label: "Tipos de documento",
         body: "Catálogo abierto asociado a cada servicio.",
+        icon: FileText,
       },
     ],
   },
@@ -37,16 +54,19 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         to: "/configuracion/etapas",
         label: "Etapas y alertas",
         body: "probabilidad_cierre_default_pct, umbral_alerta_horas y multiplicador_escalamiento_supervisor.",
+        icon: ListOrdered,
       },
       {
         to: "/configuracion/margenes",
         label: "Márgenes e impuestos",
         body: "margen_agencia_default_pct, comisión de agencia (rango) y tasa_impuesto_pct.",
+        icon: Percent,
       },
       {
         to: "/configuracion/causas-perdida",
         label: "Causas de pérdida",
         body: "Catálogo usado en Cierre Perdido.",
+        icon: CircleOff,
       },
     ],
   },
@@ -57,16 +77,19 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         to: "/configuracion/marca",
         label: "Marca",
         body: "Logo y paleta de prometIO. Subida real pendiente — por ahora asset fijo.",
+        icon: Palette,
       },
       {
         to: "/configuracion/conectores",
         label: "Conectores",
         body: "Claude, OpenAI y Gemini. Sin conexión activa todavía.",
+        icon: Plug,
       },
       {
         to: "/configuracion/formulario-web",
         label: "Formulario web",
         body: "Snippet embebible para landings. POST /formulario.",
+        icon: Code2,
       },
     ],
   },

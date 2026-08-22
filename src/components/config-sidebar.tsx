@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react"
 import { NavLink, useLocation } from "react-router-dom"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Settings } from "lucide-react"
 
 import { CONFIG_NAV_GROUPS } from "@/lib/config-nav"
+import { sidebarNavClass } from "@/components/sidebar-nav"
 import { cn } from "@/lib/utils"
-
-function navClass(isActive: boolean, nested = false) {
-  return cn(
-    "rounded-md px-2 py-1.5 text-sm transition-colors duration-150",
-    nested && "py-1",
-    isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_2px_0_0_0_var(--highlight)]"
-      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground",
-  )
-}
 
 export function ConfigSidebar() {
   const location = useLocation()
@@ -30,8 +21,9 @@ export function ConfigSidebar() {
         <NavLink
           to="/configuracion"
           end
-          className={({ isActive }) => cn("min-w-0 flex-1", navClass(isActive))}
+          className={({ isActive }) => cn("min-w-0 flex-1", sidebarNavClass(isActive))}
         >
+          <Settings className="size-4 shrink-0 opacity-80" aria-hidden />
           Configuración
         </NavLink>
         <button
@@ -55,8 +47,9 @@ export function ConfigSidebar() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    className={({ isActive }) => navClass(isActive, true)}
+                    className={({ isActive }) => sidebarNavClass(isActive, true)}
                   >
+                    <item.icon className="size-4 shrink-0 opacity-80" aria-hidden />
                     {item.label}
                   </NavLink>
                 ))}

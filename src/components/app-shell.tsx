@@ -1,21 +1,48 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom"
+import {
+  Bell,
+  Building2,
+  CalendarClock,
+  Columns3,
+  Inbox,
+  LayoutDashboard,
+  LayoutList,
+  Users,
+  type LucideIcon,
+} from "lucide-react"
 
 import { ConfigSidebar } from "@/components/config-sidebar"
 import { PrometioLogo } from "@/components/prometio-logo"
 import { ModeToggle } from "@/components/mode-toggle"
+import { SidebarSection } from "@/components/sidebar-section"
+import { sidebarNavClass } from "@/components/sidebar-nav"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { puedeVerModuloVentas } from "@/lib/pipeline-acceso"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/store/auth-store"
 
-const ventasNav = [
-  { to: "/pipeline", label: "Pipeline" },
-  { to: "/bandeja", label: "Bandeja" },
-  { to: "/empresas", label: "Empresas" },
-  { to: "/contactos", label: "Contactos" },
-  { to: "/alertas", label: "Alertas" },
-  { to: "/dashboard", label: "Dashboard" },
+type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
+
+const crmNav: NavItem[] = [
+  { to: "/", label: "Resumen", icon: LayoutList, end: true },
+  { to: "/contactos", label: "Contactos", icon: Users },
+  { to: "/empresas", label: "Empresas", icon: Building2 },
+  { to: "/bandeja", label: "Bandeja", icon: Inbox },
 ]
+
+const negociosNav: NavItem[] = [
+  { to: "/pipeline", label: "Pipeline", icon: Columns3 },
+  { to: "/alertas", label: "Alertas", icon: Bell },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+]
+
+function itemActive(pathname: string, item: NavItem) {
+  if (item.end) {
+    return pathname === item.to
+  }
+  return pathname === item.to || pathname.startsWith(`${item.to}/`)
+}
 
 export function AppShell() {
   const perfil = useAuthStore((state) => state.perfil)
@@ -26,6 +53,8 @@ export function AppShell() {
   const isVentas = perfil ? puedeVerModuloVentas(perfil) : false
   const isPipeline = location.pathname === "/pipeline"
   const isBandeja = location.pathname.startsWith("/bandeja")
+  const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
+  const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
 
   return (
     <div className="flex min-h-svh bg-background">
@@ -34,25 +63,43 @@ export function AppShell() {
         <NavLink to="/" className="px-1">
           <PrometioLogo onDark className="h-7 w-auto" />
         </NavLink>
-        <nav className="mt-6 flex flex-1 flex-col gap-0.5 overflow-y-auto">
-          {isVentas
-            ? ventasNav.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    cn(
-                      "rounded-md px-2 py-1.5 text-sm transition-colors duration-150",
-                      isActive
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_2px_0_0_0_var(--highlight)]"
-                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground",
-                    )
-                  }
-                >
-                  {item.label}
-                </NavLink>
-              ))
-            : null}
+        <nav className="mt-6 flex flex-1 flex-col overflow-y-auto">
+          {isVentas ? (
+            <>
+              <SidebarSection title="CRM" active={crmActivo}>
+                {crmNav.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) => sidebarNavClass(isActive)}
+                  >
+                    <item.icon className="size-4 shrink-0 opacity-80" aria-hidden />
+                    {item.label}
+                  </NavLink>
+                ))}
+              </SidebarSection>
+              <SidebarSection title="Negocios" active={negociosActivo}>
+                {negociosNav.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) => sidebarNavClass(isActive)}
+                  >
+                    <item.icon className="size-4 shrink-0 opacity-80" aria-hidden />
+                    {item.label}
+                  </NavLink>
+                ))}
+                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/40">
+                  <CalendarClock className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <span className="min-w-0 flex-1">Actividades</span>
+                  <Badge variant="secondary" className="h-4 px-1.5 text-[0.6rem]">
+                    Próximamente
+                  </Badge>
+                </div>
+              </SidebarSection>
+            </>
+          ) : null}
           {isAdmin ? <ConfigSidebar /> : null}
           {!isVentas && !isAdmin ? (
             <p className="px-2 text-sm text-sidebar-foreground/60">
