@@ -36,4 +36,5 @@ export type Servicio = {
   estado: ServicioEstado
   created_by: string
   created_at: string
+  contifico_producto_id?: string | null
 }

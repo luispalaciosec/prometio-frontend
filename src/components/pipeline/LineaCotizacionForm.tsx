@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 
+import { HistorialPreciosDialog } from "@/components/pipeline/HistorialPreciosDialog"
 import { LineaCalculoVivo } from "@/components/pipeline/LineaCalculoVivo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -187,6 +188,9 @@ export function LineaCotizacionForm({
               ))}
           </SelectContent>
         </Select>
+        {servicio ? (
+          <HistorialPreciosDialog servicioId={servicio.id} servicioNombre={servicio.nombre} />
+        ) : null}
       </div>
       {caminoFijoConProveedor === false ? null : (
         <div className="flex flex-col gap-2">

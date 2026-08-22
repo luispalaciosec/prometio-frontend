@@ -57,6 +57,7 @@ function blankServicio(
     estado: "borrador",
     created_by,
     created_at: new Date().toISOString(),
+    contifico_producto_id: null,
   }
 }
 

@@ -209,6 +209,7 @@ function seedServiciosDemo(): Servicio[] {
       estado: "activo",
       created_by: "seed",
       created_at: now,
+      contifico_producto_id: null,
     },
     {
       id: MOCK_SERVICIO_PERFORMANCE_ID,
@@ -229,6 +230,7 @@ function seedServiciosDemo(): Servicio[] {
       estado: "activo",
       created_by: "seed",
       created_at: now,
+      contifico_producto_id: null,
     },
   ]
 }

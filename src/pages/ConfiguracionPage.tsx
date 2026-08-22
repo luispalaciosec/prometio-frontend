@@ -9,7 +9,7 @@ export function ConfiguracionPage() {
     <>
       <PageHeader
         title="Configuración"
-        description="Parámetros de la organización. Los cambios se guardan en la capa mock hasta que exista el OpenAPI."
+        description="Parámetros de la organización. Lecturas y escrituras van al backend real."
       />
       <div className="space-y-8">
         {CONFIG_NAV_GROUPS.map((group) => (

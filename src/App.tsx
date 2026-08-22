@@ -18,6 +18,7 @@ import { DashboardPage } from "@/pages/DashboardPage"
 import { EmpresaPage } from "@/pages/EmpresaPage"
 import { EmpresasPage } from "@/pages/EmpresasPage"
 import { EtapasConfigPage } from "@/pages/EtapasConfigPage"
+import { FormularioWebPage } from "@/pages/FormularioWebPage"
 import { HomePlaceholderPage } from "@/pages/HomePlaceholderPage"
 import { LoginPage } from "@/pages/LoginPage"
 import { MarcaPage } from "@/pages/MarcaPage"
@@ -208,6 +209,14 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <ConectoresPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/configuracion/formulario-web"
+                element={
+                  <AdminRoute>
+                    <FormularioWebPage />
                   </AdminRoute>
                 }
               />

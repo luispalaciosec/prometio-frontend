@@ -63,6 +63,11 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         label: "Conectores",
         body: "Claude, OpenAI y Gemini. Sin conexión activa todavía.",
       },
+      {
+        to: "/configuracion/formulario-web",
+        label: "Formulario web",
+        body: "Snippet embebible para landings. POST /formulario.",
+      },
     ],
   },
 ]
