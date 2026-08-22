@@ -4,6 +4,8 @@ import { toast } from "sonner"
 
 import { ContactoAltaDialog } from "@/components/contactos/ContactoAltaDialog"
 import { EtapaCicloBadge } from "@/components/contactos/EtapaCicloBadge"
+import { EntityAvatar } from "@/components/entity-avatar"
+import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -169,11 +171,20 @@ export function ContactosPage() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/contactos/${row.id}`)}
               >
-                <TableCell className="font-medium">
-                  {row.nombre_completo}
-                  {!row.activo ? (
-                    <span className="ml-2 text-xs text-muted-foreground">inactivo</span>
-                  ) : null}
+                <TableCell>
+                  <div className="flex items-center gap-2.5">
+                    <EntityAvatar
+                      name={row.nombre_completo}
+                      seed={row.id}
+                      size="sm"
+                      src={row.foto_url}
+                    />
+                    <span className="font-medium">{row.nombre_completo}</span>
+                    <LinkedInLink href={row.linkedin_url} compact />
+                    {!row.activo ? (
+                      <span className="text-xs text-muted-foreground">inactivo</span>
+                    ) : null}
+                  </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{row.email_trabajo ?? "—"}</TableCell>
                 <TableCell className="text-muted-foreground">{row.telefono_movil ?? "—"}</TableCell>

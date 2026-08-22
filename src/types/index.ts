@@ -9,6 +9,10 @@ export type { Contacto, ContactoCreate, ContactoUpdate, EtapaCicloVida } from ".
 export { ETAPAS_CICLO_VIDA, ETAPA_CICLO_LABELS } from "./contacto"
 export type { DashboardKPIs } from "./dashboard"
 export type { Resumen } from "./resumen"
+export type { Organizacion, OrganizacionUpdate } from "./organizacion"
+export type { SaludSistema, SaludServicio, SaludEstado } from "./salud"
+export type { Auditoria, ListAuditoriaQuery } from "./auditoria"
+export type { CumpleanosProximo } from "./cumpleanos"
 export type {
   DatosEnriquecidos,
   Empresa,

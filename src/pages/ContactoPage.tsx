@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EntityAvatar } from "@/components/entity-avatar"
+import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -16,6 +18,7 @@ import {
 } from "@/components/ui/select"
 import {
   desactivarContacto,
+  enriquecerContacto,
   getContacto,
   listEmpresasParaContacto,
   reactivarContacto,
@@ -44,10 +47,13 @@ export function ContactoPage() {
   const [ciudad, setCiudad] = useState("")
   const [provincia, setProvincia] = useState("")
   const [linkedin, setLinkedin] = useState("")
+  const [fechaNacimiento, setFechaNacimiento] = useState("")
+  const [cargo, setCargo] = useState("")
   const [etapa, setEtapa] = useState<EtapaCicloVida>("contacto")
   const [elegible, setElegible] = useState(true)
   const [guardando, setGuardando] = useState(false)
   const [cambiandoEstado, setCambiandoEstado] = useState(false)
+  const [enriqueciendo, setEnriqueciendo] = useState(false)
 
   async function reload(contactoId: string) {
     setContacto(null)
@@ -71,6 +77,8 @@ export function ContactoPage() {
     setCiudad(row.ciudad ?? "")
     setProvincia(row.provincia ?? "")
     setLinkedin(row.linkedin_url ?? "")
+    setFechaNacimiento(row.fecha_nacimiento ?? "")
+    setCargo(row.cargo ?? "")
     setEtapa(row.etapa_ciclo_vida)
     setElegible(row.elegible_marketing)
     setError(null)
@@ -104,6 +112,8 @@ export function ContactoPage() {
         ciudad,
         provincia,
         linkedin_url: linkedin,
+        fecha_nacimiento: fechaNacimiento,
+        cargo,
         etapa_ciclo_vida: etapa,
         elegible_marketing: elegible,
       })
@@ -149,6 +159,22 @@ export function ContactoPage() {
     }
   }
 
+  async function enriquecer() {
+    if (!id) {
+      return
+    }
+    setEnriqueciendo(true)
+    try {
+      const row = await enriquecerContacto(id)
+      aplicar(row)
+      toast.success("Foto de LinkedIn actualizada.")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falló el enriquecimiento.")
+    } finally {
+      setEnriqueciendo(false)
+    }
+  }
+
   if (error) {
     return (
       <div className="max-w-md space-y-3">
@@ -168,8 +194,23 @@ export function ContactoPage() {
   return (
     <>
       <PageHeader
+        leading={
+          <EntityAvatar
+            name={contacto.nombre_completo}
+            seed={contacto.id}
+            size="lg"
+            src={contacto.foto_url}
+          />
+        }
         title={contacto.nombre_completo}
-        description={!contacto.activo ? "Inactivo" : undefined}
+        description={
+          contacto.linkedin_url || !contacto.activo ? (
+            <>
+              {!contacto.activo ? <span>Inactivo</span> : null}
+              <LinkedInLink href={contacto.linkedin_url} />
+            </>
+          ) : undefined
+        }
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Select value={etapa} onValueChange={(value) => void cambiarEtapa(value as EtapaCicloVida)}>
@@ -184,6 +225,11 @@ export function ContactoPage() {
                 ))}
               </SelectContent>
             </Select>
+            {contacto.linkedin_url ? (
+              <Button type="button" disabled={enriqueciendo} onClick={() => void enriquecer()}>
+                {enriqueciendo ? "Enriqueciendo…" : "Enriquecer"}
+              </Button>
+            ) : null}
             {esAdmin ? (
               <Button
                 type="button"
@@ -240,6 +286,19 @@ export function ContactoPage() {
             </Select>
           </div>
           <div className="flex flex-col gap-2">
+            <Label htmlFor="det-cargo">Cargo</Label>
+            <Input id="det-cargo" value={cargo} onChange={(event) => setCargo(event.target.value)} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="det-fnac">Fecha de nacimiento</Label>
+            <Input
+              id="det-fnac"
+              type="date"
+              value={fechaNacimiento}
+              onChange={(event) => setFechaNacimiento(event.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
             <Label htmlFor="det-prod">Producto de interés</Label>
             <Input
               id="det-prod"
@@ -260,8 +319,16 @@ export function ContactoPage() {
             />
           </div>
           <div className="flex flex-col gap-2 sm:col-span-2">
-            <Label htmlFor="det-li">LinkedIn</Label>
-            <Input id="det-li" value={linkedin} onChange={(event) => setLinkedin(event.target.value)} />
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="det-li">LinkedIn</Label>
+              <LinkedInLink href={linkedin} />
+            </div>
+            <Input
+              id="det-li"
+              value={linkedin}
+              onChange={(event) => setLinkedin(event.target.value)}
+              placeholder="https://www.linkedin.com/in/…"
+            />
           </div>
           <label className="flex items-center gap-2 text-sm sm:col-span-2">
             <Checkbox checked={elegible} onCheckedChange={(value) => setElegible(value === true)} />

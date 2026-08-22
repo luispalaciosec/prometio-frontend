@@ -19,6 +19,9 @@ export type Contacto = {
   ciudad: string | null
   provincia: string | null
   linkedin_url: string | null
+  fecha_nacimiento: string | null
+  cargo: string | null
+  foto_url: string | null
   etapa_ciclo_vida: EtapaCicloVida
   elegible_marketing: boolean
   fuente: string | null
@@ -41,6 +44,8 @@ export type ContactoCreate = {
   ciudad?: string | null
   provincia?: string | null
   linkedin_url?: string | null
+  fecha_nacimiento?: string | null
+  cargo?: string | null
   etapa_ciclo_vida?: EtapaCicloVida
   elegible_marketing?: boolean
   fuente?: string | null
@@ -55,6 +60,8 @@ export type ContactoUpdate = {
   ciudad?: string | null
   provincia?: string | null
   linkedin_url?: string | null
+  fecha_nacimiento?: string | null
+  cargo?: string | null
   etapa_ciclo_vida?: EtapaCicloVida | null
   elegible_marketing?: boolean | null
 }

@@ -76,7 +76,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/marca",
         label: "Marca",
-        body: "Logo y paleta de prometIO. Subida real pendiente — por ahora asset fijo.",
+        body: "Logo y colores de la organización. POST /organizacion/logo y PATCH /organizacion.",
         icon: Palette,
       },
       {

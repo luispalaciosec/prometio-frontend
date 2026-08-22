@@ -15,6 +15,7 @@ export type Oportunidad = {
   causa_perdida_secundaria_id: string | null
   competidor_mencionado: string | null
   fecha_ultima_actividad: string | null
+  activo: boolean
   created_at: string
 }
 
@@ -30,6 +31,13 @@ export type PipelineScope = "mio" | "equipo"
 export type OportunidadCreate = {
   contacto_id: string
   empresa_id: string
+  valor_referencial?: number | null
+  servicios_ids?: string[] | null
+}
+
+export type OportunidadUpdate = {
+  contacto_id?: string
+  empresa_id?: string
   valor_referencial?: number | null
   servicios_ids?: string[] | null
 }

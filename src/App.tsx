@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
 import { AlertasPage } from "@/pages/AlertasPage"
+import { AuditoriaPage } from "@/pages/AuditoriaPage"
+import { CumpleanosPage } from "@/pages/CumpleanosPage"
 import { BandejaPage } from "@/pages/BandejaPage"
 import { CausasPerdidaPage } from "@/pages/CausasPerdidaPage"
 import { ConfiguracionPage } from "@/pages/ConfiguracionPage"
@@ -25,6 +27,7 @@ import { MarcaPage } from "@/pages/MarcaPage"
 import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
 import { PipelinePage } from "@/pages/PipelinePage"
 import { OportunidadPage } from "@/pages/OportunidadPage"
+import { SaludPage } from "@/pages/SaludPage"
 import { ServiciosPage } from "@/pages/ServiciosPage"
 import { TarifasInternasPage } from "@/pages/TarifasInternasPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
@@ -130,6 +133,30 @@ export default function App() {
                   <VentasRoute>
                     <DashboardPage />
                   </VentasRoute>
+                }
+              />
+              <Route
+                path="/cumpleanos"
+                element={
+                  <VentasRoute>
+                    <CumpleanosPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/salud"
+                element={
+                  <AdminRoute>
+                    <SaludPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/auditoria"
+                element={
+                  <AdminRoute>
+                    <AuditoriaPage />
+                  </AdminRoute>
                 }
               />
               <Route

@@ -7,7 +7,13 @@ import { listPerfiles } from "@/lib/api/perfiles"
 import { ApiError, apiFetch } from "@/lib/api-client"
 import { puedeVerEquipo, scopeEfectivo } from "@/lib/pipeline-acceso"
 import type { EtapaPipelineCodigo } from "@/types/etapa-pipeline"
-import type { Oportunidad, OportunidadCreate, OportunidadKanban, PipelineScope } from "@/types/oportunidad"
+import type {
+  Oportunidad,
+  OportunidadCreate,
+  OportunidadKanban,
+  OportunidadUpdate,
+  PipelineScope,
+} from "@/types/oportunidad"
 import type { Perfil } from "@/types/perfil"
 
 export {
@@ -41,6 +47,7 @@ function normalizar(row: Oportunidad): Oportunidad {
   return {
     ...row,
     servicios_ids: row.servicios_ids ?? [],
+    activo: row.activo !== false,
   }
 }
 
@@ -126,6 +133,7 @@ export async function listOportunidades(query: ListOportunidadesQuery): Promise<
     const scope = scopeEfectivo(query.perfil, query.scope)
     return rows
       .map(normalizar)
+      .filter((item) => item.activo)
       .filter((item) => (scope === "mio" ? item.ejecutivo_id === query.perfil.id : true))
       .filter((item) => (query.servicio_id ? item.servicios_ids.includes(query.servicio_id) : true))
       .map((item) => toKanban(item, query.perfil))
@@ -145,6 +153,36 @@ export async function createOportunidad(input: OportunidadCreate): Promise<Oport
       servicios_ids: servicios.length > 0 ? servicios : null,
     }),
   })
+}
+
+export async function updateOportunidad(
+  id: string,
+  input: OportunidadUpdate,
+  perfil: Perfil,
+): Promise<OportunidadKanban> {
+  const body: Record<string, unknown> = {}
+  if (input.contacto_id !== undefined) {
+    body.contacto_id = input.contacto_id
+  }
+  if (input.empresa_id !== undefined) {
+    body.empresa_id = input.empresa_id
+  }
+  if (input.valor_referencial !== undefined) {
+    body.valor_referencial = input.valor_referencial
+  }
+  if (input.servicios_ids !== undefined) {
+    body.servicios_ids = input.servicios_ids
+  }
+  try {
+    const row = await apiFetch<Oportunidad>(`/oportunidades/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    })
+    await refrescarEtiquetasOportunidad()
+    return toKanban(normalizar(row), perfil)
+  } catch (error) {
+    mapearError(error)
+  }
 }
 
 export async function getOportunidad(id: string, perfil: Perfil): Promise<OportunidadKanban> {
@@ -190,6 +228,26 @@ export type ReasignarOportunidadInput = {
   perfil: Perfil
   id: string
   nuevo_ejecutivo_id: string
+}
+
+export async function desactivarOportunidad(id: string, perfil: Perfil): Promise<OportunidadKanban> {
+  try {
+    const row = await apiFetch<Oportunidad>(`/oportunidades/${id}/desactivar`, { method: "POST" })
+    await refrescarEtiquetasOportunidad()
+    return toKanban(normalizar(row), perfil)
+  } catch (error) {
+    mapearError(error)
+  }
+}
+
+export async function reactivarOportunidad(id: string, perfil: Perfil): Promise<OportunidadKanban> {
+  try {
+    const row = await apiFetch<Oportunidad>(`/oportunidades/${id}/reactivar`, { method: "POST" })
+    await refrescarEtiquetasOportunidad()
+    return toKanban(normalizar(row), perfil)
+  } catch (error) {
+    mapearError(error)
+  }
 }
 
 export async function reasignarOportunidad(input: ReasignarOportunidadInput): Promise<OportunidadKanban> {

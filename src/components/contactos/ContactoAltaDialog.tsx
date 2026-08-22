@@ -32,6 +32,9 @@ const VACIO: ContactoCreate = {
   producto_interes: "",
   ciudad: "",
   provincia: "",
+  linkedin_url: "",
+  fecha_nacimiento: "",
+  cargo: "",
   etapa_ciclo_vida: "contacto",
 }
 
@@ -164,12 +167,42 @@ export function ContactoAltaDialog({
               onChange={(event) => setDraft((prev) => ({ ...prev, ciudad: event.target.value }))}
             />
           </div>
-          <div className="flex flex-col gap-2 sm:col-span-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="ct-prov">Provincia</Label>
             <Input
               id="ct-prov"
               value={draft.provincia ?? ""}
               onChange={(event) => setDraft((prev) => ({ ...prev, provincia: event.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="ct-cargo">Cargo</Label>
+            <Input
+              id="ct-cargo"
+              value={draft.cargo ?? ""}
+              onChange={(event) => setDraft((prev) => ({ ...prev, cargo: event.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="ct-fnac">Fecha de nacimiento</Label>
+            <Input
+              id="ct-fnac"
+              type="date"
+              value={draft.fecha_nacimiento ?? ""}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, fecha_nacimiento: event.target.value }))
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-2 sm:col-span-2">
+            <Label htmlFor="ct-li">LinkedIn</Label>
+            <Input
+              id="ct-li"
+              value={draft.linkedin_url ?? ""}
+              onChange={(event) =>
+                setDraft((prev) => ({ ...prev, linkedin_url: event.target.value }))
+              }
+              placeholder="https://www.linkedin.com/in/…"
             />
           </div>
         </div>

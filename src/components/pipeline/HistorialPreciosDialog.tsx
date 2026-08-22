@@ -61,9 +61,11 @@ export function HistorialPreciosDialog({
           <DialogHeader>
             <DialogTitle>Histórico Contífico · {servicioNombre}</DialogTitle>
           </DialogHeader>
-          <p className="rounded-md bg-warning/15 px-3 py-2 text-sm text-warning">
-            Fuente de datos sin verificar, no usar como precio de referencia confiable.
-          </p>
+          {data?.cuenta_verificada === false ? (
+            <p className="rounded-md bg-warning/15 px-3 py-2 text-sm text-warning">
+              Fuente de datos sin verificar, no usar como precio de referencia confiable.
+            </p>
+          ) : null}
           {cargando ? (
             <p className="text-sm text-muted-foreground">Consultando Contífico…</p>
           ) : data == null ? null : data.resultados.length === 0 ? (

@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import { EmpresaAltaDialog } from "@/components/empresas/EmpresaAltaDialog"
+import { EntityAvatar } from "@/components/entity-avatar"
+import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -105,7 +107,19 @@ export function EmpresasPage() {
                 className="cursor-pointer"
                 onClick={() => navigate(`/empresas/${row.id}`)}
               >
-                <TableCell className="font-medium">{row.nombre}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2.5">
+                    <EntityAvatar
+                      name={row.nombre}
+                      seed={row.id}
+                      kind="empresa"
+                      size="sm"
+                      src={row.logo_url}
+                    />
+                    <span className="font-medium">{row.nombre}</span>
+                    <LinkedInLink href={row.linkedin_url} compact />
+                  </div>
+                </TableCell>
                 <TableCell className="text-muted-foreground">{row.web ?? "—"}</TableCell>
                 <TableCell className="text-muted-foreground">{row.ruc ?? "—"}</TableCell>
                 <TableCell>

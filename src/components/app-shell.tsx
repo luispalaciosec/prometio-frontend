@@ -1,12 +1,15 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom"
 import {
+  Activity,
   Bell,
   Building2,
+  Cake,
   CalendarClock,
   Columns3,
   Inbox,
   LayoutDashboard,
   LayoutList,
+  ScrollText,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -29,6 +32,7 @@ const crmNav: NavItem[] = [
   { to: "/contactos", label: "Contactos", icon: Users },
   { to: "/empresas", label: "Empresas", icon: Building2 },
   { to: "/bandeja", label: "Bandeja", icon: Inbox },
+  { to: "/cumpleanos", label: "Cumpleaños", icon: Cake },
 ]
 
 const negociosNav: NavItem[] = [
@@ -55,11 +59,12 @@ export function AppShell() {
   const isBandeja = location.pathname.startsWith("/bandeja")
   const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
   const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
+  const saludActivo =
+    location.pathname.startsWith("/salud") || location.pathname.startsWith("/auditoria")
 
   return (
     <div className="flex min-h-svh bg-background">
       <aside className="flex w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground">
-        {/* subida real pendiente — por ahora asset fijo */}
         <NavLink to="/" className="px-1">
           <PrometioLogo onDark className="h-7 w-auto" />
         </NavLink>
@@ -100,7 +105,27 @@ export function AppShell() {
               </SidebarSection>
             </>
           ) : null}
-          {isAdmin ? <ConfigSidebar /> : null}
+          {isAdmin ? (
+            <>
+              <SidebarSection title="Salud del sistema" active={saludActivo}>
+                <NavLink
+                  to="/salud"
+                  className={({ isActive }) => sidebarNavClass(isActive)}
+                >
+                  <Activity className="size-4 shrink-0 opacity-80" aria-hidden />
+                  Servicios
+                </NavLink>
+                <NavLink
+                  to="/auditoria"
+                  className={({ isActive }) => sidebarNavClass(isActive)}
+                >
+                  <ScrollText className="size-4 shrink-0 opacity-80" aria-hidden />
+                  Auditoría
+                </NavLink>
+              </SidebarSection>
+              <ConfigSidebar />
+            </>
+          ) : null}
           {!isVentas && !isAdmin ? (
             <p className="px-2 text-sm text-sidebar-foreground/60">
               Este perfil no tiene módulos de ventas ni configuración.

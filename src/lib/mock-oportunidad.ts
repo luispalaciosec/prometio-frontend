@@ -41,6 +41,9 @@ function contactoSeed(
     ciudad: null,
     provincia: null,
     linkedin_url: null,
+    fecha_nacimiento: null,
+    cargo: null,
+    foto_url: null,
     etapa_ciclo_vida: "contacto",
     elegible_marketing: true,
     fuente: null,
@@ -66,6 +69,7 @@ function empresaSeed(id: string, organizacion_id: string, nombre: string): Empre
     sector: null,
     tamano_estimado: null,
     linkedin_url: null,
+    logo_url: null,
     datos_enriquecidos: {},
     propiedades_custom: {},
     created_at: "2026-03-01T15:00:00.000Z",
@@ -160,6 +164,7 @@ function row(
     causa_perdida_secundaria_id: extra?.causa_perdida_secundaria_id ?? null,
     competidor_mencionado: extra?.competidor_mencionado ?? null,
     fecha_ultima_actividad: extra?.fecha_ultima_actividad ?? null,
+    activo: extra?.activo ?? true,
   }
 }
 

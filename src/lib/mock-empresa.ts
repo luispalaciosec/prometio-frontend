@@ -25,6 +25,7 @@ function seed(): Empresa[] {
       sector: null,
       tamano_estimado: null,
       linkedin_url: null,
+      logo_url: null,
       datos_enriquecidos: {},
       propiedades_custom: {},
       created_at,
@@ -39,6 +40,7 @@ function seed(): Empresa[] {
       sector: "Servicios financieros",
       tamano_estimado: "1001-5000",
       linkedin_url: "https://www.linkedin.com/company/banco-andino",
+      logo_url: null,
       datos_enriquecidos: {
         google_resultados: [
           {
@@ -62,6 +64,7 @@ function seed(): Empresa[] {
       sector: null,
       tamano_estimado: null,
       linkedin_url: null,
+      logo_url: null,
       datos_enriquecidos: { enriquecimiento_error: "Timeout de Apify (simulado)." },
       propiedades_custom: {},
       created_at,
@@ -114,6 +117,7 @@ export async function createEmpresa(input: EmpresaCreate): Promise<Empresa> {
     sector: null,
     tamano_estimado: null,
     linkedin_url: null,
+    logo_url: null,
     datos_enriquecidos: {},
     propiedades_custom: {},
     created_at: new Date().toISOString(),

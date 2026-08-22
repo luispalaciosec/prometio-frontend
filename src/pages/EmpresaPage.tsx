@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EntityAvatar } from "@/components/entity-avatar"
+import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -100,7 +102,17 @@ export function EmpresaPage() {
   return (
     <>
       <PageHeader
+        leading={
+          <EntityAvatar
+            name={empresa.nombre}
+            seed={empresa.id}
+            kind="empresa"
+            size="xl"
+            src={empresa.logo_url}
+          />
+        }
         title={empresa.nombre}
+        description={empresa.linkedin_url ? <LinkedInLink href={empresa.linkedin_url} /> : undefined}
         action={
           <div className="flex gap-2">
             {mostrarEnriquecer ? (
@@ -157,14 +169,7 @@ export function EmpresaPage() {
             <dt className="text-xs text-muted-foreground">LinkedIn</dt>
             <dd className="text-sm">
               {empresa.linkedin_url ? (
-                <a
-                  href={empresa.linkedin_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {empresa.linkedin_url}
-                </a>
+                <LinkedInLink href={empresa.linkedin_url} />
               ) : empresa.datos_enriquecidos.linkedin_sin_resultados ? (
                 "Sin resultados en LinkedIn"
               ) : (

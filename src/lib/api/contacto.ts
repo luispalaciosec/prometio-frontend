@@ -20,6 +20,8 @@ function serializarAlta(input: ContactoCreate): ContactoCreate {
     ciudad: vacio(input.ciudad),
     provincia: vacio(input.provincia),
     linkedin_url: vacio(input.linkedin_url),
+    fecha_nacimiento: vacio(input.fecha_nacimiento),
+    cargo: vacio(input.cargo),
     etapa_ciclo_vida: input.etapa_ciclo_vida ?? "contacto",
     elegible_marketing: input.elegible_marketing ?? true,
     fuente: input.fuente ?? "manual",
@@ -84,6 +86,12 @@ export function updateContacto(id: string, input: ContactoUpdate): Promise<Conta
   if (input.linkedin_url !== undefined) {
     body.linkedin_url = vacio(input.linkedin_url)
   }
+  if (input.fecha_nacimiento !== undefined) {
+    body.fecha_nacimiento = vacio(input.fecha_nacimiento)
+  }
+  if (input.cargo !== undefined) {
+    body.cargo = vacio(input.cargo)
+  }
   if (input.etapa_ciclo_vida !== undefined) {
     body.etapa_ciclo_vida = input.etapa_ciclo_vida
   }
@@ -102,6 +110,10 @@ export function desactivarContacto(id: string): Promise<Contacto> {
 
 export function reactivarContacto(id: string): Promise<Contacto> {
   return apiFetch(`/contactos/${id}/reactivar`, { method: "POST" })
+}
+
+export function enriquecerContacto(id: string): Promise<Contacto> {
+  return apiFetch(`/contactos/${id}/enriquecer`, { method: "POST" })
 }
 
 /** Empresas reales para el selector de Contactos. */

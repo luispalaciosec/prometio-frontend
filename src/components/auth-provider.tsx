@@ -1,8 +1,11 @@
 import { useEffect, type ReactNode } from "react"
 
+import { getOrganizacion } from "@/lib/api/organizacion"
 import { fetchPerfil } from "@/lib/perfil-api"
 import { supabase } from "@/lib/supabase"
+import { applyOrganizationTheme, clearOrganizationTheme } from "@/lib/theme"
 import { useAuthStore } from "@/store/auth-store"
+import { useOrgStore } from "@/store/org-store"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const setSession = useAuthStore((state) => state.setSession)
@@ -22,6 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return
         }
         setPerfil(null)
+        useOrgStore.getState().setOrganizacion(null)
+        clearOrganizationTheme()
         setLoading(false)
         return
       }
@@ -30,6 +35,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
       setPerfil(perfil)
+      try {
+        const org = await getOrganizacion()
+        if (cancelled) {
+          return
+        }
+        useOrgStore.getState().setOrganizacion(org)
+        applyOrganizationTheme({
+          primary: org.color_primario,
+          secondary: org.color_secundario,
+        })
+      } catch {
+        if (!cancelled) {
+          useOrgStore.getState().setOrganizacion(null)
+          clearOrganizationTheme()
+        }
+      }
       setLoading(false)
     }
 

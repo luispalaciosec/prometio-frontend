@@ -21,6 +21,7 @@ export type Empresa = {
   sector: string | null
   tamano_estimado: string | null
   linkedin_url: string | null
+  logo_url: string | null
   datos_enriquecidos: DatosEnriquecidos
   propiedades_custom: Record<string, unknown>
   created_at: string
