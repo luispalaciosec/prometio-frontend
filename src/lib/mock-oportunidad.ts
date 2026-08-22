@@ -24,6 +24,37 @@ import type {
 import type { Perfil } from "@/types/perfil"
 import { ETAPA_PIPELINE_CODIGOS, type EtapaPipelineCodigo } from "@/types/etapa-pipeline"
 
+function contactoSeed(
+  id: string,
+  organizacion_id: string,
+  nombre_completo: string,
+  empresa_id: string,
+): Contacto {
+  return {
+    id,
+    organizacion_id,
+    nombre_completo,
+    email_trabajo: null,
+    telefono_movil: null,
+    empresa_id,
+    producto_interes: null,
+    ciudad: null,
+    provincia: null,
+    linkedin_url: null,
+    etapa_ciclo_vida: "contacto",
+    elegible_marketing: true,
+    fuente: null,
+    fclid: null,
+    gclid: null,
+    utm_source: null,
+    utm_medium: null,
+    utm_campaign: null,
+    propiedades_custom: {},
+    activo: true,
+    created_at: "2026-03-01T15:00:00.000Z",
+  }
+}
+
 function empresaSeed(id: string, organizacion_id: string, nombre: string): Empresa {
   return {
     id,
@@ -58,16 +89,16 @@ type MockDb = {
 function seed(): MockDb {
   const org = MOCK_ORGANIZACION_ID
   const contactos: Contacto[] = [
-    { id: "ct-1", organizacion_id: org, nombre_completo: "María Cevallos", empresa_id: "em-1" },
-    { id: "ct-2", organizacion_id: org, nombre_completo: "Andrés Paredes", empresa_id: "em-2" },
-    { id: "ct-3", organizacion_id: org, nombre_completo: "Sofía Andrade", empresa_id: "em-3" },
-    { id: "ct-4", organizacion_id: org, nombre_completo: "Diego Molina", empresa_id: "em-4" },
-    { id: "ct-5", organizacion_id: org, nombre_completo: "Paula Ríos", empresa_id: "em-5" },
-    { id: "ct-6", organizacion_id: org, nombre_completo: "Luis Benítez", empresa_id: "em-6" },
-    { id: "ct-7", organizacion_id: org, nombre_completo: "Carolina Vega", empresa_id: "em-7" },
-    { id: "ct-8", organizacion_id: org, nombre_completo: "José Cárdenas", empresa_id: "em-8" },
-    { id: "ct-9", organizacion_id: org, nombre_completo: "Elena Suárez", empresa_id: "em-9" },
-    { id: "ct-10", organizacion_id: org, nombre_completo: "Marco Hidalgo", empresa_id: "em-10" },
+    contactoSeed("ct-1", org, "María Cevallos", "em-1"),
+    contactoSeed("ct-2", org, "Andrés Paredes", "em-2"),
+    contactoSeed("ct-3", org, "Sofía Andrade", "em-3"),
+    contactoSeed("ct-4", org, "Diego Molina", "em-4"),
+    contactoSeed("ct-5", org, "Paula Ríos", "em-5"),
+    contactoSeed("ct-6", org, "Luis Benítez", "em-6"),
+    contactoSeed("ct-7", org, "Carolina Vega", "em-7"),
+    contactoSeed("ct-8", org, "José Cárdenas", "em-8"),
+    contactoSeed("ct-9", org, "Elena Suárez", "em-9"),
+    contactoSeed("ct-10", org, "Marco Hidalgo", "em-10"),
   ]
   const empresas: Empresa[] = [
     empresaSeed("em-1", org, "Café de Altura"),

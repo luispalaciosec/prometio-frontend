@@ -12,6 +12,7 @@ const ventasNav = [
   { to: "/pipeline", label: "Pipeline" },
   { to: "/bandeja", label: "Bandeja" },
   { to: "/empresas", label: "Empresas" },
+  { to: "/contactos", label: "Contactos" },
   { to: "/alertas", label: "Alertas" },
   { to: "/dashboard", label: "Dashboard" },
 ]

@@ -12,7 +12,9 @@ import { BandejaPage } from "@/pages/BandejaPage"
 import { CausasPerdidaPage } from "@/pages/CausasPerdidaPage"
 import { ConfiguracionPage } from "@/pages/ConfiguracionPage"
 import { ConectoresPage } from "@/pages/ConectoresPage"
-import { DashboardPlaceholderPage } from "@/pages/DashboardPlaceholderPage"
+import { ContactoPage } from "@/pages/ContactoPage"
+import { ContactosPage } from "@/pages/ContactosPage"
+import { DashboardPage } from "@/pages/DashboardPage"
 import { EmpresaPage } from "@/pages/EmpresaPage"
 import { EmpresasPage } from "@/pages/EmpresasPage"
 import { EtapasConfigPage } from "@/pages/EtapasConfigPage"
@@ -98,6 +100,22 @@ export default function App() {
                 }
               />
               <Route
+                path="/contactos"
+                element={
+                  <VentasRoute>
+                    <ContactosPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/contactos/:id"
+                element={
+                  <VentasRoute>
+                    <ContactoPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
                 path="/alertas"
                 element={
                   <VentasRoute>
@@ -109,7 +127,7 @@ export default function App() {
                 path="/dashboard"
                 element={
                   <VentasRoute>
-                    <DashboardPlaceholderPage />
+                    <DashboardPage />
                   </VentasRoute>
                 }
               />

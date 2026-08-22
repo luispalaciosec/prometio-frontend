@@ -5,6 +5,9 @@ export { TIPOS_ACTIVIDAD, TIPO_ACTIVIDAD_LABELS } from "./actividad"
 export type { CausaPerdida } from "./causa-perdida"
 export type { Conversacion, Mensaje, CanalConversacion } from "./conversacion"
 export { CANALES_CONVERSACION, CANAL_LABELS } from "./conversacion"
+export type { Contacto, ContactoCreate, ContactoUpdate, EtapaCicloVida } from "./contacto"
+export { ETAPAS_CICLO_VIDA, ETAPA_CICLO_LABELS } from "./contacto"
+export type { DashboardKPIs } from "./dashboard"
 export type {
   DatosEnriquecidos,
   Empresa,
