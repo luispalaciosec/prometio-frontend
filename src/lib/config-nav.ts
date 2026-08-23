@@ -67,7 +67,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/meta-comercial",
         label: "Meta comercial",
-        body: "Meta de ventas total y por vendedor. Contrato con el backend todavía no cerrado.",
+        body: "Meta de la agencia y por vendedor, mensual o trimestral.",
         icon: Target,
       },
       {
@@ -84,7 +84,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/marca",
         label: "Marca",
-        body: "Logo y colores de la organización. POST /organizacion/logo y PATCH /organizacion.",
+        body: "Logo claro y oscuro, colores y contacto de la organización.",
         icon: Palette,
       },
       {

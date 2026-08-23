@@ -24,6 +24,18 @@ export function fromDatetimeLocalValue(raw: string): string | null {
   return date.toISOString()
 }
 
+/** Fecha `YYYY-MM-DD` sin correr el día por zona horaria. */
+export function formatDateOnly(isoDate: string | null | undefined): string {
+  if (!isoDate) {
+    return "—"
+  }
+  const [year, month, day] = isoDate.slice(0, 10).split("-").map(Number)
+  if (!year || !month || !day) {
+    return "—"
+  }
+  return new Date(year, month - 1, day).toLocaleDateString("es-EC", { dateStyle: "medium" })
+}
+
 export function formatDateTime(iso: string | null): string {
   if (!iso) {
     return "—"

@@ -6,30 +6,39 @@ export function readThemeHex(name: `--${string}`): string | null {
   return HEX6.test(raw) ? raw : null
 }
 
+function aplicarToken(name: `--${string}`, value: string | null | undefined) {
+  const root = document.documentElement
+  if (value) {
+    root.style.setProperty(name, value)
+    return
+  }
+  if (value === null) {
+    root.style.removeProperty(name)
+  }
+}
+
 /**
- * Applies organization brand colors as CSS variables.
- * Wired to GET /organizacion (`color_primario` / `color_secundario`).
- * Defaults live in index.css (paleta D). Do not hardcode hex in components.
+ * Aplica colores de marca de GET /organizacion.
+ * primario → --primary, secundario → --secondary,
+ * terciario → --highlight, cuaternario → --sidebar.
+ * Defaults en index.css (paleta D). Sin hex en componentes.
  */
 export function applyOrganizationTheme(colors: {
   primary?: string | null
   secondary?: string | null
+  tertiary?: string | null
+  quaternary?: string | null
 }) {
-  const root = document.documentElement
-  if (colors.primary) {
-    root.style.setProperty("--primary", colors.primary)
-  } else if (colors.primary === null) {
-    root.style.removeProperty("--primary")
-  }
-  if (colors.secondary) {
-    root.style.setProperty("--secondary", colors.secondary)
-  } else if (colors.secondary === null) {
-    root.style.removeProperty("--secondary")
-  }
+  aplicarToken("--primary", colors.primary)
+  aplicarToken("--secondary", colors.secondary)
+  aplicarToken("--highlight", colors.tertiary)
+  aplicarToken("--sidebar", colors.quaternary)
 }
 
 export function clearOrganizationTheme() {
   const root = document.documentElement
   root.style.removeProperty("--primary")
   root.style.removeProperty("--secondary")
+  root.style.removeProperty("--highlight")
+  root.style.removeProperty("--sidebar")
 }

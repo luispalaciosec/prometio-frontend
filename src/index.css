@@ -9,7 +9,7 @@
   --foreground #06080b · rampa --brand-teal/--brand-shadow/--brand-deep/--brand-navy
   Semáforo: --warning #C9842A, --destructive del sistema.
   Kind (tipos de entidad): --kind-* alias de paleta D + --kind-email propio. Hex solo acá.
-  organizacion.color_* podrá pisar --primary/--secondary cuando exista la API.
+  organizacion.color_* pisa --primary/--secondary/--highlight/--sidebar.
 */
 
 @custom-variant dark (&:is(.dark *));

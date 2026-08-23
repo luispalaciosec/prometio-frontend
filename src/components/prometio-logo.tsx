@@ -1,5 +1,6 @@
 /**
- * Logo de la organización. Si no hay logo_url, usa el mark fijo de prometIO.
+ * Logo de la organización. Sobre oscuro usa logo_url_oscuro (o el claro si no hay).
+ * Si no hay ninguno, el mark fijo de prometIO.
  */
 import { useOrgStore } from "@/store/org-store"
 
@@ -12,12 +13,13 @@ export function PrometioLogo({
 }) {
   const org = useOrgStore((state) => state.organizacion)
   const wordmark = org?.nombre || "prometIO"
+  const src = onDark ? (org?.logo_url_oscuro ?? org?.logo_url) : org?.logo_url
 
   return (
     <span className={`inline-flex items-center gap-2 ${className ?? ""}`}>
-      {org?.logo_url ? (
+      {src ? (
         <img
-          src={org.logo_url}
+          src={src}
           alt=""
           className="h-7 w-auto max-w-28 shrink-0 object-contain"
         />

@@ -33,6 +33,8 @@ import { SaludPage } from "@/pages/SaludPage"
 import { SeoPage } from "@/pages/SeoPage"
 import { ServiciosPage } from "@/pages/ServiciosPage"
 import { TarifasInternasPage } from "@/pages/TarifasInternasPage"
+import { TimelinePage } from "@/pages/TimelinePage"
+import { CuentaPage } from "@/pages/CuentaPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
 
 export default function App() {
@@ -58,6 +60,7 @@ export default function App() {
               }
             >
               <Route path="/" element={<HomePage />} />
+              <Route path="/cuenta" element={<CuentaPage />} />
               <Route
                 path="/pipeline"
                 element={
@@ -143,6 +146,14 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <ActividadesPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/agenda/timeline"
+                element={
+                  <VentasRoute>
+                    <TimelinePage />
                   </VentasRoute>
                 }
               />

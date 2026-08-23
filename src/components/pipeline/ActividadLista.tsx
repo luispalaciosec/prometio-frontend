@@ -2,6 +2,7 @@ import { CalendarClock } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { Skeleton } from "@/components/skeleton"
+import { ActividadCalendarEstado } from "@/components/pipeline/ActividadCalendarEstado"
 import { ActividadForm, type ActividadFormValores } from "@/components/pipeline/ActividadForm"
 import { ActividadReportar } from "@/components/pipeline/ActividadReportar"
 import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
@@ -21,6 +22,7 @@ export function ActividadLista({
   onBorrar,
   onGuardarEdicion,
   onConfirmarReporte,
+  onSincronizar,
   onCancelar,
 }: {
   actividades: Actividad[]
@@ -33,6 +35,7 @@ export function ActividadLista({
   onBorrar: (id: string) => void
   onGuardarEdicion: (id: string, input: ActividadFormValores) => void
   onConfirmarReporte: (id: string, input: { reportada_en: string; feedback: string }) => void
+  onSincronizar?: (id: string) => void
   onCancelar: () => void
 }) {
   if (cargando) {
@@ -94,10 +97,7 @@ export function ActividadLista({
                 {actividad.feedback ? (
                   <p className="text-ui">{actividad.feedback}</p>
                 ) : null}
-                <p className="text-kicker">
-                  Calendar {actividad.google_calendar_event_id ?? "—"} · Meet{" "}
-                  {actividad.google_meet_url ?? "—"}
-                </p>
+                <ActividadCalendarEstado actividad={actividad} onSincronizar={onSincronizar} />
               </div>
               <div className="flex gap-1">
                 {pendiente ? (

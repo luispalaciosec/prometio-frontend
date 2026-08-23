@@ -44,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         applyOrganizationTheme({
           primary: org.color_primario,
           secondary: org.color_secundario,
+          tertiary: org.color_terciario,
+          quaternary: org.color_cuaternario,
         })
       } catch {
         if (!cancelled) {

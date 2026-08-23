@@ -31,5 +31,6 @@ export type Actividad = {
   audio_url: string | null
   google_calendar_event_id: string | null
   google_meet_url: string | null
+  google_calendar_sync_error: string | null
   created_at: string
 }

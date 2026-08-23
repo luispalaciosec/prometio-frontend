@@ -115,3 +115,7 @@ export function reportarActividad(input: {
 export function deleteActividad(input: { perfil: Perfil; id: string }): Promise<void> {
   return apiFetch(`/actividades/${input.id}`, { method: "DELETE" })
 }
+
+export function sincronizarCalendar(id: string): Promise<Actividad> {
+  return apiFetch(`/actividades/${id}/sincronizar-calendar`, { method: "POST" })
+}

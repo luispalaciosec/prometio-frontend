@@ -144,6 +144,7 @@ export async function createActividad(input: CrearActividadInput): Promise<Activ
     audio_url: null,
     google_calendar_event_id: null,
     google_meet_url: null,
+    google_calendar_sync_error: null,
     created_at: new Date().toISOString(),
   }
   db.actividades = [created, ...db.actividades]

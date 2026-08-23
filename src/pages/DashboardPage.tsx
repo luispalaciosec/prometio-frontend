@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
+import { DashboardMetas } from "@/components/dashboard/DashboardMetas"
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
 import { PageHeader } from "@/components/page-header"
@@ -138,6 +139,12 @@ export function DashboardPage() {
               tone="bg-highlight/15 text-highlight"
             />
           </div>
+          {kpis.metas ? (
+            <DashboardMetas
+              metas={kpis.metas}
+              puedeConfigurar={perfil?.equipo === "administrativo"}
+            />
+          ) : null}
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>
             <PipelineBarras rows={kpis.pipeline_por_etapa} />

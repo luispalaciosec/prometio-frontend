@@ -6,6 +6,7 @@ import {
   Cake,
   Calendar,
   CalendarClock,
+  CircleUser,
   Columns3,
   History,
   Inbox,
@@ -115,13 +116,14 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
                   Próximamente
                 </span>
               </div>
-              <div className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground/40">
+              <NavLink
+                to="/agenda/timeline"
+                onClick={onNavigate}
+                className={({ isActive }) => sidebarNavClass(isActive)}
+              >
                 <History className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                <span className="min-w-0 flex-1">Timeline</span>
-                <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
-                  Próximamente
-                </span>
-              </div>
+                Timeline
+              </NavLink>
             </SidebarSection>
           </>
         ) : null}
@@ -167,7 +169,11 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
         ) : null}
       </nav>
       <div className="mt-auto space-y-2 border-t border-sidebar-border pt-4">
-        <p className="truncate px-2 text-kicker text-sidebar-foreground/60">
+        <NavLink to="/cuenta" onClick={onNavigate} className={({ isActive }) => sidebarNavClass(isActive)}>
+          <CircleUser className="size-[18px] shrink-0 opacity-80" aria-hidden />
+          Mi cuenta
+        </NavLink>
+        <p className="truncate px-2 text-micro text-sidebar-foreground/60">
           {perfil?.email ?? user?.email}
         </p>
         <div className="flex items-center justify-between px-1">

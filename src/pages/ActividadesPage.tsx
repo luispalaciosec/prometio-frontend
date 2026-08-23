@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { CalendarClock } from "lucide-react"
 
@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { listActividades } from "@/lib/api/actividad"
+import { getEstadoCalendar } from "@/lib/api/google-calendar"
 import { listContactos } from "@/lib/api/contacto"
 import { listPerfiles, listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles"
 import { formatDateTime } from "@/lib/datetime-local"
@@ -48,6 +49,7 @@ export function ActividadesPage() {
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
   const [responsableId, setResponsableId] = useState<string | null>(null)
+  const [calendarConectado, setCalendarConectado] = useState<boolean | null>(null)
 
   async function reload(filtro?: { desde: string; hasta: string; responsable_id: string | null }) {
     if (!perfil) {
@@ -122,6 +124,17 @@ export function ActividadesPage() {
         .then(setEjecutivos)
         .catch(() => setEjecutivos([]))
     }
+    void getEstadoCalendar()
+      .then((estado) => {
+        if (!cancelled) {
+          setCalendarConectado(estado.conectado)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCalendarConectado(null)
+        }
+      })
     return () => {
       cancelled = true
     }
@@ -139,6 +152,15 @@ export function ActividadesPage() {
   return (
     <>
       <PageHeader title="Actividades" description={tituloRango} />
+      {calendarConectado === false ? (
+        <p className="mb-4 text-kicker">
+          Las visitas y videollamadas no llegan a Google Calendar hasta que lo conectés en{" "}
+          <Link to="/cuenta" className="text-primary underline-offset-4 hover:underline">
+            Mi cuenta
+          </Link>
+          .
+        </p>
+      ) : null}
       <form
         className="filter-bar"
         onSubmit={(event) => {

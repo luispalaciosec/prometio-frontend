@@ -9,6 +9,7 @@ import {
   deleteActividad,
   listActividades,
   reportarActividad,
+  sincronizarCalendar,
   updateActividad,
 } from "@/lib/api/actividad"
 import { useAuthStore } from "@/store/auth-store"
@@ -106,6 +107,16 @@ export function ActividadesSection({
     }
   }
 
+  async function sincronizar(id: string) {
+    try {
+      await sincronizarCalendar(id)
+      toast.success("Sincronizada con Calendar.")
+      await reload()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo sincronizar con Calendar.")
+    }
+  }
+
   async function borrar(id: string) {
     if (!perfil) {
       return
@@ -184,6 +195,7 @@ export function ActividadesSection({
         onBorrar={(id) => void borrar(id)}
         onGuardarEdicion={(id, input) => void guardarEdicion(id, input)}
         onConfirmarReporte={(id, input) => void confirmarReporte(id, input)}
+        onSincronizar={(id) => void sincronizar(id)}
         onCancelar={resetAcciones}
       />
     </section>

@@ -17,3 +17,9 @@ export function uploadLogoOrganizacion(file: File): Promise<Organizacion> {
   body.append("file", file)
   return apiFetch("/organizacion/logo", { method: "POST", body })
 }
+
+export function uploadLogoOscuroOrganizacion(file: File): Promise<Organizacion> {
+  const body = new FormData()
+  body.append("file", file)
+  return apiFetch("/organizacion/logo-oscuro", { method: "POST", body })
+}
