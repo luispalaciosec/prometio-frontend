@@ -1,3 +1,11 @@
+const HEX6 = /^#[0-9A-Fa-f]{6}$/
+
+/** Lee un token de tema. Solo devuelve hex si el token está en #RRGGBB (el input nativo lo exige). */
+export function readThemeHex(name: `--${string}`): string | null {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return HEX6.test(raw) ? raw : null
+}
+
 /**
  * Applies organization brand colors as CSS variables.
  * Wired to GET /organizacion (`color_primario` / `color_secundario`).

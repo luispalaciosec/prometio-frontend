@@ -11,7 +11,7 @@ import {
   updateOrganizacion,
   uploadLogoOrganizacion,
 } from "@/lib/api/organizacion"
-import { applyOrganizationTheme } from "@/lib/theme"
+import { applyOrganizationTheme, readThemeHex } from "@/lib/theme"
 import { useOrgStore } from "@/store/org-store"
 import type { Organizacion } from "@/types/organizacion"
 
@@ -172,23 +172,27 @@ function ColorField({
   value: string
   onChange: (value: string) => void
 }) {
-  const picker = HEX.test(value) ? value : "#05729f"
+  const picker = HEX.test(value) ? value : readThemeHex("--primary")
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={id}>{label}</Label>
       <div className="flex items-center gap-2">
-        <input
-          type="color"
-          aria-label={label}
-          value={picker}
-          onChange={(event) => onChange(event.target.value)}
-          className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-background p-0.5"
-        />
+        {picker ? (
+          <input
+            type="color"
+            aria-label={label}
+            value={picker}
+            onChange={(event) => onChange(event.target.value)}
+            className="size-8 shrink-0 cursor-pointer rounded-md border border-border bg-background p-0.5"
+          />
+        ) : (
+          <span className="size-8 shrink-0 rounded-md border border-border bg-primary" aria-hidden />
+        )}
         <Input
           id={id}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="#05729F"
+          placeholder="#RRGGBB"
           className="font-mono uppercase"
         />
       </div>
