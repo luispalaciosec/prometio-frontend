@@ -10,6 +10,7 @@ import {
   Percent,
   Plug,
   Search,
+  Target,
 } from "lucide-react"
 
 export type ConfigNavItem = {
@@ -62,6 +63,12 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         label: "Márgenes e impuestos",
         body: "margen_agencia_default_pct, comisión de agencia (rango) y tasa_impuesto_pct.",
         icon: Percent,
+      },
+      {
+        to: "/configuracion/meta-comercial",
+        label: "Meta comercial",
+        body: "Meta de ventas total y por vendedor. Contrato con el backend todavía no cerrado.",
+        icon: Target,
       },
       {
         to: "/configuracion/causas-perdida",

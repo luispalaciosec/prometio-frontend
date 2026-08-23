@@ -25,6 +25,7 @@ import { HomePage } from "@/pages/HomePage"
 import { LoginPage } from "@/pages/LoginPage"
 import { MarcaPage } from "@/pages/MarcaPage"
 import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
+import { MetaComercialPage } from "@/pages/MetaComercialPage"
 import { PipelinePage } from "@/pages/PipelinePage"
 import { OportunidadPage } from "@/pages/OportunidadPage"
 import { SaludPage } from "@/pages/SaludPage"
@@ -237,6 +238,14 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <MargenesConfigPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/configuracion/meta-comercial"
+                element={
+                  <AdminRoute>
+                    <MetaComercialPage />
                   </AdminRoute>
                 }
               />
