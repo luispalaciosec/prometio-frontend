@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { CircleOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -76,6 +78,26 @@ export function CausasPerdidaPage() {
           </Button>
         }
       />
+      {rows.length === 0 ? (
+        <EmptyState
+          icon={CircleOff}
+          title="Sin causas"
+          body="Cierre Perdido pide causa principal. Armá el catálogo acá."
+          action={
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDraft({ nombre: "" })
+                setOpen(true)
+              }}
+            >
+              Nueva causa
+            </Button>
+          }
+        />
+      ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -86,7 +108,7 @@ export function CausasPerdidaPage() {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
-              <TableCell className="font-medium">{row.nombre}</TableCell>
+              <TableCell className="text-ui-medium">{row.nombre}</TableCell>
               <TableCell className="text-right">
                 <Button
                   variant="ghost"
@@ -115,6 +137,7 @@ export function CausasPerdidaPage() {
           ))}
         </TableBody>
       </Table>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

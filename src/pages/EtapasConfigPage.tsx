@@ -107,7 +107,7 @@ export function EtapasConfigPage() {
           disabled={!general}
           onChange={(event) => setMultiplicador(event.target.value)}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-kicker">
           Vive en configuracion_general, no en etapa_pipeline.{" "}
           {general
             ? "2× el umbral escala al supervisor."

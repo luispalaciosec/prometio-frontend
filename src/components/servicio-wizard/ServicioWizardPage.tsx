@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
 import { PageHeader } from "@/components/page-header"
+import { DetailSkeleton } from "@/components/skeleton"
 import {
   PASO_TITULO,
   PasoConfigFee,
@@ -103,7 +104,7 @@ export function ServicioWizardPage() {
   }, [draft, paso, visibles])
 
   if (!draft) {
-    return <p className="text-sm text-muted-foreground">Cargando wizard…</p>
+    return <DetailSkeleton />
   }
 
   const current = draft
@@ -209,7 +210,7 @@ export function ServicioWizardPage() {
         }
       />
 
-      <ol className="mb-8 flex flex-wrap gap-2 text-xs">
+      <ol className="mb-8 flex flex-wrap gap-2 text-kicker">
         {visibles.map((item) => (
           <li key={item}>
             <button

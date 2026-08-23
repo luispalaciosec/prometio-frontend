@@ -13,8 +13,8 @@ export function HomePlaceholderPage() {
   return (
     <div className="max-w-lg space-y-4">
       <PrometioLogo />
-      <h1 className="font-heading text-2xl tracking-tight">Sesión iniciada</h1>
-      <p className="text-sm text-muted-foreground">
+      <h1 className="text-page">Sesión iniciada</h1>
+      <p className="text-kicker">
         {perfil?.nombre_completo ?? user?.email}. Equipo:{" "}
         {perfil?.equipo ?? "sin perfil todavía"}.
       </p>
@@ -31,7 +31,7 @@ export function HomePlaceholderPage() {
         ) : null}
       </div>
       {!isVentas && !isAdmin ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-kicker">
           El pipeline es para <code>equipo = ventas</code> o <code>administrativo</code>.
           El Panel de Configuración es solo para administrativo.
         </p>

@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
+import { Bell } from "lucide-react"
+
+import { EmptyState } from "@/components/empty-state"
 import { AlertaEstadoBadge } from "@/components/alertas/AlertaEstadoBadge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -82,9 +85,11 @@ export function AlertaLista({
 
   if (alertas.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Todo al día — ninguna oportunidad requiere atención
-      </p>
+      <EmptyState
+        icon={Bell}
+        title="Todo al día"
+        body="Ninguna oportunidad cruzó el umbral de estancamiento."
+      />
     )
   }
 
@@ -162,11 +167,15 @@ export function AlertaLista({
         ) : null}
       </div>
       {filtradas.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {hayFiltro
-            ? "Ninguna alerta coincide con los filtros."
-            : "Todo al día — ninguna oportunidad requiere atención"}
-        </p>
+        <EmptyState
+          icon={Bell}
+          title={hayFiltro ? "Nada coincide" : "Todo al día"}
+          body={
+            hayFiltro
+              ? "Ninguna alerta pasa esos filtros."
+              : "Ninguna oportunidad cruzó el umbral de estancamiento."
+          }
+        />
       ) : (
         <Table>
           <TableHeader>
@@ -194,7 +203,7 @@ export function AlertaLista({
                 <TableCell>
                   <AlertaEstadoBadge estado={alerta.estado_alerta} />
                 </TableCell>
-                <TableCell className="font-medium">{alerta.contactoNombre}</TableCell>
+                <TableCell className="text-ui-medium">{alerta.contactoNombre}</TableCell>
                 <TableCell>{alerta.empresaNombre}</TableCell>
                 <TableCell>{alerta.etapaNombre}</TableCell>
                 <TableCell>{alerta.ejecutivoNombre}</TableCell>

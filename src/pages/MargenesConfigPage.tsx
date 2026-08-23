@@ -186,7 +186,7 @@ export function MargenesConfigPage() {
             value={form[field.key]}
             onChange={(event) => setField(field.key, event.target.value)}
           />
-          <p className="text-xs text-muted-foreground">{field.hint}</p>
+          <p className="text-kicker">{field.hint}</p>
         </div>
       ))}
       <div className="flex flex-col gap-2">
@@ -200,7 +200,7 @@ export function MargenesConfigPage() {
           value={tasaRaw}
           onChange={(event) => setTasaRaw(event.target.value)}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-kicker">
           Obligatoria al crear. Nunca se inventa una tasa de IVA.
         </p>
       </div>

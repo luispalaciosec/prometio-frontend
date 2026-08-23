@@ -127,13 +127,13 @@ export function AppShell() {
             </>
           ) : null}
           {!isVentas && !isAdmin ? (
-            <p className="px-2 text-sm text-sidebar-foreground/60">
+            <p className="px-2 text-kicker text-sidebar-foreground/60">
               Este perfil no tiene módulos de ventas ni configuración.
             </p>
           ) : null}
         </nav>
         <div className="mt-auto space-y-2 border-t border-sidebar-border pt-4">
-          <p className="truncate px-2 text-xs text-sidebar-foreground/60">
+          <p className="truncate px-2 text-kicker text-sidebar-foreground/60">
             {perfil?.email ?? user?.email}
           </p>
           <div className="flex items-center justify-between px-1">

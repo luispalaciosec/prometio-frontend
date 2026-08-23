@@ -14,16 +14,16 @@ export function ConfiguracionPage() {
       <div className="space-y-8">
         {CONFIG_NAV_GROUPS.map((group) => (
           <section key={group.title} className="space-y-3">
-            <h2 className="font-heading text-base tracking-tight">{group.title}</h2>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <h2 className="text-section">{group.title}</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
               {group.items.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
-                  className="rounded-xl p-4 ring-1 ring-foreground/10 transition-colors duration-150 hover:bg-muted/50 hover:ring-primary/20"
+                  className="rounded-xl p-4 ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20"
                 >
-                  <p className="font-medium">{item.label}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.body}</p>
+                  <p className="text-ui-medium">{item.label}</p>
+                  <p className="mt-1 text-kicker">{item.body}</p>
                   <Button variant="link" className="mt-2 h-auto px-0">
                     Abrir
                   </Button>

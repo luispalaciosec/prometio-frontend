@@ -58,3 +58,40 @@ export function OportunidadSkeleton() {
     </div>
   )
 }
+
+export function TableSkeleton({ rows = 6 }: { rows?: number }) {
+  return (
+    <div className="space-y-2" aria-hidden>
+      {Array.from({ length: rows }, (_, row) => (
+        <Skeleton key={row} className="h-8 w-full" />
+      ))}
+    </div>
+  )
+}
+
+export function DetailSkeleton() {
+  return (
+    <div className="space-y-8" aria-hidden>
+      <div className="space-y-2">
+        <Skeleton className="h-7 w-56" />
+        <Skeleton className="h-3 w-40" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    </div>
+  )
+}
+
+export function TilesSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2" aria-hidden>
+      {Array.from({ length: count }, (_, tile) => (
+        <Skeleton key={tile} className="h-[88px] rounded-xl" />
+      ))}
+    </div>
+  )
+}

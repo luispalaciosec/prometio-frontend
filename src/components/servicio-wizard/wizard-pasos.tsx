@@ -346,7 +346,7 @@ export function PasoMargenes({
 }) {
   return (
     <div className="grid max-w-lg gap-4">
-      <p className="text-sm text-muted-foreground">
+      <p className="text-kicker">
         Hereda configuracion_general (margen_agencia_default_pct / comision_agencia_default_*).
         El override del servicio usa margen_default_pct y comision_sugerida_* — nombres distintos a propósito.
       </p>

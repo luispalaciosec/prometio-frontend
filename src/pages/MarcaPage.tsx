@@ -100,10 +100,10 @@ export function MarcaPage() {
       />
       <div className="space-y-8">
         <section className="space-y-3">
-          <h2 className="font-heading text-base tracking-tight">Logo</h2>
+          <h2 className="text-section">Logo</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl bg-background p-6 ring-1 ring-border">
-              <p className="mb-4 text-xs text-muted-foreground">Sobre claro</p>
+              <p className="mb-4 text-kicker">Sobre claro</p>
               <PrometioLogo className="h-8 w-auto" />
             </div>
             <div className="rounded-xl bg-sidebar p-6">
@@ -124,11 +124,11 @@ export function MarcaPage() {
                 void subirLogo(file)
               }}
             />
-            <p className="text-xs text-muted-foreground">PNG, JPEG, WebP o SVG. Máximo 2 MB.</p>
+            <p className="text-kicker">PNG, JPEG, WebP o SVG. Máximo 2 MB.</p>
           </div>
         </section>
         <section className="space-y-4">
-          <h2 className="font-heading text-base tracking-tight">Colores</h2>
+          <h2 className="text-section">Colores</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <ColorField
               id="marca-primario"

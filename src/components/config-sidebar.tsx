@@ -39,7 +39,7 @@ export function ConfigSidebar() {
       {open
         ? CONFIG_NAV_GROUPS.map((group) => (
             <div key={group.title} className="mt-2">
-              <p className="px-2 pb-1 text-[0.65rem] font-medium tracking-wider text-sidebar-foreground/45 uppercase">
+              <p className="px-2 pb-1 text-micro uppercase tracking-[0.04em] text-sidebar-foreground/45">
                 {group.title}
               </p>
               <div className="flex flex-col gap-0.5">

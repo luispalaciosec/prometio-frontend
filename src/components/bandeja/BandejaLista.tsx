@@ -1,3 +1,6 @@
+import { Inbox } from "lucide-react"
+
+import { EmptyState } from "@/components/empty-state"
 import { CANAL_LABELS, type CanalConversacion, type Conversacion } from "@/types/conversacion"
 import { cn } from "@/lib/utils"
 
@@ -26,9 +29,12 @@ export function BandejaLista({
 }) {
   if (conversaciones.length === 0) {
     return (
-      <p className="px-3 py-6 text-sm text-muted-foreground">
-        No hay conversaciones en este alcance.
-      </p>
+      <EmptyState
+        icon={Inbox}
+        title="Bandeja vacía"
+        body="No hay conversaciones en este alcance."
+        className="px-3"
+      />
     )
   }
 
@@ -49,21 +55,21 @@ export function BandejaLista({
               )}
             >
               <div className="flex items-baseline justify-between gap-2">
-                <span className="truncate text-sm font-medium">
+                <span className="truncate text-ui-medium">
                   {row.remitente_nombre ?? row.remitente_identificador ?? "Sin nombre"}
                 </span>
                 <span
                   className={cn(
-                    "shrink-0 text-[0.7rem]",
+                    "shrink-0 text-micro",
                     row.estado === "cerrada" ? "text-muted-foreground" : "text-primary",
                   )}
                 >
                   {row.estado}
                 </span>
               </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">{etiquetaCanal(row.canal)}</p>
-              <p className="mt-1 truncate text-xs text-muted-foreground">{ultimoMensaje(row)}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-0.5 text-kicker">{etiquetaCanal(row.canal)}</p>
+              <p className="mt-1 truncate text-kicker">{ultimoMensaje(row)}</p>
+              <p className="mt-1 text-kicker">
                 {row.asignado_a
                   ? nombresAsignados.get(row.asignado_a) ?? "Asignada"
                   : "Sin asignar"}

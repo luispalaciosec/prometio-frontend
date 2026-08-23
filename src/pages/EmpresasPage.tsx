@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
+import { TableSkeleton } from "@/components/skeleton"
 import { EmpresaAltaDialog } from "@/components/empresas/EmpresaAltaDialog"
 import { EntityAvatar } from "@/components/entity-avatar"
 import { LinkedInLink } from "@/components/linkedin-link"
@@ -21,6 +23,7 @@ import {
 import { createEmpresa, listEmpresas } from "@/lib/api/empresa"
 import { coincideTexto } from "@/lib/lista-filtros"
 import { puedeEnriquecer, type Empresa, type EmpresaCreate } from "@/types/empresa"
+import { Building2 } from "lucide-react"
 
 export function EmpresasPage() {
   const navigate = useNavigate()
@@ -73,7 +76,7 @@ export function EmpresasPage() {
           </Button>
         }
       />
-      <div className="mb-4 flex max-w-sm flex-col gap-2">
+      <div className="mb-6 flex max-w-sm flex-col gap-2">
         <Label htmlFor="empresa-busqueda">Buscar</Label>
         <Input
           id="empresa-busqueda"
@@ -83,13 +86,24 @@ export function EmpresasPage() {
         />
       </div>
       {rows == null ? (
-        <p className="text-sm text-muted-foreground">Cargando empresas…</p>
+        <TableSkeleton />
       ) : filtradas.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          {rows.length === 0
-            ? "No hay empresas todavía."
-            : "Ninguna empresa coincide con la búsqueda."}
-        </p>
+        <EmptyState
+          icon={Building2}
+          title={rows.length === 0 ? "Sin empresas" : "Nada coincide"}
+          body={
+            rows.length === 0
+              ? "Todavía no hay empresas. Creá la primera para asociar contactos."
+              : "Ninguna empresa pasa esa búsqueda."
+          }
+          action={
+            rows.length === 0 ? (
+              <Button type="button" variant="ghost" size="sm" onClick={() => setAltaOpen(true)}>
+                Nueva empresa
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <Table>
           <TableHeader>
@@ -116,7 +130,7 @@ export function EmpresasPage() {
                       size="sm"
                       src={row.logo_url}
                     />
-                    <span className="font-medium">{row.nombre}</span>
+                    <span className="text-ui-medium">{row.nombre}</span>
                     <LinkedInLink href={row.linkedin_url} compact />
                   </div>
                 </TableCell>

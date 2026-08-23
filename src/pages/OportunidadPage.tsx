@@ -198,7 +198,6 @@ export function OportunidadPage() {
   return (
     <>
       <PageHeader
-        flagship
         title={state.oportunidad.contacto.nombre_completo}
         description={
           <>

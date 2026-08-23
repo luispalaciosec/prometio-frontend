@@ -2,8 +2,11 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TilesSkeleton } from "@/components/skeleton"
 import { getResumen } from "@/lib/api/resumen"
+import { BarChart3 } from "lucide-react"
 import type { Resumen } from "@/types/resumen"
 
 type Tile = {
@@ -63,26 +66,28 @@ export function ResumenPage() {
         description="Volumen de CRM. Los KPIs de pipeline viven en Negocios → Dashboard."
       />
       {tiles == null ? (
-        <p className="text-sm text-muted-foreground">Cargando resumen…</p>
+        <TilesSkeleton count={4} />
       ) : error ? (
-        <p className="text-sm text-muted-foreground">No se pudieron cargar los conteos.</p>
+        <EmptyState
+          icon={BarChart3}
+          title="Sin conteos"
+          body="No se pudieron cargar los volúmenes de CRM."
+        />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {tiles.map((tile) => {
             const body = (
               <>
-                <p className="text-sm text-muted-foreground">{tile.label}</p>
-                <p className="mt-1 font-heading text-3xl tracking-tight tabular-nums">
+                <p className="text-kicker">{tile.label}</p>
+                <p className="mt-1 font-heading text-[20px] font-semibold tracking-tight tabular-nums">
                   {tile.value == null ? "—" : tile.value}
                 </p>
-                {tile.hint ? (
-                  <p className="mt-2 text-xs text-muted-foreground">{tile.hint}</p>
-                ) : null}
+                {tile.hint ? <p className="mt-2 text-kicker">{tile.hint}</p> : null}
               </>
             )
             if (!tile.to) {
               return (
-                <div key={tile.label} className="rounded-xl p-4 ring-1 ring-foreground/10">
+                <div key={tile.label} className="rounded-xl p-4 ring-1 ring-border">
                   {body}
                 </div>
               )
@@ -91,7 +96,7 @@ export function ResumenPage() {
               <Link
                 key={tile.label}
                 to={tile.to}
-                className="rounded-xl p-4 ring-1 ring-foreground/10 transition-colors duration-150 hover:bg-muted/50 hover:ring-primary/20"
+                className="rounded-xl p-4 ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20"
               >
                 {body}
               </Link>

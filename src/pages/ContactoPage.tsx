@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { DetailSkeleton } from "@/components/skeleton"
 import { EntityAvatar } from "@/components/entity-avatar"
 import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
@@ -178,8 +179,8 @@ export function ContactoPage() {
   if (error) {
     return (
       <div className="max-w-md space-y-3">
-        <h1 className="font-heading text-2xl tracking-tight">No se pudo cargar</h1>
-        <p className="text-sm text-muted-foreground">{error}</p>
+        <h1 className="text-page">No se pudo cargar</h1>
+        <p className="text-kicker">{error}</p>
         <Button asChild variant="outline">
           <Link to="/contactos">Volver a contactos</Link>
         </Button>
@@ -188,7 +189,7 @@ export function ContactoPage() {
   }
 
   if (!contacto) {
-    return <p className="text-sm text-muted-foreground">Cargando contacto…</p>
+    return <DetailSkeleton />
   }
 
   return (
@@ -246,8 +247,8 @@ export function ContactoPage() {
           </div>
         }
       />
-      <section className="mb-10 space-y-4">
-        <h2 className="font-heading text-base tracking-tight">Datos</h2>
+      <section className="mb-8 space-y-4">
+        <h2 className="text-section">Datos</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2 sm:col-span-2">
             <Label htmlFor="det-nombre">Nombre completo</Label>
@@ -330,7 +331,7 @@ export function ContactoPage() {
               placeholder="https://www.linkedin.com/in/…"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+          <label className="flex items-center gap-2 text-ui sm:col-span-2">
             <Checkbox checked={elegible} onCheckedChange={(value) => setElegible(value === true)} />
             Elegible para marketing
           </label>
@@ -341,7 +342,7 @@ export function ContactoPage() {
       </section>
       {contacto.fuente || contacto.utm_source ? (
         <section className="space-y-3">
-          <h2 className="font-heading text-base tracking-tight">Origen</h2>
+          <h2 className="text-section">Origen</h2>
           <dl className="grid gap-3 sm:grid-cols-2">
             <Field label="Fuente" value={contacto.fuente} />
             <Field label="utm_source" value={contacto.utm_source} />
@@ -357,8 +358,8 @@ export function ContactoPage() {
 function Field({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-sm">{value || "—"}</dd>
+      <dt className="text-micro">{label}</dt>
+      <dd className="text-ui">{value || "—"}</dd>
     </div>
   )
 }

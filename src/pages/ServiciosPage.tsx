@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
+import { Package } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,7 +19,7 @@ import { listServicios } from "@/lib/config-api"
 import type { Servicio } from "@/types/servicio"
 
 export function ServiciosPage() {
-  const [rows, setRows] = useState<Servicio[]>([])
+  const [rows, setRows] = useState<Servicio[] | null>(null)
 
   useEffect(() => {
     void listServicios().then(setRows)
@@ -33,6 +36,20 @@ export function ServiciosPage() {
           </Button>
         }
       />
+      {rows == null ? (
+        <TableSkeleton />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={Package}
+          title="Sin servicios"
+          body="Todavía no hay servicios. El wizard guarda el primero como borrador."
+          action={
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/configuracion/servicios/nuevo">Nuevo servicio</Link>
+            </Button>
+          }
+        />
+      ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -44,16 +61,9 @@ export function ServiciosPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} className="text-muted-foreground">
-                Todavía no hay servicios. Crea el primero con el wizard.
-              </TableCell>
-            </TableRow>
-          ) : (
-            rows.map((row) => (
+            {rows.map((row) => (
               <TableRow key={row.id}>
-                <TableCell className="font-medium">{row.nombre || "Sin nombre"}</TableCell>
+                <TableCell className="text-ui-medium">{row.nombre || "Sin nombre"}</TableCell>
                 <TableCell>{row.categoria ?? "—"}</TableCell>
                 <TableCell className="font-mono text-xs">{row.modelo_cobro}</TableCell>
                 <TableCell>
@@ -67,10 +77,10 @@ export function ServiciosPage() {
                   </Button>
                 </TableCell>
               </TableRow>
-            ))
-          )}
+            ))}
         </TableBody>
       </Table>
+      )}
     </>
   )
 }

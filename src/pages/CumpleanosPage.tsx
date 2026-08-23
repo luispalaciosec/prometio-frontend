@@ -2,7 +2,10 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TilesSkeleton } from "@/components/skeleton"
+import { Cake } from "lucide-react"
 import { listCumpleanosProximos } from "@/lib/api/cumpleanos"
 import type { CumpleanosProximo } from "@/types/cumpleanos"
 
@@ -35,20 +38,24 @@ export function CumpleanosPage() {
         description="Próximos cumpleaños de contactos activos. Nada que ver con las alertas de estancamiento."
       />
       {rows == null ? (
-        <p className="text-sm text-muted-foreground">Cargando cumpleaños…</p>
+        <TilesSkeleton count={4} />
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No hay cumpleaños próximos en la ventana configurada.</p>
+        <EmptyState
+          icon={Cake}
+          title="Nadie cumple cerca"
+          body="No hay cumpleaños de contactos activos en la ventana configurada."
+        />
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2">
           {rows.map((row) => (
             <li key={row.contacto_id}>
               <Link
                 to={`/contactos/${row.contacto_id}`}
-                className="block rounded-xl p-4 ring-1 ring-success/20 transition-colors duration-150 hover:bg-success/5"
+                className="block rounded-xl p-4 ring-1 ring-success/20 transition-shadow duration-150 hover:shadow-raised"
               >
-                <p className="text-sm font-medium text-success">{etiquetaDias(row.dias_hasta_cumpleanos)}</p>
-                <p className="mt-1 font-heading text-xl tracking-tight">{row.nombre_completo}</p>
-                <p className="mt-1 text-sm text-muted-foreground">Cumple {row.cumple_anos} años</p>
+                <p className="text-ui-medium text-success">{etiquetaDias(row.dias_hasta_cumpleanos)}</p>
+                <p className="mt-1 text-ui-medium">{row.nombre_completo}</p>
+                <p className="mt-1 text-kicker">Cumple {row.cumple_anos} años</p>
               </Link>
             </li>
           ))}

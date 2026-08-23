@@ -32,7 +32,7 @@ export function FormularioWebPage() {
         description="Snippet para pegar en una landing. El POST llega a Contactos con fuente formulario_web."
       />
       <div className="max-w-2xl space-y-4">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-kicker">
           El widget es público. No lleva token: el backend acepta el alta anónima en{" "}
           <code className="text-xs">POST /formulario</code>.
         </p>

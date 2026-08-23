@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { BandejaHilo } from "@/components/bandeja/BandejaHilo"
 import { BandejaLista } from "@/components/bandeja/BandejaLista"
 import { ConvertirContactoDialog } from "@/components/bandeja/ConvertirContactoDialog"
@@ -28,6 +29,7 @@ import type {
   ConvertirConversacionInput,
 } from "@/types/conversacion"
 import type { Perfil } from "@/types/perfil"
+import { Inbox } from "lucide-react"
 
 function esElegibleBandeja(perfil: Perfil): boolean {
   return perfil.activo && (perfil.equipo === "ventas" || perfil.equipo === "marketing")
@@ -180,8 +182,8 @@ export function BandejaPage() {
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex shrink-0 items-end justify-between gap-4 border-b border-border px-4 py-3">
         <div>
-          <h1 className="font-heading text-xl tracking-tight">Bandeja</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-page">Bandeja</h1>
+          <p className="text-kicker">
             Una conversación no es un contacto hasta que la conviertas.
           </p>
         </div>
@@ -240,7 +242,11 @@ export function BandejaPage() {
               onEnviar={enviar}
             />
           ) : (
-            <p className="px-6 py-10 text-sm text-muted-foreground">Elegí una conversación.</p>
+            <EmptyState
+              icon={Inbox}
+              title="Elegí una conversación"
+              body="El hilo y las acciones viven a la derecha. Una conversación no es un contacto hasta que la conviertas."
+            />
           )}
         </section>
       </div>

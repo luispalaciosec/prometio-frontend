@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
+import { DetailSkeleton } from "@/components/skeleton"
 import { EntityAvatar } from "@/components/entity-avatar"
 import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
@@ -10,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { enriquecerEmpresa, getEmpresa, updateEmpresa } from "@/lib/api/empresa"
 import { puedeEnriquecer, type Empresa } from "@/types/empresa"
+import { Sparkles } from "lucide-react"
 
 export function EmpresaPage() {
   const { id } = useParams()
@@ -82,8 +85,8 @@ export function EmpresaPage() {
   if (error) {
     return (
       <div className="max-w-md space-y-3">
-        <h1 className="font-heading text-2xl tracking-tight">No se pudo cargar</h1>
-        <p className="text-sm text-muted-foreground">{error}</p>
+        <h1 className="text-page">No se pudo cargar</h1>
+        <p className="text-kicker">{error}</p>
         <Button asChild variant="outline">
           <Link to="/empresas">Volver a empresas</Link>
         </Button>
@@ -92,7 +95,7 @@ export function EmpresaPage() {
   }
 
   if (!empresa) {
-    return <p className="text-sm text-muted-foreground">Cargando empresa…</p>
+    return <DetailSkeleton />
   }
 
   const google = empresa.datos_enriquecidos.google_resultados ?? []
@@ -126,8 +129,8 @@ export function EmpresaPage() {
           </div>
         }
       />
-      <section className="mb-10 space-y-4">
-        <h2 className="font-heading text-base tracking-tight">Datos</h2>
+      <section className="mb-8 space-y-4">
+        <h2 className="text-section">Datos</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor="det-nombre">Nombre</Label>
@@ -155,19 +158,28 @@ export function EmpresaPage() {
         </Button>
       </section>
       <section className="space-y-3">
-        <h2 className="font-heading text-base tracking-tight">Enriquecimiento</h2>
+        <h2 className="text-section">Enriquecimiento</h2>
         {errorEnrich ? (
-          <p className="rounded-lg bg-warning/10 px-3 py-2 text-sm text-warning">{errorEnrich}</p>
+          <p className="rounded-lg bg-warning/10 px-3 py-2 text-ui text-warning">{errorEnrich}</p>
         ) : null}
         {mostrarEnriquecer && !errorEnrich ? (
-          <p className="text-sm text-muted-foreground">Todavía no hay datos — Enriquecer.</p>
+          <EmptyState
+            icon={Sparkles}
+            title="Todavía no hay datos"
+            body="El enriquecimiento busca logo, sector y LinkedIn. Lanzalo cuando la web esté cargada."
+            action={
+              <Button type="button" variant="ghost" size="sm" disabled={enriqueciendo} onClick={() => void enriquecer()}>
+                {enriqueciendo ? "Enriqueciendo…" : "Enriquecer"}
+              </Button>
+            }
+          />
         ) : null}
         <dl className="grid gap-4 sm:grid-cols-2">
           <Field label="Sector" value={empresa.sector} />
           <Field label="Tamaño estimado" value={empresa.tamano_estimado} />
           <div className="flex flex-col gap-1 sm:col-span-2">
-            <dt className="text-xs text-muted-foreground">LinkedIn</dt>
-            <dd className="text-sm">
+            <dt className="text-micro">LinkedIn</dt>
+            <dd className="text-ui">
               {empresa.linkedin_url ? (
                 <LinkedInLink href={empresa.linkedin_url} />
               ) : empresa.datos_enriquecidos.linkedin_sin_resultados ? (
@@ -180,24 +192,24 @@ export function EmpresaPage() {
         </dl>
         {google.length > 0 ? (
           <div className="space-y-2">
-            <h3 className="text-sm font-medium">Resultados Google</h3>
+            <h3 className="text-ui-medium">Resultados Google</h3>
             <ul className="space-y-2">
               {google.map((item, index) => (
-                <li key={`${item.url ?? "g"}-${index}`} className="rounded-lg p-3 ring-1 ring-border">
+                <li key={`${item.url ?? "g"}-${index}`} className="rounded-xl p-3 ring-1 ring-border">
                   {item.url ? (
                     <a
                       href={item.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                      className="text-ui-medium text-primary underline-offset-4 hover:underline"
                     >
                       {item.title || item.url}
                     </a>
                   ) : (
-                    <p className="text-sm font-medium">{item.title || "Sin título"}</p>
+                    <p className="text-ui-medium">{item.title || "Sin título"}</p>
                   )}
                   {item.description ? (
-                    <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+                    <p className="mt-1 text-kicker">{item.description}</p>
                   ) : null}
                 </li>
               ))}
@@ -212,8 +224,8 @@ export function EmpresaPage() {
 function Field({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-sm">{value || "—"}</dd>
+      <dt className="text-micro">{label}</dt>
+      <dd className="text-ui">{value || "—"}</dd>
     </div>
   )
 }

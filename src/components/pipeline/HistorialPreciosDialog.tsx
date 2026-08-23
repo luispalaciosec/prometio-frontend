@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -67,9 +68,9 @@ export function HistorialPreciosDialog({
             </p>
           ) : null}
           {cargando ? (
-            <p className="text-sm text-muted-foreground">Consultando Contífico…</p>
+            <TableSkeleton rows={4} />
           ) : data == null ? null : data.resultados.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No hay documentos recientes para este producto.</p>
+            <p className="text-kicker">No hay documentos recientes para este producto.</p>
           ) : (
             <Table>
               <TableHeader>

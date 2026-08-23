@@ -231,7 +231,6 @@ export function PipelinePage() {
   return (
     <>
       <PageHeader
-        flagship
         title="Pipeline"
         description="9 etapas fijas. El valor cotizado manda; si no hay, se muestra el referencial como estimado."
         action={

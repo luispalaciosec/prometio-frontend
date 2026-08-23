@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { AlertaLista, type AlertaVista } from "@/components/alertas/AlertaLista"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
 import { listAlertas } from "@/lib/api/alerta"
 import {
   etiquetaContacto,
@@ -61,7 +62,7 @@ export function AlertasPage() {
         description="Oportunidades que cruzaron el umbral de estancamiento."
       />
       {alertas == null ? (
-        <p className="text-sm text-muted-foreground">Cargando alertas…</p>
+        <TableSkeleton />
       ) : (
         <AlertaLista
           alertas={alertas}

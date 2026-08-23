@@ -69,7 +69,6 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
-        flagship
         title="Dashboard"
         description={
           perfil && esSoloLoPropio(perfil)

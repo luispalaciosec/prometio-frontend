@@ -17,7 +17,7 @@ export function ConectorCard({
   estado: ConectorEstado
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-foreground/10">
+    <div className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border">
       <div
         aria-hidden
         className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-medium"
@@ -25,7 +25,7 @@ export function ConectorCard({
         {inicial}
       </div>
       <div className="min-w-0 space-y-1">
-        <p className="font-medium">{nombre}</p>
+        <p className="text-ui-medium">{nombre}</p>
         <Badge variant={estado === "en_desarrollo" ? "secondary" : "outline"}>
           {ESTADO_LABEL[estado]}
         </Badge>

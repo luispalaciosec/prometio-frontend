@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -92,6 +94,18 @@ export function TarifasInternasPage() {
         description="Costo por hora de cada rol. Nunca se costea por persona nombrada."
         action={<Button onClick={startCreate}>Nueva tarifa</Button>}
       />
+      {rows.length === 0 ? (
+        <EmptyState
+          icon={Clock}
+          title="Sin tarifas"
+          body="El costeo interno usa roles, nunca personas. Creá la primera tarifa por hora."
+          action={
+            <Button type="button" variant="ghost" size="sm" onClick={startCreate}>
+              Nueva tarifa
+            </Button>
+          }
+        />
+      ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -103,7 +117,7 @@ export function TarifasInternasPage() {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
-              <TableCell className="font-medium">{row.nombre_rol}</TableCell>
+              <TableCell className="text-ui-medium">{row.nombre_rol}</TableCell>
               <TableCell>{formatMoney(row.costo_hora)}</TableCell>
               <TableCell className="text-right">
                 <Button variant="ghost" size="sm" onClick={() => startEdit(row)}>
@@ -117,6 +131,7 @@ export function TarifasInternasPage() {
           ))}
         </TableBody>
       </Table>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

@@ -25,7 +25,7 @@ export function SidebarSection({
       <button
         type="button"
         aria-expanded={open}
-        className="flex w-full items-center gap-1 rounded-md px-2 py-1 text-[0.65rem] font-medium tracking-wider text-sidebar-foreground/45 uppercase hover:text-sidebar-foreground/70"
+        className="flex w-full items-center gap-1 rounded-md px-2 py-1 text-micro uppercase tracking-[0.04em] text-sidebar-foreground/45 hover:text-sidebar-foreground/70"
         onClick={() => setOpen((prev) => !prev)}
       >
         {title}

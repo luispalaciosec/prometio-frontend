@@ -1,5 +1,8 @@
 import { useState } from "react"
 
+import { MessageSquare } from "lucide-react"
+
+import { EmptyState } from "@/components/empty-state"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { formatDateTime } from "@/lib/datetime-local"
@@ -55,10 +58,10 @@ export function BandejaHilo({
       <header className="shrink-0 space-y-3 border-b border-border px-5 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="font-heading text-lg tracking-tight">
+            <h2 className="text-section">
               {conversacion.remitente_nombre ?? conversacion.remitente_identificador ?? "Sin nombre"}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-kicker">
               {canal}
               {conversacion.remitente_identificador
                 ? ` · ${conversacion.remitente_identificador}`
@@ -99,7 +102,11 @@ export function BandejaHilo({
       </header>
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4">
         {mensajes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Esta conversación no tiene mensajes todavía.</p>
+          <EmptyState
+            icon={MessageSquare}
+            title="Sin mensajes"
+            body="Esta conversación todavía no tiene un hilo. Escribí el primero abajo."
+          />
         ) : (
           mensajes.map((mensaje) => {
             const saliente = mensaje.direccion === "saliente"
@@ -107,7 +114,7 @@ export function BandejaHilo({
               <div key={mensaje.id} className={cn("flex", saliente ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[75%] rounded-xl px-3 py-2 text-sm",
+                    "max-w-[75%] rounded-xl px-3 py-2 text-ui",
                     saliente
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-foreground",

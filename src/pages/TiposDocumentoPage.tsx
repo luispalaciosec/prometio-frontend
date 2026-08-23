@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -78,6 +80,26 @@ export function TiposDocumentoPage() {
           </Button>
         }
       />
+      {rows.length === 0 ? (
+        <EmptyState
+          icon={FileText}
+          title="Sin tipos"
+          body="El wizard de servicio puede crear uno nuevo sin salir. También se cargan acá."
+          action={
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDraft({ nombre: "", plantilla_base: "" })
+                setOpen(true)
+              }}
+            >
+              Nuevo tipo
+            </Button>
+          }
+        />
+      ) : (
       <Table>
         <TableHeader>
           <TableRow>
@@ -89,7 +111,7 @@ export function TiposDocumentoPage() {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.id}>
-              <TableCell className="font-medium">{row.nombre}</TableCell>
+              <TableCell className="text-ui-medium">{row.nombre}</TableCell>
               <TableCell className="text-muted-foreground">
                 {row.plantilla_base ?? "—"}
               </TableCell>
@@ -125,6 +147,7 @@ export function TiposDocumentoPage() {
           ))}
         </TableBody>
       </Table>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

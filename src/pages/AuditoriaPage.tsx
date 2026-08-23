@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
+import { ScrollText } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -148,9 +151,13 @@ export function AuditoriaPage() {
         <ResumenCard label="Con error" value={resumen.conError} />
       </div>
       {rows == null ? (
-        <p className="text-sm text-muted-foreground">Cargando auditoría…</p>
+        <TableSkeleton />
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No hay eventos con esos filtros.</p>
+        <EmptyState
+          icon={ScrollText}
+          title="Sin eventos"
+          body="Ningún registro de auditoría pasa esos filtros."
+        />
       ) : (
         <Table>
           <TableHeader>
@@ -170,9 +177,9 @@ export function AuditoriaPage() {
                   {formatoFecha(row.created_at)}
                 </TableCell>
                 <TableCell>
-                  <p className="font-medium">{row.perfil_nombre}</p>
+                  <p className="text-ui-medium">{row.perfil_nombre}</p>
                   {row.perfil_email ? (
-                    <p className="text-xs text-muted-foreground">{row.perfil_email}</p>
+                    <p className="text-kicker">{row.perfil_email}</p>
                   ) : null}
                 </TableCell>
                 <TableCell className="font-mono text-xs">{row.accion}</TableCell>
@@ -201,9 +208,9 @@ export function AuditoriaPage() {
 
 function ResumenCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl p-4 ring-1 ring-foreground/10">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 font-heading text-3xl tracking-tight tabular-nums">{value}</p>
+    <div className="rounded-xl p-4 ring-1 ring-border">
+      <p className="text-kicker">{label}</p>
+      <p className="mt-1 font-heading text-[20px] font-semibold tracking-tight tabular-nums">{value}</p>
     </div>
   )
 }

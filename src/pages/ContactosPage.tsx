@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
+import { TableSkeleton } from "@/components/skeleton"
 import { ContactoAltaDialog } from "@/components/contactos/ContactoAltaDialog"
 import { EtapaCicloBadge } from "@/components/contactos/EtapaCicloBadge"
 import { EntityAvatar } from "@/components/entity-avatar"
@@ -28,6 +30,7 @@ import {
 } from "@/components/ui/table"
 import { createContacto, listContactos, listEmpresasParaContacto } from "@/lib/api/contacto"
 import { useAuthStore } from "@/store/auth-store"
+import { Users } from "lucide-react"
 import {
   ETAPAS_CICLO_VIDA,
   ETAPA_CICLO_LABELS,
@@ -110,7 +113,7 @@ export function ContactosPage() {
           </Button>
         }
       />
-      <div className="mb-4 flex flex-wrap items-end gap-4">
+      <div className="mb-6 flex flex-wrap items-end gap-3">
         <div className="flex min-w-56 flex-1 flex-col gap-2">
           <Label htmlFor="contacto-busqueda">Buscar</Label>
           <Input
@@ -140,7 +143,7 @@ export function ContactosPage() {
           </Select>
         </div>
         {esAdmin ? (
-          <label className="flex items-center gap-2 pb-2 text-sm">
+          <label className="flex items-center gap-2 pb-2 text-ui">
             <Checkbox
               checked={incluirInactivos}
               onCheckedChange={(value) => setIncluirInactivos(value === true)}
@@ -150,9 +153,24 @@ export function ContactosPage() {
         ) : null}
       </div>
       {rows == null ? (
-        <p className="text-sm text-muted-foreground">Cargando contactos…</p>
+        <TableSkeleton />
       ) : rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No hay contactos con esos filtros.</p>
+        <EmptyState
+          icon={Users}
+          title={qDebounced || etapa || incluirInactivos ? "Nada coincide" : "Sin contactos"}
+          body={
+            qDebounced || etapa || incluirInactivos
+              ? "Ningún contacto pasa esos filtros. Probá limpiar búsqueda o etapa."
+              : "Creá el primero para que el CRM deje de estar vacío."
+          }
+          action={
+            !qDebounced && !etapa ? (
+              <Button type="button" variant="ghost" size="sm" onClick={() => setAltaOpen(true)}>
+                Nuevo contacto
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <Table>
           <TableHeader>
@@ -179,10 +197,10 @@ export function ContactosPage() {
                       size="sm"
                       src={row.foto_url}
                     />
-                    <span className="font-medium">{row.nombre_completo}</span>
+                    <span className="text-ui-medium">{row.nombre_completo}</span>
                     <LinkedInLink href={row.linkedin_url} compact />
                     {!row.activo ? (
-                      <span className="text-xs text-muted-foreground">inactivo</span>
+                      <span className="text-kicker">inactivo</span>
                     ) : null}
                   </div>
                 </TableCell>

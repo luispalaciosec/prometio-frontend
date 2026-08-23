@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TilesSkeleton } from "@/components/skeleton"
+import { Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getSalud } from "@/lib/api/salud"
 import { cn } from "@/lib/utils"
@@ -58,28 +61,32 @@ export function SaludPage() {
         }
       />
       {data ? (
-        <p className="mb-6 text-xs text-muted-foreground">
+        <p className="mb-6 text-kicker">
           Verificado {formatoHora(data.verificado_en)}
         </p>
       ) : null}
       {cargando && !data ? (
-        <p className="text-sm text-muted-foreground">Consultando servicios…</p>
+        <TilesSkeleton count={4} />
       ) : data == null ? (
-        <p className="text-sm text-muted-foreground">No hay datos de salud.</p>
+        <EmptyState
+          icon={Activity}
+          title="Sin datos de salud"
+          body="No se pudo consultar el estado de los servicios."
+        />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           {data.servicios.map((servicio) => (
             <article
               key={servicio.nombre}
-              className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-foreground/10"
+              className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border"
             >
               <span
                 aria-hidden
                 className={cn("mt-1 size-2.5 shrink-0 rounded-full", ESTADO_CLASE[servicio.estado])}
               />
               <div className="min-w-0">
-                <p className="font-medium">{SALUD_SERVICIO_LABELS[servicio.nombre]}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="text-ui-medium">{SALUD_SERVICIO_LABELS[servicio.nombre]}</p>
+                <p className="mt-1 text-kicker">
                   {SALUD_ESTADO_LABELS[servicio.estado]}
                   {servicio.latencia_ms != null ? ` · ${servicio.latencia_ms} ms` : ""}
                 </p>
