@@ -4,8 +4,10 @@ import {
   Bell,
   Building2,
   Cake,
+  Calendar,
   CalendarClock,
   Columns3,
+  History,
   Inbox,
   LayoutDashboard,
   LayoutList,
@@ -61,6 +63,7 @@ export function AppShell() {
   const isBandeja = location.pathname.startsWith("/bandeja")
   const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
   const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
+  const agendaActivo = location.pathname.startsWith("/agenda")
   const saludActivo =
     location.pathname.startsWith("/salud") || location.pathname.startsWith("/auditoria")
   const sitioActivo = location.pathname.startsWith("/seo")
@@ -98,9 +101,25 @@ export function AppShell() {
                     {item.label}
                   </NavLink>
                 ))}
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/40">
+              </SidebarSection>
+              <SidebarSection title="Agenda" active={agendaActivo}>
+                <NavLink
+                  to="/agenda/actividades"
+                  className={({ isActive }) => sidebarNavClass(isActive)}
+                >
                   <CalendarClock className="size-4 shrink-0 opacity-80" aria-hidden />
-                  <span className="min-w-0 flex-1">Actividades</span>
+                  Actividades
+                </NavLink>
+                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/40">
+                  <Calendar className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <span className="min-w-0 flex-1">Calendario</span>
+                  <Badge variant="secondary" className="h-4 px-1.5 text-[0.6rem]">
+                    Próximamente
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/40">
+                  <History className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <span className="min-w-0 flex-1">Timeline</span>
                   <Badge variant="secondary" className="h-4 px-1.5 text-[0.6rem]">
                     Próximamente
                   </Badge>

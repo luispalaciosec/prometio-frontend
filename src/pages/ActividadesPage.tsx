@@ -1,0 +1,270 @@
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
+import { CalendarClock } from "lucide-react"
+
+import { EmptyState } from "@/components/empty-state"
+import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { listActividades } from "@/lib/api/actividad"
+import { listContactos } from "@/lib/api/contacto"
+import { listPerfiles, listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles"
+import { formatDateTime } from "@/lib/datetime-local"
+import { puedeVerEquipo } from "@/lib/pipeline-acceso"
+import { useAuthStore } from "@/store/auth-store"
+import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
+import type { Perfil } from "@/types/perfil"
+
+function estadoDe(row: Actividad): { label: string; variant: "secondary" | "default" | "outline" } {
+  if (row.programada_para != null && row.reportada_en == null) {
+    return { label: "programada", variant: "secondary" }
+  }
+  if (row.reportada_en) {
+    return { label: "reportada", variant: "default" }
+  }
+  return { label: "actividad", variant: "outline" }
+}
+
+export function ActividadesPage() {
+  const navigate = useNavigate()
+  const perfil = useAuthStore((state) => state.perfil)
+  const mostrarAlcance = perfil ? puedeVerEquipo(perfil) : false
+  const [rows, setRows] = useState<Actividad[] | null>(null)
+  const [nombres, setNombres] = useState({
+    contactos: new Map<string, string>(),
+    responsables: new Map<string, string>(),
+  })
+  const [ejecutivos, setEjecutivos] = useState<Perfil[]>([])
+  const [desde, setDesde] = useState("")
+  const [hasta, setHasta] = useState("")
+  const [responsableId, setResponsableId] = useState<string | null>(null)
+
+  async function reload() {
+    if (!perfil) {
+      return
+    }
+    try {
+      const query: Parameters<typeof listActividades>[0] = { perfil }
+      if (desde && hasta) {
+        query.desde = `${desde}T00:00:00`
+        query.hasta = `${hasta}T23:59:59`
+      }
+      if (mostrarAlcance) {
+        if (responsableId) {
+          query.responsable_id = responsableId
+        }
+      } else {
+        query.responsable_id = perfil.id
+      }
+      const [actividades, contactos, perfiles] = await Promise.all([
+        listActividades(query),
+        listContactos({ incluir_inactivos: true }),
+        listPerfiles(),
+      ])
+      setRows(actividades)
+      setNombres({
+        contactos: new Map(contactos.map((row) => [row.id, row.nombre_completo])),
+        responsables: new Map(perfiles.map((row) => [row.id, row.nombre_completo])),
+      })
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudieron cargar las actividades.")
+      setRows([])
+    }
+  }
+
+  useEffect(() => {
+    if (!perfil) {
+      return
+    }
+    let cancelled = false
+    void (async () => {
+      try {
+        const query: Parameters<typeof listActividades>[0] = { perfil }
+        if (!mostrarAlcance) {
+          query.responsable_id = perfil.id
+        }
+        const [actividades, contactos, perfiles] = await Promise.all([
+          listActividades(query),
+          listContactos({ incluir_inactivos: true }),
+          listPerfiles(),
+        ])
+        if (cancelled) {
+          return
+        }
+        setRows(actividades)
+        setNombres({
+          contactos: new Map(contactos.map((row) => [row.id, row.nombre_completo])),
+          responsables: new Map(perfiles.map((row) => [row.id, row.nombre_completo])),
+        })
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+        toast.error(error instanceof Error ? error.message : "No se pudieron cargar las actividades.")
+        setRows([])
+      }
+    })()
+    if (mostrarAlcance) {
+      void listPerfilesElegiblesEjecutivo()
+        .then(setEjecutivos)
+        .catch(() => setEjecutivos([]))
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [perfil, mostrarAlcance])
+
+  const hayFiltro = Boolean(desde && hasta) || Boolean(responsableId)
+
+  const tituloRango = useMemo(() => {
+    if (mostrarAlcance && !responsableId) {
+      return "Agenda del equipo. Programar o reportar sigue en la oportunidad."
+    }
+    return "Tu agenda. Programar o reportar sigue en la oportunidad."
+  }, [mostrarAlcance, responsableId])
+
+  return (
+    <>
+      <PageHeader title="Actividades" description={tituloRango} />
+      <form
+        className="mb-6 flex flex-wrap items-end gap-3"
+        onSubmit={(event) => {
+          event.preventDefault()
+          if ((desde && !hasta) || (!desde && hasta)) {
+            toast.error("Elegí desde y hasta.")
+            return
+          }
+          void reload()
+        }}
+      >
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="agenda-desde">Desde</Label>
+          <Input
+            id="agenda-desde"
+            type="date"
+            value={desde}
+            onChange={(event) => setDesde(event.target.value)}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="agenda-hasta">Hasta</Label>
+          <Input
+            id="agenda-hasta"
+            type="date"
+            value={hasta}
+            onChange={(event) => setHasta(event.target.value)}
+          />
+        </div>
+        {mostrarAlcance ? (
+          <div className="flex min-w-44 flex-col gap-2">
+            <Label htmlFor="agenda-responsable">Responsable</Label>
+            <Select
+              value={responsableId ?? "all"}
+              onValueChange={(value) => setResponsableId(value === "all" ? null : value)}
+            >
+              <SelectTrigger id="agenda-responsable" className="w-44">
+                <SelectValue placeholder="Todo el equipo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todo el equipo</SelectItem>
+                {ejecutivos.map((row) => (
+                  <SelectItem key={row.id} value={row.id}>
+                    {row.nombre_completo}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
+        <Button type="submit" variant="outline">
+          Aplicar
+        </Button>
+      </form>
+      {rows == null ? (
+        <TableSkeleton />
+      ) : rows.length === 0 ? (
+        <EmptyState
+          icon={CalendarClock}
+          title={hayFiltro ? "Nada coincide" : "Sin actividades"}
+          body={
+            hayFiltro
+              ? "Ninguna actividad pasa esos filtros. Probá otro rango o responsable."
+              : "Cuando el equipo programe o reporte, aparecen acá. No están anidadas a una sola oportunidad."
+          }
+        />
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Programada</TableHead>
+              <TableHead>Reportada</TableHead>
+              {mostrarAlcance ? <TableHead>Responsable</TableHead> : null}
+              <TableHead>Contacto</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => {
+              const estado = estadoDe(row)
+              const destino = row.oportunidad_id
+                ? `/pipeline/${row.oportunidad_id}`
+                : row.contacto_id
+                  ? `/contactos/${row.contacto_id}`
+                  : null
+              return (
+                <TableRow
+                  key={row.id}
+                  className={destino ? "cursor-pointer" : undefined}
+                  onClick={() => {
+                    if (destino) {
+                      navigate(destino)
+                    }
+                  }}
+                >
+                  <TableCell className="text-ui-medium">{TIPO_ACTIVIDAD_LABELS[row.tipo]}</TableCell>
+                  <TableCell>
+                    <Badge variant={estado.variant}>{estado.label}</Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDateTime(row.programada_para)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDateTime(row.reportada_en)}
+                  </TableCell>
+                  {mostrarAlcance ? (
+                    <TableCell className="text-muted-foreground">
+                      {nombres.responsables.get(row.responsable_id) ?? "—"}
+                    </TableCell>
+                  ) : null}
+                  <TableCell className="text-muted-foreground">
+                    {row.contacto_id ? (nombres.contactos.get(row.contacto_id) ?? "—") : "—"}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      )}
+    </>
+  )
+}

@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
 import { AlertasPage } from "@/pages/AlertasPage"
+import { ActividadesPage } from "@/pages/ActividadesPage"
 import { AuditoriaPage } from "@/pages/AuditoriaPage"
 import { CumpleanosPage } from "@/pages/CumpleanosPage"
 import { BandejaPage } from "@/pages/BandejaPage"
@@ -134,6 +135,14 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <DashboardPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/agenda/actividades"
+                element={
+                  <VentasRoute>
+                    <ActividadesPage />
                   </VentasRoute>
                 }
               />
