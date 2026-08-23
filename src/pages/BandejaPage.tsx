@@ -22,6 +22,7 @@ import {
 } from "@/lib/api/conversacion"
 import { listPerfiles } from "@/lib/api/perfiles"
 import { puedeVerEquipo } from "@/lib/pipeline-acceso"
+import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/store/auth-store"
 import type {
   BandejaScope,
@@ -29,7 +30,7 @@ import type {
   ConvertirConversacionInput,
 } from "@/types/conversacion"
 import type { Perfil } from "@/types/perfil"
-import { Inbox } from "lucide-react"
+import { ChevronLeft, Inbox } from "lucide-react"
 
 function esElegibleBandeja(perfil: Perfil): boolean {
   return perfil.activo && (perfil.equipo === "ventas" || perfil.equipo === "marketing")
@@ -180,17 +181,31 @@ export function BandejaPage() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-end justify-between gap-4 border-b border-border px-4 py-3">
-        <div>
-          <h1 className="text-page">Bandeja</h1>
-          <p className="text-kicker">
-            Una conversación no es un contacto hasta que la conviertas.
-          </p>
+      <div className="flex shrink-0 flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="flex items-start gap-2">
+          {id ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="mt-1 md:hidden"
+              aria-label="Volver a la lista"
+              onClick={() => navigate("/bandeja")}
+            >
+              <ChevronLeft />
+            </Button>
+          ) : null}
+          <div>
+            <h1 className="text-page">Bandeja</h1>
+            <p className="text-kicker">
+              Una conversación no es un contacto hasta que la conviertas.
+            </p>
+          </div>
         </div>
         {mostrarAlcance ? (
           <div className="flex flex-col gap-1">
             <Label className="sr-only">Alcance</Label>
-            <div className="flex gap-1">
+            <div className="flex flex-wrap gap-1">
               <Button
                 type="button"
                 size="sm"
@@ -212,7 +227,12 @@ export function BandejaPage() {
         ) : null}
       </div>
       <div className="flex min-h-0 flex-1">
-        <aside className="w-80 shrink-0 overflow-y-auto border-r border-border">
+        <aside
+          className={cn(
+            "min-h-0 overflow-y-auto border-border md:w-80 md:shrink-0 md:border-r",
+            id ? "hidden md:block" : "w-full",
+          )}
+        >
           <BandejaLista
             conversaciones={visibles}
             seleccionId={id ?? null}
@@ -220,7 +240,7 @@ export function BandejaPage() {
             onSelect={(next) => navigate(`/bandeja/${next}`)}
           />
         </aside>
-        <section className="min-w-0 flex-1">
+        <section className={cn("min-w-0 flex-1", id ? "flex" : "hidden md:flex")}>
           {seleccionada ? (
             <BandejaHilo
               conversacion={seleccionada}
@@ -245,7 +265,7 @@ export function BandejaPage() {
             <EmptyState
               icon={Inbox}
               title="Elegí una conversación"
-              body="El hilo y las acciones viven a la derecha. Una conversación no es un contacto hasta que la conviertas."
+              body="El hilo y las acciones viven acá. Una conversación no es un contacto hasta que la conviertas."
             />
           )}
         </section>

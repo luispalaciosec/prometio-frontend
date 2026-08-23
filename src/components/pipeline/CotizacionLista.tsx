@@ -83,8 +83,8 @@ export function CotizacionLista({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="flex min-w-40 flex-1 flex-col gap-2">
+      <div className="filter-bar mb-0">
+        <div className="filter-field sm:flex-1">
           <Label htmlFor="cotizacion-busqueda">Buscar</Label>
           <Input
             id="cotizacion-busqueda"
@@ -93,7 +93,7 @@ export function CotizacionLista({
             placeholder="Número"
           />
         </div>
-        <div className="flex min-w-40 flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="cotizacion-estado">Estado</Label>
           <Select
             value={estado ?? "all"}
@@ -101,7 +101,7 @@ export function CotizacionLista({
               setEstado(value === "all" ? null : (value as CotizacionEstado))
             }
           >
-            <SelectTrigger id="cotizacion-estado" className="w-40">
+            <SelectTrigger id="cotizacion-estado">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
             <SelectContent>

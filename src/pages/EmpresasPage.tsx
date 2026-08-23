@@ -94,8 +94,8 @@ export function EmpresasPage() {
           </Button>
         }
       />
-      <div className="mb-6 flex flex-wrap items-end gap-3">
-        <div className="flex min-w-56 max-w-sm flex-1 flex-col gap-2">
+      <div className="filter-bar">
+        <div className="filter-field sm:min-w-56 sm:max-w-sm sm:flex-1">
           <Label htmlFor="empresa-busqueda">Buscar</Label>
           <Input
             id="empresa-busqueda"

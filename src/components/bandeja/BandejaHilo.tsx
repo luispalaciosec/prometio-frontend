@@ -55,7 +55,7 @@ export function BandejaHilo({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <header className="shrink-0 space-y-3 border-b border-border px-5 py-4">
+      <header className="shrink-0 space-y-3 border-b border-border px-4 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h2 className="text-section">
@@ -100,7 +100,7 @@ export function BandejaHilo({
           </div>
         </div>
       </header>
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {mensajes.length === 0 ? (
           <EmptyState
             icon={MessageSquare}
@@ -114,7 +114,7 @@ export function BandejaHilo({
               <div key={mensaje.id} className={cn("flex", saliente ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[75%] rounded-xl px-3 py-2 text-ui",
+                    "max-w-[min(85%,20rem)] rounded-xl px-3 py-2 text-ui sm:max-w-[75%]",
                     saliente
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-foreground",

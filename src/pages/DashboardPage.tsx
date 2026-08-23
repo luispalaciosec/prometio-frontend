@@ -78,7 +78,7 @@ export function DashboardPage() {
         }
       />
       <form
-        className="mb-6 flex flex-wrap items-end gap-3"
+        className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault()
           if (desde && hasta) {
@@ -88,11 +88,11 @@ export function DashboardPage() {
           void reload()
         }}
       >
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="dash-desde">Desde</Label>
           <Input id="dash-desde" type="date" value={desde} onChange={(event) => setDesde(event.target.value)} />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="dash-hasta">Hasta</Label>
           <Input id="dash-hasta" type="date" value={hasta} onChange={(event) => setHasta(event.target.value)} />
         </div>

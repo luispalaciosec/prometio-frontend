@@ -6,7 +6,7 @@ import { CONFIG_NAV_GROUPS } from "@/lib/config-nav"
 import { sidebarNavClass } from "@/components/sidebar-nav"
 import { cn } from "@/lib/utils"
 
-export function ConfigSidebar() {
+export function ConfigSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation()
   const inConfig =
     location.pathname.startsWith("/configuracion") || location.pathname.startsWith("/seo")
@@ -22,6 +22,7 @@ export function ConfigSidebar() {
         <NavLink
           to="/configuracion"
           end
+          onClick={onNavigate}
           className={({ isActive }) => cn("min-w-0 flex-1", sidebarNavClass(isActive))}
         >
           <Settings className="size-[18px] shrink-0 opacity-80" aria-hidden />
@@ -48,6 +49,7 @@ export function ConfigSidebar() {
                   <NavLink
                     key={item.to}
                     to={item.to}
+                    onClick={onNavigate}
                     className={({ isActive }) => sidebarNavClass(isActive, true)}
                   >
                     <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />

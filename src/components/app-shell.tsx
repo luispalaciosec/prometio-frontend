@@ -1,196 +1,104 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom"
-import {
-  Activity,
-  Bell,
-  Building2,
-  Cake,
-  Calendar,
-  CalendarClock,
-  Columns3,
-  History,
-  Inbox,
-  LayoutDashboard,
-  LayoutList,
-  ScrollText,
-  Search,
-  Users,
-  type LucideIcon,
-} from "lucide-react"
+import { useEffect, useState } from "react"
+import { Outlet, useLocation } from "react-router-dom"
+import { Menu, X } from "lucide-react"
 
-import { ConfigSidebar } from "@/components/config-sidebar"
+import { AppNav } from "@/components/app-nav"
 import { PrometioLogo } from "@/components/prometio-logo"
-import { ModeToggle } from "@/components/mode-toggle"
-import { SidebarSection } from "@/components/sidebar-section"
-import { sidebarNavClass } from "@/components/sidebar-nav"
 import { Button } from "@/components/ui/button"
-import { puedeVerModuloMarketing, puedeVerModuloVentas } from "@/lib/pipeline-acceso"
 import { cn } from "@/lib/utils"
-import { useAuthStore } from "@/store/auth-store"
-
-type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
-
-const crmNav: NavItem[] = [
-  { to: "/", label: "Resumen", icon: LayoutList, end: true },
-  { to: "/contactos", label: "Contactos", icon: Users },
-  { to: "/empresas", label: "Empresas", icon: Building2 },
-  { to: "/bandeja", label: "Bandeja", icon: Inbox },
-  { to: "/cumpleanos", label: "Cumpleaños", icon: Cake },
-]
-
-const negociosNav: NavItem[] = [
-  { to: "/pipeline", label: "Pipeline", icon: Columns3 },
-  { to: "/alertas", label: "Alertas", icon: Bell },
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-]
-
-function itemActive(pathname: string, item: NavItem) {
-  if (item.end) {
-    return pathname === item.to
-  }
-  return pathname === item.to || pathname.startsWith(`${item.to}/`)
-}
 
 export function AppShell() {
-  const perfil = useAuthStore((state) => state.perfil)
-  const user = useAuthStore((state) => state.user)
-  const signOut = useAuthStore((state) => state.signOut)
   const location = useLocation()
-  const isAdmin = perfil?.equipo === "administrativo"
-  const isVentas = perfil ? puedeVerModuloVentas(perfil) : false
-  const isMarketing = perfil ? puedeVerModuloMarketing(perfil) : false
+  const [menuAbierto, setMenuAbierto] = useState(false)
   const isPipeline = location.pathname === "/pipeline"
   const isBandeja = location.pathname.startsWith("/bandeja")
-  const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
-  const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
-  const agendaActivo = location.pathname.startsWith("/agenda")
-  const saludActivo =
-    location.pathname.startsWith("/salud") || location.pathname.startsWith("/auditoria")
-  const sitioActivo = location.pathname.startsWith("/seo")
+
+  useEffect(() => {
+    setMenuAbierto(false)
+  }, [location.pathname])
+
+  useEffect(() => {
+    if (!menuAbierto) {
+      return
+    }
+    const anterior = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMenuAbierto(false)
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => {
+      document.body.style.overflow = anterior
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [menuAbierto])
 
   return (
-    <div className="flex min-h-svh bg-background">
-      <aside className="flex w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground">
-        <NavLink to="/" className="px-1">
-          <PrometioLogo onDark className="h-7 w-auto" />
-        </NavLink>
-        <nav className="mt-6 flex flex-1 flex-col overflow-y-auto">
-          {isVentas ? (
-            <>
-              <SidebarSection title="CRM" active={crmActivo}>
-                {crmNav.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    className={({ isActive }) => sidebarNavClass(isActive)}
-                  >
-                    <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                    {item.label}
-                  </NavLink>
-                ))}
-              </SidebarSection>
-              <SidebarSection title="Negocios" active={negociosActivo}>
-                {negociosNav.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    className={({ isActive }) => sidebarNavClass(isActive)}
-                  >
-                    <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                    {item.label}
-                  </NavLink>
-                ))}
-              </SidebarSection>
-              <SidebarSection title="Agenda" active={agendaActivo}>
-                <NavLink
-                  to="/agenda/actividades"
-                  className={({ isActive }) => sidebarNavClass(isActive)}
-                >
-                  <CalendarClock className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                  Actividades
-                </NavLink>
-                <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/40">
-                  <Calendar className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                  <span className="min-w-0 flex-1">Calendario</span>
-                  <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
-                    Próximamente
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/40">
-                  <History className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                  <span className="min-w-0 flex-1">Timeline</span>
-                  <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
-                    Próximamente
-                  </span>
-                </div>
-              </SidebarSection>
-            </>
-          ) : null}
-          {isMarketing && !isAdmin ? (
-            <SidebarSection title="Sitio" active={sitioActivo}>
-              <NavLink to="/seo" className={({ isActive }) => sidebarNavClass(isActive)}>
-                <Search className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                SEO
-              </NavLink>
-            </SidebarSection>
-          ) : null}
-          {isAdmin ? (
-            <>
-              <SidebarSection title="Salud del sistema" active={saludActivo}>
-                <NavLink
-                  to="/salud"
-                  className={({ isActive }) => sidebarNavClass(isActive)}
-                >
-                  <Activity className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                  Servicios
-                </NavLink>
-                <NavLink
-                  to="/auditoria"
-                  className={({ isActive }) => sidebarNavClass(isActive)}
-                >
-                  <ScrollText className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                  Auditoría
-                </NavLink>
-              </SidebarSection>
-              <ConfigSidebar />
-            </>
-          ) : null}
-          {!isVentas && !isAdmin && !isMarketing ? (
-            <p className="px-2 text-kicker text-sidebar-foreground/60">
-              Este perfil no tiene módulos asignados.
-            </p>
-          ) : null}
-        </nav>
-        <div className="mt-auto space-y-2 border-t border-sidebar-border pt-4">
-          <p className="truncate px-2 text-kicker text-sidebar-foreground/60">
-            {perfil?.email ?? user?.email}
-          </p>
-          <div className="flex items-center justify-between px-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              onClick={() => void signOut()}
-            >
-              Cerrar sesión
-            </Button>
-            <ModeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
-          </div>
-        </div>
+    <div className="flex min-h-svh flex-col bg-background md:flex-row">
+      <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] md:hidden">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Abrir menú"
+          onClick={() => setMenuAbierto(true)}
+        >
+          <Menu />
+        </Button>
+        <PrometioLogo className="h-6 w-auto" />
+      </header>
+
+      <aside className="hidden w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
+        <AppNav />
       </aside>
+
+      <div
+        className={cn("md:hidden", menuAbierto ? "fixed inset-0 z-50" : "pointer-events-none")}
+      >
+        <button
+          type="button"
+          aria-label="Cerrar menú"
+          className={cn(
+            "absolute inset-0 bg-overlay/40 transition-opacity duration-200",
+            menuAbierto ? "opacity-100" : "opacity-0",
+          )}
+          onClick={() => setMenuAbierto(false)}
+        />
+        <aside
+          className={cn(
+            "absolute inset-y-0 left-0 flex w-[min(18rem,88vw)] flex-col bg-sidebar px-3 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] text-sidebar-foreground shadow-modal transition-transform duration-200",
+            menuAbierto ? "translate-x-0" : "-translate-x-full",
+          )}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Cerrar menú"
+            className="absolute top-3 right-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            onClick={() => setMenuAbierto(false)}
+          >
+            <X />
+          </Button>
+          <AppNav onNavigate={() => setMenuAbierto(false)} />
+        </aside>
+      </div>
+
       <main
         className={cn(
           "min-h-0 min-w-0 flex-1",
-          isBandeja ? "overflow-hidden" : "overflow-auto",
+          isBandeja ? "flex flex-col overflow-hidden" : "overflow-auto",
         )}
       >
         <div
           className={cn(
             isBandeja
-              ? "flex h-full min-h-0 flex-col"
+              ? "flex min-h-0 flex-1 flex-col"
               : isPipeline
-                ? "px-6 py-6"
-                : "mx-auto max-w-5xl px-8 py-8",
+                ? "px-4 py-4 md:px-6 md:py-6"
+                : "mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8",
           )}
         >
           <Outlet />

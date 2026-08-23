@@ -94,13 +94,13 @@ export function AuditoriaPage() {
         description="Registro de acciones. Los conteos son sobre el resultado ya filtrado."
       />
       <form
-        className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
+        className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault()
           void reload()
         }}
       >
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="aud-perfil">Usuario</Label>
           <Select value={perfilId || "all"} onValueChange={(value) => setPerfilId(value === "all" ? "" : value)}>
             <SelectTrigger id="aud-perfil">
@@ -116,7 +116,7 @@ export function AuditoriaPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="aud-accion">Acción</Label>
           <Input
             id="aud-accion"
@@ -125,7 +125,7 @@ export function AuditoriaPage() {
             placeholder="oportunidad.desactivar"
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="aud-entidad">Entidad</Label>
           <Input
             id="aud-entidad"
@@ -134,16 +134,18 @@ export function AuditoriaPage() {
             placeholder="oportunidad"
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="aud-desde">Desde</Label>
           <Input id="aud-desde" type="date" value={desde} onChange={(event) => setDesde(event.target.value)} />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="aud-hasta">Hasta</Label>
           <Input id="aud-hasta" type="date" value={hasta} onChange={(event) => setHasta(event.target.value)} />
         </div>
-        <div className="flex items-end">
-          <Button type="submit">Filtrar</Button>
+        <div className="filter-field sm:w-auto">
+          <Button type="submit" className="w-full sm:w-auto">
+            Filtrar
+          </Button>
         </div>
       </form>
       <div className="mb-6 grid gap-3 sm:grid-cols-3">

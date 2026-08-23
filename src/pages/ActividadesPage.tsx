@@ -140,7 +140,7 @@ export function ActividadesPage() {
     <>
       <PageHeader title="Actividades" description={tituloRango} />
       <form
-        className="mb-6 flex flex-wrap items-end gap-3"
+        className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault()
           if ((desde && !hasta) || (!desde && hasta)) {
@@ -150,7 +150,7 @@ export function ActividadesPage() {
           void reload()
         }}
       >
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="agenda-desde">Desde</Label>
           <Input
             id="agenda-desde"
@@ -159,7 +159,7 @@ export function ActividadesPage() {
             onChange={(event) => setDesde(event.target.value)}
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="agenda-hasta">Hasta</Label>
           <Input
             id="agenda-hasta"
@@ -169,13 +169,13 @@ export function ActividadesPage() {
           />
         </div>
         {mostrarAlcance ? (
-          <div className="flex min-w-44 flex-col gap-2">
+          <div className="filter-field">
             <Label htmlFor="agenda-responsable">Responsable</Label>
             <Select
               value={responsableId ?? "all"}
               onValueChange={(value) => setResponsableId(value === "all" ? null : value)}
             >
-              <SelectTrigger id="agenda-responsable" className="w-44">
+              <SelectTrigger id="agenda-responsable">
                 <SelectValue placeholder="Todo el equipo" />
               </SelectTrigger>
               <SelectContent>

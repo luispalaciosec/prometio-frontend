@@ -27,16 +27,18 @@ Este repo se construye **desde cero** — `npm create vite@latest` limpio, sin r
 
 Referencia principal: **Apollo.io** — tablas limpias, buen uso de badges de estado, sidebar delgado, alto contraste entre texto primario y secundario. Templa esa base con el minimalismo de Linear/Notion en navegación y formularios (menos bordes, más espacio en blanco, transiciones suaves). Nada de estética recargada tipo HubSpot clásico.
 
-**Toda pantalla nueva nace con el lenguaje de Fase C.** No es un pase posterior. Referencia: Pipeline, Dashboard, Oportunidad, Contactos, Empresas.
+**Toda pantalla nueva nace con el lenguaje de Fase C + presencia visual aprobada (ago 2026) y usable en móvil.** No es un pase posterior. Referencia: Dashboard, Resumen, Actividades, Cumpleaños. Un canvas de texto chico sin wells no se mergea. El sidebar de escritorio no existe bajo `md`: hamburger + cajón. Filtros `filter-bar` / `filter-field` (full width en teléfono). Tablas hacen scroll horizontal, no rompen el viewport. Bandeja es lista o hilo, no los dos. Padding de página `px-4` en móvil.
 
+- Escala (no bajarla): `text-page` 28, `text-section` 16, `text-ui` / `text-ui-medium` 14, `text-kicker` 13, `text-micro` 12. Labels de form usan `text-kicker`, no `text-micro`. Inputs/select `h-9`.
 - Tablas: `Table` del sistema (14px). Primera columna `text-ui-medium`; el resto `text-ui` o `text-muted-foreground`. `TableRow` con hover (`hover:bg-muted/50`) y `cursor-pointer` si la fila navega. No tipografía genérica de 14/400.
+- Cards y KPIs: `KpiCard` o `KindMark` `lg` (well 44px) + número en `text-page`. Una card solo-texto tipo sello (nombre 14px, sin icono) no se acepta — ver Cumpleaños.
 - Badges de estado: el `Badge` de `ui/badge` (pill `rounded-full`), con variantes `outline` / `warning` / `success` / `destructive` — el mismo patrón que `CotizacionEstadoBadge` y `AlertaEstadoBadge`. No `default`/`secondary` sólidos ni radio de botón.
-- Vacíos: `EmptyState` (ícono + título `text-ui-medium` + copy `text-kicker`). Cero filas o filtro sin match → empty, nunca una tabla en blanco.
+- Vacíos: `EmptyState` (well + ícono, título `text-section` + copy `text-kicker`). Cero filas o filtro sin match → empty, nunca una tabla en blanco.
 - Nav “Próximamente”: texto `text-micro` en tokens del sidebar, no un chip `Badge` con color de canvas (`secondary`/`warning`).
-- Tokens: `text-page` / `text-section` / `text-ui` / `text-kicker` / `text-micro`, `rounded-xl`, `ring-border`, `shadow-raised`. Sin hex en componentes.
+- Tokens: `text-page` / `text-section` / `text-ui` / `text-kicker` / `text-micro`, `rounded-xl`, `ring-border`, `shadow-raised`. Sin hex en componentes. Paleta D; no copiar paletas de otros CRMs.
 - Iconos (lúdico contenido): Lucide, `strokeWidth={1.75}`. Tres roles, no decoración suelta:
   1. **Wayfinding** — nav y config. Obligatorio.
-  2. **Kind** — tipo de entidad de enum cerrado (actividad, canal, etc.). `KindMark` + catálogo `src/lib/*-visual.ts`. Ese archivo es el único lugar donde se define ícono y color por tipo; los componentes solo lo consumen. El color vive en el well del icono, nunca en la fila ni en competencia con el badge de estado.
+  2. **Kind** — tipo de entidad de enum cerrado (actividad, canal, servicio de salud, etc.). `KindMark` + catálogo `src/lib/*-visual.ts`. Ese archivo es el único lugar donde se define ícono y color por tipo; los componentes solo lo consumen. El color vive en el well del icono, nunca en la fila ni en competencia con el badge de estado. En tablas el default es `md` (well 32px), no `sm`.
   3. **Empty** — `EmptyState`. Obligatorio si no hay datos.
   Dónde no: timestamps, labels de form, cada celda de una tabla, badges de estado (el color del badge ya habla). No emojis, no logos de marca (WhatsApp, Meet), no una librería distinta de Lucide.
 

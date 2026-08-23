@@ -92,7 +92,8 @@ function TooltipTorta({
 
 export function PipelineBarras({ rows }: { rows: PipelinePorEtapa[] }) {
   return (
-    <div className="h-72">
+    <div className="overflow-x-auto">
+      <div className="h-72 min-w-[28rem] md:min-w-0">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart layout="vertical" data={rows} margin={{ top: 4, right: 12, left: 4, bottom: 4 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" horizontal={false} />
@@ -119,6 +120,7 @@ export function PipelineBarras({ rows }: { rows: PipelinePorEtapa[] }) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }

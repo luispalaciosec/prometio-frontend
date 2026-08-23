@@ -131,8 +131,8 @@ export function ContactosPage() {
           </Button>
         }
       />
-      <div className="mb-6 flex flex-wrap items-end gap-3">
-        <div className="flex min-w-56 flex-1 flex-col gap-2">
+      <div className="filter-bar">
+        <div className="filter-field sm:min-w-56 sm:flex-1">
           <Label htmlFor="contacto-busqueda">Buscar</Label>
           <Input
             id="contacto-busqueda"
@@ -141,13 +141,13 @@ export function ContactosPage() {
             placeholder="Nombre, email o teléfono"
           />
         </div>
-        <div className="flex min-w-44 flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="contacto-etapa">Etapa</Label>
           <Select
             value={etapa ?? "all"}
             onValueChange={(value) => setEtapa(value === "all" ? null : (value as EtapaCicloVida))}
           >
-            <SelectTrigger id="contacto-etapa" className="w-44">
+            <SelectTrigger id="contacto-etapa">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
             <SelectContent>

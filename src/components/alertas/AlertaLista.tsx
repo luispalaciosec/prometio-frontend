@@ -95,8 +95,8 @@ export function AlertaLista({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="flex min-w-56 flex-1 flex-col gap-2">
+      <div className="filter-bar mb-0">
+        <div className="filter-field sm:min-w-56 sm:flex-1">
           <Label htmlFor="alerta-busqueda">Buscar</Label>
           <Input
             id="alerta-busqueda"
@@ -105,7 +105,7 @@ export function AlertaLista({
             placeholder="Contacto o empresa"
           />
         </div>
-        <div className="flex min-w-44 flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="alerta-etapa">Etapa</Label>
           <Select
             value={etapaId ?? "all"}
@@ -113,7 +113,7 @@ export function AlertaLista({
               setEtapaId(value === "all" ? null : (value as EtapaPipelineCodigo))
             }
           >
-            <SelectTrigger id="alerta-etapa" className="w-44">
+            <SelectTrigger id="alerta-etapa">
               <SelectValue placeholder="Todas" />
             </SelectTrigger>
             <SelectContent>
@@ -126,7 +126,7 @@ export function AlertaLista({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex min-w-36 flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="alerta-estado">Estado</Label>
           <Select
             value={estado ?? "all"}
@@ -134,7 +134,7 @@ export function AlertaLista({
               setEstado(value === "all" ? null : (value as EstadoAlerta))
             }
           >
-            <SelectTrigger id="alerta-estado" className="w-36">
+            <SelectTrigger id="alerta-estado">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
             <SelectContent>
@@ -145,13 +145,13 @@ export function AlertaLista({
           </Select>
         </div>
         {mostrarEjecutivo ? (
-          <div className="flex min-w-44 flex-col gap-2">
+          <div className="filter-field">
             <Label htmlFor="alerta-ejecutivo">Ejecutivo</Label>
             <Select
               value={ejecutivoId ?? "all"}
               onValueChange={(value) => setEjecutivoId(value === "all" ? null : value)}
             >
-              <SelectTrigger id="alerta-ejecutivo" className="w-44">
+              <SelectTrigger id="alerta-ejecutivo">
                 <SelectValue placeholder="Todos" />
               </SelectTrigger>
               <SelectContent>

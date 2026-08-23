@@ -243,7 +243,7 @@ export function SeoPage() {
           />
           <p className="text-micro">Vacío = se usa el sitio configurado en la organización.</p>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
           <Button type="button" disabled={crawlEnCurso} onClick={() => void onCrawl()}>
             {crawlEnCurso ? <Loader2 className="size-4 animate-spin" /> : null}
             {crawlEnCurso ? "Crawl en curso…" : "Correr crawl"}

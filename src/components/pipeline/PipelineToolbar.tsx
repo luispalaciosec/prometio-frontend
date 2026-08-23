@@ -56,8 +56,8 @@ export function PipelineToolbar({
   const etapasOrdenadas = [...etapas].sort((a, b) => a.orden - b.orden)
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <div className="flex min-w-56 flex-1 flex-col gap-2">
+    <div className="filter-bar mb-0">
+      <div className="filter-field sm:min-w-56 sm:flex-1">
         <Label htmlFor="filtro-busqueda">Buscar</Label>
         <Input
           id="filtro-busqueda"
@@ -66,7 +66,7 @@ export function PipelineToolbar({
           placeholder="Contacto o empresa"
         />
       </div>
-      <div className="flex min-w-44 flex-col gap-2">
+      <div className="filter-field">
         <Label htmlFor="filtro-etapa">Etapa</Label>
         <Select
           value={etapaId ?? "all"}
@@ -74,7 +74,7 @@ export function PipelineToolbar({
             onEtapaId(value === "all" ? null : (value as EtapaPipelineCodigo))
           }
         >
-          <SelectTrigger id="filtro-etapa" className="w-44">
+          <SelectTrigger id="filtro-etapa">
             <SelectValue placeholder="Todas las etapas" />
           </SelectTrigger>
           <SelectContent>
@@ -87,13 +87,13 @@ export function PipelineToolbar({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex min-w-44 flex-col gap-2">
+      <div className="filter-field">
         <Label htmlFor="filtro-servicio">Servicio</Label>
         <Select
           value={servicioId ?? "all"}
           onValueChange={(value) => onServicioId(value === "all" ? null : value)}
         >
-          <SelectTrigger id="filtro-servicio" className="w-44">
+          <SelectTrigger id="filtro-servicio">
             <SelectValue placeholder="Todos los servicios" />
           </SelectTrigger>
           <SelectContent>
@@ -107,13 +107,13 @@ export function PipelineToolbar({
         </Select>
       </div>
       {mostrarEjecutivo ? (
-        <div className="flex min-w-44 flex-col gap-2">
+        <div className="filter-field">
           <Label htmlFor="filtro-ejecutivo">Ejecutivo</Label>
           <Select
             value={ejecutivoId ?? "all"}
             onValueChange={(value) => onEjecutivoId(value === "all" ? null : value)}
           >
-            <SelectTrigger id="filtro-ejecutivo" className="w-44">
+            <SelectTrigger id="filtro-ejecutivo">
               <SelectValue placeholder="Todos" />
             </SelectTrigger>
             <SelectContent>
