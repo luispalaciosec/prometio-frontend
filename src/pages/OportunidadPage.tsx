@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { OportunidadSkeleton } from "@/components/skeleton"
 import { ActividadesSection } from "@/components/pipeline/ActividadesSection"
 import { CotizacionesSection } from "@/components/pipeline/CotizacionesSection"
 import { OportunidadDetalle } from "@/components/pipeline/OportunidadDetalle"
@@ -117,7 +118,7 @@ export function OportunidadPage() {
   }
 
   if (state.status === "loading") {
-    return <p className="text-sm text-muted-foreground">Cargando oportunidad…</p>
+    return <OportunidadSkeleton />
   }
 
   if (state.status === "not_found") {
@@ -197,6 +198,7 @@ export function OportunidadPage() {
   return (
     <>
       <PageHeader
+        flagship
         title={state.oportunidad.contacto.nombre_completo}
         description={
           <>
@@ -242,13 +244,13 @@ export function OportunidadPage() {
         onConfirm={(input) => void guardar(input)}
         onCancel={() => setEditarOpen(false)}
       />
-      <div className="mt-10">
+      <div className="mt-8">
         <ActividadesSection
           oportunidadId={state.oportunidad.id}
           contactoId={state.oportunidad.contacto.id}
         />
       </div>
-      <div className="mt-10">
+      <div className="mt-8">
         <CotizacionesSection
           oportunidadId={state.oportunidad.id}
           ejecutivoId={state.oportunidad.ejecutivo.id}
@@ -261,8 +263,8 @@ export function OportunidadPage() {
 function OportunidadError({ title, body }: { title: string; body?: string }) {
   return (
     <div className="max-w-md space-y-3">
-      <h1 className="font-heading text-2xl tracking-tight">{title}</h1>
-      {body ? <p className="text-sm text-muted-foreground">{body}</p> : null}
+      <h1 className="text-page">{title}</h1>
+      {body ? <p className="text-kicker">{body}</p> : null}
       <Button asChild variant="outline">
         <Link to="/pipeline">Volver al pipeline</Link>
       </Button>

@@ -1,3 +1,7 @@
+import { CalendarClock } from "lucide-react"
+
+import { EmptyState } from "@/components/empty-state"
+import { Skeleton } from "@/components/skeleton"
 import { ActividadForm, type ActividadFormValores } from "@/components/pipeline/ActividadForm"
 import { ActividadReportar } from "@/components/pipeline/ActividadReportar"
 import { Badge } from "@/components/ui/badge"
@@ -7,6 +11,8 @@ import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
 
 export function ActividadLista({
   actividades,
+  cargando = false,
+  onProgramar,
   editandoId,
   reportandoId,
   onEditar,
@@ -17,6 +23,8 @@ export function ActividadLista({
   onCancelar,
 }: {
   actividades: Actividad[]
+  cargando?: boolean
+  onProgramar?: () => void
   editandoId: string | null
   reportandoId: string | null
   onEditar: (id: string) => void
@@ -26,8 +34,30 @@ export function ActividadLista({
   onConfirmarReporte: (id: string, input: { reportada_en: string; feedback: string }) => void
   onCancelar: () => void
 }) {
+  if (cargando) {
+    return (
+      <div className="space-y-2" aria-hidden>
+        <Skeleton className="h-16 w-full rounded-xl" />
+        <Skeleton className="h-16 w-full rounded-xl" />
+      </div>
+    )
+  }
+
   if (actividades.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sin actividades todavía.</p>
+    return (
+      <EmptyState
+        icon={CalendarClock}
+        title="Nada programado"
+        body="Las visitas y llamadas de esta oportunidad aparecen acá. Programá la primera para que el pipeline no se estanque."
+        action={
+          onProgramar ? (
+            <Button type="button" variant="ghost" size="sm" onClick={onProgramar}>
+              Programar actividad
+            </Button>
+          ) : null
+        }
+      />
+    )
   }
 
   return (
@@ -49,23 +79,23 @@ export function ActividadLista({
         const pendiente = actividad.programada_para != null && actividad.reportada_en == null
 
         return (
-          <li key={actividad.id} className="rounded-lg p-3 ring-1 ring-foreground/10">
+          <li key={actividad.id} className="rounded-xl p-3 ring-1 ring-border">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-medium">{TIPO_ACTIVIDAD_LABELS[actividad.tipo]}</p>
+                  <p className="text-ui-medium">{TIPO_ACTIVIDAD_LABELS[actividad.tipo]}</p>
                   <Badge variant={pendiente ? "secondary" : actividad.reportada_en ? "default" : "outline"}>
                     {pendiente ? "programada" : actividad.reportada_en ? "reportada" : "actividad"}
                   </Badge>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-kicker">
                   programada_para {formatDateTime(actividad.programada_para)} · reportada_en{" "}
                   {formatDateTime(actividad.reportada_en)}
                 </p>
                 {actividad.feedback ? (
-                  <p className="text-sm">{actividad.feedback}</p>
+                  <p className="text-ui">{actividad.feedback}</p>
                 ) : null}
-                <p className="text-xs text-muted-foreground">
+                <p className="text-kicker">
                   Calendar {actividad.google_calendar_event_id ?? "—"} · Meet{" "}
                   {actividad.google_meet_url ?? "—"}
                 </p>

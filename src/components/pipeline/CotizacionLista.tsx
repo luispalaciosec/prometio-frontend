@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react"
+import { FileText } from "lucide-react"
 
+import { EmptyState } from "@/components/empty-state"
+import { Skeleton } from "@/components/skeleton"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
 import { formatMoney } from "@/lib/costo-interno"
 import { coincideTexto } from "@/lib/lista-filtros"
@@ -31,10 +34,14 @@ export function CotizacionLista({
   cotizaciones,
   abiertaId,
   onAbrir,
+  onNueva,
+  cargando = false,
 }: {
   cotizaciones: CotizacionConLineas[]
   abiertaId: string | null
   onAbrir: (id: string) => void
+  onNueva?: () => void
+  cargando?: boolean
 }) {
   const [busqueda, setBusqueda] = useState("")
   const [estado, setEstado] = useState<CotizacionEstado | null>(null)
@@ -48,8 +55,30 @@ export function CotizacionLista({
     })
   }, [cotizaciones, estado, busqueda])
 
+  if (cargando) {
+    return (
+      <div className="space-y-2" aria-hidden>
+        <Skeleton className="h-10 w-full rounded-xl" />
+        <Skeleton className="h-10 w-full rounded-xl" />
+      </div>
+    )
+  }
+
   if (cotizaciones.length === 0) {
-    return <p className="text-sm text-muted-foreground">Sin cotizaciones todavía.</p>
+    return (
+      <EmptyState
+        icon={FileText}
+        title="Sin cotizaciones"
+        body="El constructor vive acá. La primera cotización arranca en borrador."
+        action={
+          onNueva ? (
+            <Button type="button" variant="ghost" size="sm" onClick={onNueva}>
+              Nueva cotización
+            </Button>
+          ) : null
+        }
+      />
+    )
   }
 
   return (
@@ -87,7 +116,11 @@ export function CotizacionLista({
         </div>
       </div>
       {filtradas.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Ninguna cotización coincide con los filtros.</p>
+        <EmptyState
+          icon={FileText}
+          title="Nada coincide"
+          body="Ninguna cotización pasa esos filtros."
+        />
       ) : (
         <Table>
           <TableHeader>
@@ -101,7 +134,7 @@ export function CotizacionLista({
           <TableBody>
             {filtradas.map((row) => (
               <TableRow key={row.id} data-state={row.id === abiertaId ? "selected" : undefined}>
-                <TableCell className="font-medium">{row.numero}</TableCell>
+                <TableCell className="text-ui-medium">{row.numero}</TableCell>
                 <TableCell>
                   <CotizacionEstadoBadge estado={row.estado} />
                 </TableCell>

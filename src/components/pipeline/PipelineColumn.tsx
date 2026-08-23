@@ -28,10 +28,10 @@ export function PipelineColumn({
   return (
     <section className="flex w-64 shrink-0 flex-col">
       <header className="mb-2 flex items-baseline justify-between gap-2 px-1">
-        <h2 className={cn("text-sm font-medium", claseTituloEtapa(etapa.codigo))}>
+        <h2 className={cn("text-ui-medium", claseTituloEtapa(etapa.codigo))}>
           {etapa.nombre}
         </h2>
-        <span className="text-xs text-muted-foreground tabular-nums">{items.length}</span>
+        <span className="text-kicker tabular-nums">{items.length}</span>
       </header>
       <div
         ref={setNodeRef}

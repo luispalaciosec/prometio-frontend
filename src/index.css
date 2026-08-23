@@ -154,3 +154,54 @@
     @apply font-sans;
   }
 }
+
+/* Fase B — tokens de lenguaje. Solo se usan donde se aplican las clases. */
+@layer utilities {
+  .text-page {
+    @apply font-heading text-[24px] font-semibold tracking-tight text-foreground;
+  }
+  .text-section {
+    @apply font-heading text-[15px] font-semibold tracking-tight text-foreground;
+  }
+  .text-ui {
+    @apply text-[13px] font-normal text-foreground;
+  }
+  .text-ui-medium {
+    @apply text-[13px] font-medium text-foreground;
+  }
+  .text-kicker {
+    @apply text-[12px] font-normal text-muted-foreground;
+  }
+  .text-micro {
+    @apply text-[11px] font-medium tracking-wide text-muted-foreground;
+  }
+  .shadow-raised {
+    box-shadow:
+      0 1px 2px rgb(6 8 11 / 0.04),
+      0 1px 1px rgb(6 8 11 / 0.03);
+  }
+  .shadow-modal {
+    box-shadow: 0 16px 40px rgb(6 8 11 / 0.14);
+  }
+  .animate-skeleton {
+    animation: skeleton-pulse 1.2s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.dark .shadow-raised {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.28);
+}
+
+.dark .shadow-modal {
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+}

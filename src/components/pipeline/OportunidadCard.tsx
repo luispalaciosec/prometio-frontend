@@ -29,9 +29,9 @@ export function OportunidadCard({
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "rounded-lg bg-card p-3 ring-1 ring-foreground/10 transition-shadow duration-150",
-        "hover:ring-primary/25",
-        isDragging && "z-10 opacity-70 shadow-md",
+        "rounded-xl bg-card p-3 ring-1 ring-border transition-shadow duration-150",
+        "shadow-raised hover:ring-foreground/20",
+        isDragging && "z-10 opacity-70",
       )}
     >
       <div
@@ -41,12 +41,12 @@ export function OportunidadCard({
         onClick={() => onAbrir(oportunidad.id)}
       >
         <div className="flex items-start justify-between gap-2">
-          <p className="text-sm font-medium">{oportunidad.contacto.nombre_completo}</p>
+          <p className="text-ui-medium">{oportunidad.contacto.nombre_completo}</p>
           {estadoAlerta ? <AlertaEstadoBadge estado={estadoAlerta} /> : null}
         </div>
-        <p className="text-xs text-muted-foreground">{oportunidad.empresa.nombre}</p>
-        <p className="mt-2 text-xs text-muted-foreground">{oportunidad.ejecutivo.nombre_completo}</p>
-        <p className="mt-2 text-sm">
+        <p className="text-kicker">{oportunidad.empresa.nombre}</p>
+        <p className="mt-2 text-kicker">{oportunidad.ejecutivo.nombre_completo}</p>
+        <p className="mt-2 text-ui">
           <OportunidadValor
             valor_referencial={oportunidad.valor_referencial}
             valor_cotizado={oportunidad.valor_cotizado}

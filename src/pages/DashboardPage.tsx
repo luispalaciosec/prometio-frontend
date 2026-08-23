@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { DashboardSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -19,6 +21,7 @@ import { formatMoney } from "@/lib/costo-interno"
 import { esSoloLoPropio } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
+import { BarChart3, CircleOff, FileText, CalendarClock } from "lucide-react"
 
 const ESTADO_COTIZACION: Record<string, string> = {
   borrador: "Borrador",
@@ -66,6 +69,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
+        flagship
         title="Dashboard"
         description={
           perfil && esSoloLoPropio(perfil)
@@ -74,7 +78,7 @@ export function DashboardPage() {
         }
       />
       <form
-        className="mb-8 flex flex-wrap items-end gap-3"
+        className="mb-6 flex flex-wrap items-end gap-3"
         onSubmit={(event) => {
           event.preventDefault()
           if (desde && hasta) {
@@ -95,14 +99,18 @@ export function DashboardPage() {
         <Button type="submit" variant="outline" disabled={cargando}>
           Aplicar
         </Button>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-kicker">
           El rango solo filtra actividades por vendedor. El resto es el estado actual.
         </p>
       </form>
       {cargando && !kpis ? (
-        <p className="text-sm text-muted-foreground">Cargando indicadores…</p>
+        <DashboardSkeleton />
       ) : kpis == null ? (
-        <p className="text-sm text-muted-foreground">No hay indicadores para mostrar.</p>
+        <EmptyState
+          icon={BarChart3}
+          title="Sin indicadores"
+          body="No hay datos de pipeline para armar el dashboard todavía."
+        />
       ) : (
         <div className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-3">
@@ -118,7 +126,7 @@ export function DashboardPage() {
             />
           </div>
           <section className="space-y-3">
-            <h2 className="font-heading text-base tracking-tight">Pipeline por etapa</h2>
+            <h2 className="text-section">Pipeline por etapa</h2>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -140,9 +148,13 @@ export function DashboardPage() {
           </section>
           <div className="grid gap-8 lg:grid-cols-2">
             <section className="space-y-3">
-              <h2 className="font-heading text-base tracking-tight">Cotizaciones por estado</h2>
+              <h2 className="text-section">Cotizaciones por estado</h2>
               {kpis.cotizaciones_por_estado.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Sin cotizaciones.</p>
+                <EmptyState
+                  icon={FileText}
+                  title="Sin cotizaciones"
+                  body="Cuando existan cotizaciones, el desglose por estado aparece acá."
+                />
               ) : (
                 <Table>
                   <TableHeader>
@@ -163,9 +175,13 @@ export function DashboardPage() {
               )}
             </section>
             <section className="space-y-3">
-              <h2 className="font-heading text-base tracking-tight">Causas de pérdida</h2>
+              <h2 className="text-section">Causas de pérdida</h2>
               {kpis.causas_perdida.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Sin cierres perdidos con causa.</p>
+                <EmptyState
+                  icon={CircleOff}
+                  title="Sin pérdidas con causa"
+                  body="Los cierres perdidos con causa registrada se agrupan acá."
+                />
               ) : (
                 <Table>
                   <TableHeader>
@@ -187,9 +203,13 @@ export function DashboardPage() {
             </section>
           </div>
           <section className="space-y-3">
-            <h2 className="font-heading text-base tracking-tight">Actividades por vendedor</h2>
+            <h2 className="text-section">Actividades por vendedor</h2>
             {kpis.actividades_por_vendedor.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Sin actividades en el rango.</p>
+              <EmptyState
+                icon={CalendarClock}
+                title="Sin actividades en el rango"
+                body="El filtro de fechas solo aplica a este bloque. El resto es el estado actual."
+              />
             ) : (
               <Table>
                 <TableHeader>
@@ -217,13 +237,13 @@ export function DashboardPage() {
 
 function KpiCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
   return (
-    <Card>
+    <Card className="rounded-xl ring-border transition-shadow duration-150 hover:shadow-raised">
       <CardHeader>
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <CardTitle className="text-kicker font-medium">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="font-heading text-2xl tracking-tight tabular-nums">{value}</p>
-        {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+        <p className="font-heading text-[20px] font-semibold tracking-tight tabular-nums">{value}</p>
+        {hint ? <p className="mt-1 text-kicker">{hint}</p> : null}
       </CardContent>
     </Card>
   )

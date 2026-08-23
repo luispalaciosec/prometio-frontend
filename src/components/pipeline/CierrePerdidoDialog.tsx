@@ -53,7 +53,7 @@ export function CierrePerdidoDialog({
         }
       }}
     >
-      <DialogContent>
+      <DialogContent className="rounded-2xl shadow-modal">
         <DialogHeader>
           <DialogTitle>Cierre Perdido</DialogTitle>
           <DialogDescription>
@@ -95,7 +95,7 @@ export function CierrePerdidoDialog({
             </Select>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="rounded-b-2xl">
           <Button
             type="button"
             variant="outline"

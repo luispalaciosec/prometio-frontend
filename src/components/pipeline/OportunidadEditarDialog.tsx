@@ -133,7 +133,7 @@ export function OportunidadEditarDialog({
         }
       }}
     >
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="rounded-2xl shadow-modal sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Editar oportunidad</DialogTitle>
         </DialogHeader>
@@ -214,7 +214,7 @@ export function OportunidadEditarDialog({
             </Select>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="rounded-b-2xl">
           <Button type="button" variant="outline" disabled={enviando} onClick={onCancel}>
             Cancelar
           </Button>

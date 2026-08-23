@@ -55,7 +55,7 @@ export function PipelineToolbar({
   const etapasOrdenadas = [...etapas].sort((a, b) => a.orden - b.orden)
 
   return (
-    <div className="flex flex-wrap items-end gap-4">
+    <div className="flex flex-wrap items-end gap-3">
       <div className="flex min-w-56 flex-1 flex-col gap-2">
         <Label htmlFor="filtro-busqueda">Buscar</Label>
         <Input

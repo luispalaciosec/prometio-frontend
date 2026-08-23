@@ -22,7 +22,7 @@ export function ActividadesSection({
   contactoId: string | null
 }) {
   const perfil = useAuthStore((state) => state.perfil)
-  const [actividades, setActividades] = useState<Actividad[]>([])
+  const [actividades, setActividades] = useState<Actividad[] | null>(null)
   const [alta, setAlta] = useState<"programar" | "reportar" | null>(null)
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [reportandoId, setReportandoId] = useState<string | null>(null)
@@ -37,6 +37,7 @@ export function ActividadesSection({
   useEffect(() => {
     void reload().catch((error: unknown) => {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar las actividades.")
+      setActividades([])
     })
   }, [reload])
 
@@ -121,9 +122,9 @@ export function ActividadesSection({
   }
 
   return (
-    <section className="rounded-xl p-5 ring-1 ring-foreground/10">
+    <section className="rounded-xl p-4 ring-1 ring-border">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-heading text-base tracking-tight">Actividades</h2>
+        <h2 className="text-section">Actividades</h2>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -161,7 +162,13 @@ export function ActividadesSection({
         </div>
       ) : null}
       <ActividadLista
-        actividades={actividades}
+        actividades={actividades ?? []}
+        cargando={actividades == null}
+        onProgramar={() => {
+          setEditandoId(null)
+          setReportandoId(null)
+          setAlta("programar")
+        }}
         editandoId={editandoId}
         reportandoId={reportandoId}
         onEditar={(id) => {

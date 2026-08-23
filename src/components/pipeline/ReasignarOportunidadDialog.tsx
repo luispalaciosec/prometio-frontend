@@ -49,7 +49,7 @@ export function ReasignarOportunidadDialog({
         }
       }}
     >
-      <DialogContent>
+      <DialogContent className="rounded-2xl shadow-modal">
         <DialogHeader>
           <DialogTitle>Reasignar ejecutivo</DialogTitle>
           <DialogDescription>
@@ -73,7 +73,7 @@ export function ReasignarOportunidadDialog({
             </SelectContent>
           </Select>
         </div>
-        <DialogFooter>
+        <DialogFooter className="rounded-b-2xl">
           <Button
             type="button"
             variant="outline"

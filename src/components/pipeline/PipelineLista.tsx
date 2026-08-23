@@ -55,16 +55,16 @@ export function PipelineLista({
               className="cursor-pointer"
               onClick={() => onAbrir(row.id)}
             >
-              <TableCell className="font-medium">
+              <TableCell className="text-ui-medium">
                 <span className="inline-flex items-center gap-2">
                   {row.contacto.nombre_completo}
                   {alerta ? <AlertaEstadoBadge estado={alerta} /> : null}
                 </span>
               </TableCell>
-              <TableCell>{row.empresa.nombre}</TableCell>
-              <TableCell>{nombreEtapa.get(row.etapa) ?? row.etapa}</TableCell>
+              <TableCell className="text-ui">{row.empresa.nombre}</TableCell>
+              <TableCell className="text-ui">{nombreEtapa.get(row.etapa) ?? row.etapa}</TableCell>
               {mostrarEjecutivo ? (
-                <TableCell>{row.ejecutivo.nombre_completo}</TableCell>
+                <TableCell className="text-ui">{row.ejecutivo.nombre_completo}</TableCell>
               ) : null}
               <TableCell>
                 <OportunidadValor

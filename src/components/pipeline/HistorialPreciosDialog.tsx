@@ -57,7 +57,7 @@ export function HistorialPreciosDialog({
         Ver histórico de precios
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="rounded-2xl shadow-modal sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Histórico Contífico · {servicioNombre}</DialogTitle>
           </DialogHeader>

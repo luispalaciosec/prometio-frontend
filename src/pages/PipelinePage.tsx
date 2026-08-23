@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
+import { EmptyState } from "@/components/empty-state"
+import { PipelineSkeleton } from "@/components/skeleton"
 import { CierrePerdidoDialog } from "@/components/pipeline/CierrePerdidoDialog"
 import { OportunidadAltaDialog } from "@/components/pipeline/OportunidadAltaDialog"
 import { PipelineBoard } from "@/components/pipeline/PipelineBoard"
@@ -35,6 +37,7 @@ import type { Empresa } from "@/types/empresa"
 import type { OportunidadCreate, OportunidadKanban, PipelineScope } from "@/types/oportunidad"
 import type { Perfil } from "@/types/perfil"
 import type { Servicio } from "@/types/servicio"
+import { Columns3 } from "lucide-react"
 
 const VISTA_KEY = "prometio-pipeline-vista"
 
@@ -68,11 +71,14 @@ export function PipelinePage() {
   const [empresasAlta, setEmpresasAlta] = useState<Empresa[]>([])
   const [altaOpen, setAltaOpen] = useState(false)
   const [enviando, setEnviando] = useState(false)
+  const [cargandoLista, setCargandoLista] = useState(true)
+  const [catalogoListo, setCatalogoListo] = useState(false)
 
   const reload = useCallback(async () => {
     if (!perfil) {
       return
     }
+    setCargandoLista(true)
     try {
       const [rows, alertas] = await Promise.all([
         listOportunidades({
@@ -86,6 +92,8 @@ export function PipelinePage() {
       setAlertasPorId(new Map(alertas.map((row) => [row.oportunidad_id, row.estado_alerta])))
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo cargar el pipeline.")
+    } finally {
+      setCargandoLista(false)
     }
   }, [perfil, scope, servicioId])
 
@@ -101,9 +109,11 @@ export function PipelinePage() {
         setServicios(catalogo)
         setCausas(catalogoCausas)
         setPerfilesElegibles(perfiles)
+        setCatalogoListo(true)
       })
       .catch((error: unknown) => {
         toast.error(error instanceof Error ? error.message : "No se pudo cargar el pipeline.")
+        setCatalogoListo(true)
       })
   }, [mostrarAlcance])
 
@@ -221,6 +231,7 @@ export function PipelinePage() {
   return (
     <>
       <PageHeader
+        flagship
         title="Pipeline"
         description="9 etapas fijas. El valor cotizado manda; si no hay, se muestra el referencial como estimado."
         action={
@@ -265,7 +276,21 @@ export function PipelinePage() {
           onVista={cambiarVista}
         />
       </div>
-      {vista === "tablero" ? (
+      {!catalogoListo || (cargandoLista && items.length === 0) ? (
+        <PipelineSkeleton />
+      ) : items.length === 0 ? (
+        <EmptyState
+          icon={Columns3}
+          title="Pipeline vacío"
+          body="Todavía no hay oportunidades en este alcance. Creá la primera para que el tablero tenga movimiento."
+        />
+      ) : filtradas.length === 0 && hayFiltroLocal ? (
+        <EmptyState
+          icon={Columns3}
+          title="Nada coincide"
+          body="Ninguna oportunidad pasa los filtros. Probá limpiar búsqueda, etapa o ejecutivo."
+        />
+      ) : vista === "tablero" ? (
         <PipelineBoard
           etapas={etapas}
           items={filtradas}
@@ -285,15 +310,6 @@ export function PipelinePage() {
           onAbrir={(id) => navigate(`/pipeline/${id}`)}
         />
       )}
-      {items.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          No hay oportunidades en este alcance.
-        </p>
-      ) : filtradas.length === 0 && hayFiltroLocal ? (
-        <p className="mt-4 text-sm text-muted-foreground">
-          Ninguna oportunidad coincide con los filtros.
-        </p>
-      ) : null}
       <CierrePerdidoDialog
         open={pendientePerdido !== null}
         causas={causas}

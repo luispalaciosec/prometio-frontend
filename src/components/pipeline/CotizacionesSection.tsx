@@ -25,7 +25,7 @@ export function CotizacionesSection({
   ejecutivoId: string
 }) {
   const perfil = useAuthStore((state) => state.perfil)
-  const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[]>([])
+  const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[] | null>(null)
   const [abiertaId, setAbiertaId] = useState<string | null>(null)
   const [abierta, setAbierta] = useState<CotizacionConLineas | null>(null)
   const [servicios, setServicios] = useState<Servicio[]>([])
@@ -61,6 +61,7 @@ export function CotizacionesSection({
   useEffect(() => {
     void reloadLista().catch((error: unknown) => {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar las cotizaciones.")
+      setCotizaciones([])
     })
   }, [reloadLista])
 
@@ -84,17 +85,19 @@ export function CotizacionesSection({
   }
 
   return (
-    <section className="rounded-xl p-5 ring-1 ring-foreground/10">
+    <section className="rounded-xl p-4 ring-1 ring-border">
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="font-heading text-base tracking-tight">Cotizaciones</h2>
+        <h2 className="text-section">Cotizaciones</h2>
         <Button type="button" size="sm" onClick={() => void nueva()}>
           Nueva cotización
         </Button>
       </div>
       <CotizacionLista
-        cotizaciones={cotizaciones}
+        cotizaciones={cotizaciones ?? []}
+        cargando={cotizaciones == null}
         abiertaId={abiertaId}
         onAbrir={setAbiertaId}
+        onNueva={() => void nueva()}
       />
       {abierta && perfil ? (
         <CotizacionConstructor
