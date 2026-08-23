@@ -9,6 +9,7 @@ export function HomePlaceholderPage() {
   const user = useAuthStore((state) => state.user)
   const isAdmin = perfil?.equipo === "administrativo"
   const isVentas = perfil?.equipo === "administrativo" || perfil?.equipo === "ventas"
+  const isMarketing = perfil?.equipo === "administrativo" || perfil?.equipo === "marketing"
 
   return (
     <div className="max-w-lg space-y-4">
@@ -29,11 +30,17 @@ export function HomePlaceholderPage() {
             <Link to="/configuracion">Ir a Configuración</Link>
           </Button>
         ) : null}
+        {isMarketing && !isAdmin ? (
+          <Button asChild>
+            <Link to="/seo">Ir a SEO</Link>
+          </Button>
+        ) : null}
       </div>
-      {!isVentas && !isAdmin ? (
+      {!isVentas && !isAdmin && !isMarketing ? (
         <p className="text-kicker">
           El pipeline es para <code>equipo = ventas</code> o <code>administrativo</code>.
-          El Panel de Configuración es solo para administrativo.
+          SEO es para marketing o administrativo. El Panel de Configuración es solo para
+          administrativo.
         </p>
       ) : null}
     </div>

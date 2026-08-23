@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
-import { AdminRoute, GuestRoute, ProtectedRoute, VentasRoute } from "@/components/auth-routes"
+import { AdminRoute, GuestRoute, MarketingRoute, ProtectedRoute, VentasRoute } from "@/components/auth-routes"
 import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardPage"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -28,6 +28,7 @@ import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
 import { PipelinePage } from "@/pages/PipelinePage"
 import { OportunidadPage } from "@/pages/OportunidadPage"
 import { SaludPage } from "@/pages/SaludPage"
+import { SeoPage } from "@/pages/SeoPage"
 import { ServiciosPage } from "@/pages/ServiciosPage"
 import { TarifasInternasPage } from "@/pages/TarifasInternasPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
@@ -141,6 +142,14 @@ export default function App() {
                   <VentasRoute>
                     <CumpleanosPage />
                   </VentasRoute>
+                }
+              />
+              <Route
+                path="/seo"
+                element={
+                  <MarketingRoute>
+                    <SeoPage />
+                  </MarketingRoute>
                 }
               />
               <Route

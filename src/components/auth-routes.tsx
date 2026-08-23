@@ -79,3 +79,22 @@ export function VentasRoute({ children }: { children: ReactNode }) {
 
   return children
 }
+
+export function MarketingRoute({ children }: { children: ReactNode }) {
+  const perfil = useAuthStore((state) => state.perfil)
+  const loading = useAuthStore((state) => state.loading)
+
+  if (loading) {
+    return (
+      <div className="flex min-h-svh items-center justify-center bg-background">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (perfil?.equipo !== "administrativo" && perfil?.equipo !== "marketing") {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}

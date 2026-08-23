@@ -11,6 +11,16 @@ export type { DashboardKPIs } from "./dashboard"
 export type { Resumen } from "./resumen"
 export type { Organizacion, OrganizacionUpdate } from "./organizacion"
 export type { SaludSistema, SaludServicio, SaludEstado } from "./salud"
+export type {
+  SeoCoreWebVitals,
+  SeoCrawl,
+  SeoCrawlEstado,
+  SeoCrawlListItem,
+  SeoEstrategia,
+  SeoFuente,
+  SeoPagina,
+} from "./seo"
+export { SEO_CRAWL_ESTADO_LABELS, SEO_ESTRATEGIA_LABELS, SEO_FUENTE_LABELS } from "./seo"
 export type { Auditoria, ListAuditoriaQuery } from "./auditoria"
 export type { CumpleanosProximo } from "./cumpleanos"
 export type {

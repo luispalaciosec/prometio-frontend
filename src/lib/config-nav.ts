@@ -9,6 +9,7 @@ import {
   Palette,
   Percent,
   Plug,
+  Search,
 } from "lucide-react"
 
 export type ConfigNavItem = {
@@ -90,6 +91,17 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         label: "Formulario web",
         body: "Snippet embebible para landings. POST /formulario.",
         icon: Code2,
+      },
+    ],
+  },
+  {
+    title: "Sitio",
+    items: [
+      {
+        to: "/seo",
+        label: "SEO",
+        body: "Crawl técnico y Core Web Vitals. Campo y laboratorio se muestran aparte.",
+        icon: Search,
       },
     ],
   },

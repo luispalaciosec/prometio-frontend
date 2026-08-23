@@ -31,6 +31,7 @@ export function DashboardSkeleton() {
         <Skeleton className="h-[72px] rounded-xl" />
         <Skeleton className="h-[72px] rounded-xl" />
       </div>
+      <Skeleton className="h-72 w-full rounded-xl" />
       <div className="space-y-2">
         {Array.from({ length: 6 }, (_, row) => (
           <Skeleton key={row} className="h-8 w-full" />
@@ -86,9 +87,9 @@ export function DetailSkeleton() {
   )
 }
 
-export function TilesSkeleton({ count = 4 }: { count?: number }) {
+export function TilesSkeleton({ count = 4, className }: { count?: number; className?: string }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2" aria-hidden>
+    <div className={cn("grid gap-4 sm:grid-cols-2", className)} aria-hidden>
       {Array.from({ length: count }, (_, tile) => (
         <Skeleton key={tile} className="h-[88px] rounded-xl" />
       ))}

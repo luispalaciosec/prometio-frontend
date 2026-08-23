@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
-import { TableSkeleton } from "@/components/skeleton"
+import { TableSkeleton, TilesSkeleton } from "@/components/skeleton"
 import { EmpresaAltaDialog } from "@/components/empresas/EmpresaAltaDialog"
+import { EmpresaCard } from "@/components/empresas/EmpresaCard"
 import { EntityAvatar } from "@/components/entity-avatar"
 import { LinkedInLink } from "@/components/linkedin-link"
 import { PageHeader } from "@/components/page-header"
+import { VistaToggle } from "@/components/vista-toggle"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,15 +24,31 @@ import {
 } from "@/components/ui/table"
 import { createEmpresa, listEmpresas } from "@/lib/api/empresa"
 import { coincideTexto } from "@/lib/lista-filtros"
+import {
+  guardarVistaLocal,
+  leerVistaLocal,
+  VISTA_LISTA_CUADRICULA,
+  type VistaListaCuadricula,
+} from "@/lib/vista-preferida"
 import { puedeEnriquecer, type Empresa, type EmpresaCreate } from "@/types/empresa"
 import { Building2 } from "lucide-react"
+
+const VISTA_KEY = "prometio-empresas-vista"
 
 export function EmpresasPage() {
   const navigate = useNavigate()
   const [rows, setRows] = useState<Empresa[] | null>(null)
   const [busqueda, setBusqueda] = useState("")
+  const [vista, setVista] = useState<VistaListaCuadricula>(() =>
+    leerVistaLocal(VISTA_KEY, VISTA_LISTA_CUADRICULA, "lista"),
+  )
   const [altaOpen, setAltaOpen] = useState(false)
   const [enviando, setEnviando] = useState(false)
+
+  function cambiarVista(next: VistaListaCuadricula) {
+    setVista(next)
+    guardarVistaLocal(VISTA_KEY, next)
+  }
 
   async function reload() {
     try {
@@ -76,17 +94,31 @@ export function EmpresasPage() {
           </Button>
         }
       />
-      <div className="mb-6 flex max-w-sm flex-col gap-2">
-        <Label htmlFor="empresa-busqueda">Buscar</Label>
-        <Input
-          id="empresa-busqueda"
-          value={busqueda}
-          onChange={(event) => setBusqueda(event.target.value)}
-          placeholder="Nombre, web o RUC"
+      <div className="mb-6 flex flex-wrap items-end gap-3">
+        <div className="flex min-w-56 max-w-sm flex-1 flex-col gap-2">
+          <Label htmlFor="empresa-busqueda">Buscar</Label>
+          <Input
+            id="empresa-busqueda"
+            value={busqueda}
+            onChange={(event) => setBusqueda(event.target.value)}
+            placeholder="Nombre, web o RUC"
+          />
+        </div>
+        <VistaToggle
+          value={vista}
+          onChange={cambiarVista}
+          opciones={[
+            { value: "lista", label: "Lista" },
+            { value: "cuadricula", label: "Cuadrícula" },
+          ]}
         />
       </div>
       {rows == null ? (
-        <TableSkeleton />
+        vista === "cuadricula" ? (
+          <TilesSkeleton count={6} className="lg:grid-cols-3" />
+        ) : (
+          <TableSkeleton />
+        )
       ) : filtradas.length === 0 ? (
         <EmptyState
           icon={Building2}
@@ -104,6 +136,16 @@ export function EmpresasPage() {
             ) : null
           }
         />
+      ) : vista === "cuadricula" ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filtradas.map((row) => (
+            <EmpresaCard
+              key={row.id}
+              empresa={row}
+              onOpen={() => navigate(`/empresas/${row.id}`)}
+            />
+          ))}
+        </div>
       ) : (
         <Table>
           <TableHeader>

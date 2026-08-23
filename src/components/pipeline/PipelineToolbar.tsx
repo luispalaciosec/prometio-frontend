@@ -1,3 +1,4 @@
+import { VistaToggle } from "@/components/vista-toggle"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -149,27 +150,14 @@ export function PipelineToolbar({
           </div>
         </div>
       ) : null}
-      <div className="ml-auto flex flex-col gap-2">
-        <Label>Vista</Label>
-        <div className="flex gap-1">
-          <Button
-            type="button"
-            size="sm"
-            variant={vista === "tablero" ? "default" : "outline"}
-            onClick={() => onVista("tablero")}
-          >
-            Tablero
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={vista === "lista" ? "default" : "outline"}
-            onClick={() => onVista("lista")}
-          >
-            Lista
-          </Button>
-        </div>
-      </div>
+      <VistaToggle
+        value={vista}
+        onChange={onVista}
+        opciones={[
+          { value: "tablero", label: "Tablero" },
+          { value: "lista", label: "Lista" },
+        ]}
+      />
     </div>
   )
 }

@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   LayoutList,
   ScrollText,
+  Search,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -21,7 +22,7 @@ import { SidebarSection } from "@/components/sidebar-section"
 import { sidebarNavClass } from "@/components/sidebar-nav"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { puedeVerModuloVentas } from "@/lib/pipeline-acceso"
+import { puedeVerModuloMarketing, puedeVerModuloVentas } from "@/lib/pipeline-acceso"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/store/auth-store"
 
@@ -55,12 +56,14 @@ export function AppShell() {
   const location = useLocation()
   const isAdmin = perfil?.equipo === "administrativo"
   const isVentas = perfil ? puedeVerModuloVentas(perfil) : false
+  const isMarketing = perfil ? puedeVerModuloMarketing(perfil) : false
   const isPipeline = location.pathname === "/pipeline"
   const isBandeja = location.pathname.startsWith("/bandeja")
   const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
   const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
   const saludActivo =
     location.pathname.startsWith("/salud") || location.pathname.startsWith("/auditoria")
+  const sitioActivo = location.pathname.startsWith("/seo")
 
   return (
     <div className="flex min-h-svh bg-background">
@@ -105,6 +108,14 @@ export function AppShell() {
               </SidebarSection>
             </>
           ) : null}
+          {isMarketing && !isAdmin ? (
+            <SidebarSection title="Sitio" active={sitioActivo}>
+              <NavLink to="/seo" className={({ isActive }) => sidebarNavClass(isActive)}>
+                <Search className="size-4 shrink-0 opacity-80" aria-hidden />
+                SEO
+              </NavLink>
+            </SidebarSection>
+          ) : null}
           {isAdmin ? (
             <>
               <SidebarSection title="Salud del sistema" active={saludActivo}>
@@ -126,9 +137,9 @@ export function AppShell() {
               <ConfigSidebar />
             </>
           ) : null}
-          {!isVentas && !isAdmin ? (
+          {!isVentas && !isAdmin && !isMarketing ? (
             <p className="px-2 text-kicker text-sidebar-foreground/60">
-              Este perfil no tiene módulos de ventas ni configuración.
+              Este perfil no tiene módulos asignados.
             </p>
           ) : null}
         </nav>

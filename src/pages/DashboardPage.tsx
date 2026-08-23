@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { DashboardSkeleton } from "@/components/skeleton"
@@ -126,6 +127,7 @@ export function DashboardPage() {
           </div>
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>
+            <PipelineBarras rows={kpis.pipeline_por_etapa} />
             <Table>
               <TableHeader>
                 <TableRow>
@@ -155,22 +157,10 @@ export function DashboardPage() {
                   body="Cuando existan cotizaciones, el desglose por estado aparece acá."
                 />
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="text-right">Cantidad</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {kpis.cotizaciones_por_estado.map((row) => (
-                      <TableRow key={row.estado}>
-                        <TableCell>{ESTADO_COTIZACION[row.estado] ?? row.estado}</TableCell>
-                        <TableCell className="text-right tabular-nums">{row.cantidad}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <CotizacionesTorta
+                  rows={kpis.cotizaciones_por_estado}
+                  etiquetas={ESTADO_COTIZACION}
+                />
               )}
             </section>
             <section className="space-y-3">
