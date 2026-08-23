@@ -2,11 +2,13 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
+import { KindMark } from "@/components/kind-mark"
 import { PageHeader } from "@/components/page-header"
 import { TilesSkeleton } from "@/components/skeleton"
 import { Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getSalud } from "@/lib/api/salud"
+import { SALUD_SERVICIO_VISUAL } from "@/lib/salud-visual"
 import { cn } from "@/lib/utils"
 import {
   SALUD_ESTADO_LABELS,
@@ -78,15 +80,20 @@ export function SaludPage() {
           {data.servicios.map((servicio) => (
             <article
               key={servicio.nombre}
-              className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border"
+              className="flex items-start gap-4 rounded-xl p-5 ring-1 ring-border"
             >
-              <span
-                aria-hidden
-                className={cn("mt-1 size-2.5 shrink-0 rounded-full", ESTADO_CLASE[servicio.estado])}
+              <KindMark
+                icon={SALUD_SERVICIO_VISUAL[servicio.nombre].icon}
+                tone={SALUD_SERVICIO_VISUAL[servicio.nombre].tone}
+                size="lg"
               />
               <div className="min-w-0">
-                <p className="text-ui-medium">{SALUD_SERVICIO_LABELS[servicio.nombre]}</p>
-                <p className="mt-1 text-kicker">
+                <p className="text-section">{SALUD_SERVICIO_LABELS[servicio.nombre]}</p>
+                <p className="mt-1 flex items-center gap-2 text-ui">
+                  <span
+                    aria-hidden
+                    className={cn("size-2.5 shrink-0 rounded-full", ESTADO_CLASE[servicio.estado])}
+                  />
                   {SALUD_ESTADO_LABELS[servicio.estado]}
                   {servicio.latencia_ms != null ? ` · ${servicio.latencia_ms} ms` : ""}
                 </p>

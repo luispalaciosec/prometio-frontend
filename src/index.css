@@ -191,22 +191,22 @@
 /* Fase B — tokens de lenguaje. Solo se usan donde se aplican las clases. */
 @layer utilities {
   .text-page {
-    @apply font-heading text-[24px] font-semibold tracking-tight text-foreground;
+    @apply font-heading text-[28px] font-semibold tracking-tight text-foreground;
   }
   .text-section {
-    @apply font-heading text-[15px] font-semibold tracking-tight text-foreground;
+    @apply font-heading text-[16px] font-semibold tracking-tight text-foreground;
   }
   .text-ui {
-    @apply text-[13px] font-normal text-foreground;
+    @apply text-[14px] font-normal text-foreground;
   }
   .text-ui-medium {
-    @apply text-[13px] font-medium text-foreground;
+    @apply text-[14px] font-medium text-foreground;
   }
   .text-kicker {
-    @apply text-[12px] font-normal text-muted-foreground;
+    @apply text-[13px] font-normal text-muted-foreground;
   }
   .text-micro {
-    @apply text-[11px] font-medium tracking-wide text-muted-foreground;
+    @apply text-[12px] font-medium tracking-wide text-muted-foreground;
   }
   .shadow-raised {
     box-shadow: var(--shadow-raised);

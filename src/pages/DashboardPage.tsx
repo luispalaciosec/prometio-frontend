@@ -3,10 +3,10 @@ import { toast } from "sonner"
 
 import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
 import { EmptyState } from "@/components/empty-state"
+import { KpiCard } from "@/components/kpi-card"
 import { PageHeader } from "@/components/page-header"
 import { DashboardSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -22,7 +22,7 @@ import { formatMoney } from "@/lib/costo-interno"
 import { esSoloLoPropio } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
-import { BarChart3, CircleOff, FileText, CalendarClock } from "lucide-react"
+import { BarChart3, CalendarClock, CircleDollarSign, CircleOff, Columns3, FileText, Percent } from "lucide-react"
 
 const ESTADO_COTIZACION: Record<string, string> = {
   borrador: "Borrador",
@@ -114,8 +114,19 @@ export function DashboardPage() {
       ) : (
         <div className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-3">
-            <KpiCard title="Valor en juego" value={formatMoney(kpis.valor_total_en_juego)} />
-            <KpiCard title="Conversión" value={tasa} hint={`${conversion?.ganadas ?? 0} ganadas · ${conversion?.perdidas ?? 0} perdidas`} />
+            <KpiCard
+              title="Valor en juego"
+              value={formatMoney(kpis.valor_total_en_juego)}
+              icon={CircleDollarSign}
+              tone="bg-primary/15 text-primary"
+            />
+            <KpiCard
+              title="Conversión"
+              value={tasa}
+              hint={`${conversion?.ganadas ?? 0} ganadas · ${conversion?.perdidas ?? 0} perdidas`}
+              icon={Percent}
+              tone="bg-success/15 text-success"
+            />
             <KpiCard
               title="Pipeline abierto"
               value={String(
@@ -123,6 +134,8 @@ export function DashboardPage() {
                   .filter((row) => row.etapa !== "cierre_ganado" && row.etapa !== "cierre_perdido")
                   .reduce((sum, row) => sum + row.cantidad, 0),
               )}
+              icon={Columns3}
+              tone="bg-highlight/15 text-highlight"
             />
           </div>
           <section className="space-y-3">
@@ -224,16 +237,3 @@ export function DashboardPage() {
   )
 }
 
-function KpiCard({ title, value, hint }: { title: string; value: string; hint?: string }) {
-  return (
-    <Card className="rounded-xl ring-border transition-shadow duration-150 hover:shadow-raised">
-      <CardHeader>
-        <CardTitle className="text-kicker font-medium">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="font-heading text-[20px] font-semibold tracking-tight tabular-nums">{value}</p>
-        {hint ? <p className="mt-1 text-kicker">{hint}</p> : null}
-      </CardContent>
-    </Card>
-  )
-}

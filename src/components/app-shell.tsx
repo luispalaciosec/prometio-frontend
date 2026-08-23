@@ -84,7 +84,7 @@ export function AppShell() {
                     end={item.end}
                     className={({ isActive }) => sidebarNavClass(isActive)}
                   >
-                    <item.icon className="size-4 shrink-0 opacity-80" aria-hidden />
+                    <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />
                     {item.label}
                   </NavLink>
                 ))}
@@ -96,7 +96,7 @@ export function AppShell() {
                     to={item.to}
                     className={({ isActive }) => sidebarNavClass(isActive)}
                   >
-                    <item.icon className="size-4 shrink-0 opacity-80" aria-hidden />
+                    <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />
                     {item.label}
                   </NavLink>
                 ))}
@@ -106,18 +106,18 @@ export function AppShell() {
                   to="/agenda/actividades"
                   className={({ isActive }) => sidebarNavClass(isActive)}
                 >
-                  <CalendarClock className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <CalendarClock className="size-[18px] shrink-0 opacity-80" aria-hidden />
                   Actividades
                 </NavLink>
                 <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/40">
-                  <Calendar className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <Calendar className="size-[18px] shrink-0 opacity-80" aria-hidden />
                   <span className="min-w-0 flex-1">Calendario</span>
                   <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
                     Próximamente
                   </span>
                 </div>
                 <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/40">
-                  <History className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <History className="size-[18px] shrink-0 opacity-80" aria-hidden />
                   <span className="min-w-0 flex-1">Timeline</span>
                   <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
                     Próximamente
@@ -129,7 +129,7 @@ export function AppShell() {
           {isMarketing && !isAdmin ? (
             <SidebarSection title="Sitio" active={sitioActivo}>
               <NavLink to="/seo" className={({ isActive }) => sidebarNavClass(isActive)}>
-                <Search className="size-4 shrink-0 opacity-80" aria-hidden />
+                <Search className="size-[18px] shrink-0 opacity-80" aria-hidden />
                 SEO
               </NavLink>
             </SidebarSection>
@@ -141,14 +141,14 @@ export function AppShell() {
                   to="/salud"
                   className={({ isActive }) => sidebarNavClass(isActive)}
                 >
-                  <Activity className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <Activity className="size-[18px] shrink-0 opacity-80" aria-hidden />
                   Servicios
                 </NavLink>
                 <NavLink
                   to="/auditoria"
                   className={({ isActive }) => sidebarNavClass(isActive)}
                 >
-                  <ScrollText className="size-4 shrink-0 opacity-80" aria-hidden />
+                  <ScrollText className="size-[18px] shrink-0 opacity-80" aria-hidden />
                   Auditoría
                 </NavLink>
               </SidebarSection>

@@ -4,11 +4,11 @@ import { TIPO_ACTIVIDAD_LABELS, type TipoActividad } from "@/types/actividad"
 
 export function TipoActividadMark({
   tipo,
-  size = "sm",
+  size = "md",
   showLabel = true,
 }: {
   tipo: TipoActividad
-  size?: "sm" | "md"
+  size?: "sm" | "md" | "lg"
   showLabel?: boolean
 }) {
   const visual = TIPO_ACTIVIDAD_VISUAL[tipo]

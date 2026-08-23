@@ -24,7 +24,7 @@ export function ConfigSidebar() {
           end
           className={({ isActive }) => cn("min-w-0 flex-1", sidebarNavClass(isActive))}
         >
-          <Settings className="size-4 shrink-0 opacity-80" aria-hidden />
+          <Settings className="size-[18px] shrink-0 opacity-80" aria-hidden />
           Configuración
         </NavLink>
         <button
@@ -50,7 +50,7 @@ export function ConfigSidebar() {
                     to={item.to}
                     className={({ isActive }) => sidebarNavClass(isActive, true)}
                   >
-                    <item.icon className="size-4 shrink-0 opacity-80" aria-hidden />
+                    <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />
                     {item.label}
                   </NavLink>
                 ))}

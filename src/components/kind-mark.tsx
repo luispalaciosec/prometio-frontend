@@ -3,8 +3,9 @@ import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const SIZE = {
-  sm: { well: "size-6 rounded-md", icon: "size-3" },
-  md: { well: "size-7 rounded-lg", icon: "size-3.5" },
+  sm: { well: "size-7 rounded-md", icon: "size-3.5" },
+  md: { well: "size-8 rounded-lg", icon: "size-4" },
+  lg: { well: "size-11 rounded-xl", icon: "size-5" },
 } as const
 
 export function KindMark({

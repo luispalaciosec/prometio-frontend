@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
+import { Cake } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
+import { KindMark } from "@/components/kind-mark"
 import { PageHeader } from "@/components/page-header"
 import { TilesSkeleton } from "@/components/skeleton"
-import { Cake } from "lucide-react"
 import { listCumpleanosProximos } from "@/lib/api/cumpleanos"
 import type { CumpleanosProximo } from "@/types/cumpleanos"
 
@@ -46,16 +47,19 @@ export function CumpleanosPage() {
           body="No hay cumpleaños de contactos activos en la ventana configurada."
         />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rows.map((row) => (
             <li key={row.contacto_id}>
               <Link
                 to={`/contactos/${row.contacto_id}`}
-                className="block rounded-xl p-4 ring-1 ring-success/20 transition-shadow duration-150 hover:shadow-raised"
+                className="flex items-start gap-4 rounded-xl p-5 ring-1 ring-success/25 transition-shadow duration-150 hover:shadow-raised"
               >
-                <p className="text-ui-medium text-success">{etiquetaDias(row.dias_hasta_cumpleanos)}</p>
-                <p className="mt-1 text-ui-medium">{row.nombre_completo}</p>
-                <p className="mt-1 text-kicker">Cumple {row.cumple_anos} años</p>
+                <KindMark icon={Cake} tone="bg-success/15 text-success" size="lg" />
+                <div className="min-w-0">
+                  <p className="text-ui-medium text-success">{etiquetaDias(row.dias_hasta_cumpleanos)}</p>
+                  <p className="mt-1 text-section">{row.nombre_completo}</p>
+                  <p className="mt-1 text-ui">Cumple {row.cumple_anos} años</p>
+                </div>
               </Link>
             </li>
           ))}

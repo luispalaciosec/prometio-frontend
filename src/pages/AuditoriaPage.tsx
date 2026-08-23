@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
+import { KpiCard } from "@/components/kpi-card"
 import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
-import { ScrollText } from "lucide-react"
+import { CircleAlert, CircleCheck, ListFilter, ScrollText } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -146,9 +147,24 @@ export function AuditoriaPage() {
         </div>
       </form>
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <ResumenCard label="Total filtrado" value={resumen.total} />
-        <ResumenCard label="Exitosos" value={resumen.exitosos} />
-        <ResumenCard label="Con error" value={resumen.conError} />
+        <KpiCard
+          title="Total filtrado"
+          value={resumen.total}
+          icon={ListFilter}
+          tone="bg-primary/15 text-primary"
+        />
+        <KpiCard
+          title="Exitosos"
+          value={resumen.exitosos}
+          icon={CircleCheck}
+          tone="bg-success/15 text-success"
+        />
+        <KpiCard
+          title="Con error"
+          value={resumen.conError}
+          icon={CircleAlert}
+          tone="bg-destructive/15 text-destructive"
+        />
       </div>
       {rows == null ? (
         <TableSkeleton />
@@ -206,11 +222,3 @@ export function AuditoriaPage() {
   )
 }
 
-function ResumenCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl p-4 ring-1 ring-border">
-      <p className="text-kicker">{label}</p>
-      <p className="mt-1 font-heading text-[20px] font-semibold tracking-tight tabular-nums">{value}</p>
-    </div>
-  )
-}

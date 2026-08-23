@@ -218,7 +218,7 @@ export function AlertaLista({
                   )}
                 >
                   {formatHoras(alerta.horas_transcurridas)}
-                  <span className="block text-xs font-normal text-muted-foreground">
+                  <span className="block text-kicker">
                     umbral {formatHoras(alerta.umbral_alerta_horas)}
                   </span>
                 </TableCell>

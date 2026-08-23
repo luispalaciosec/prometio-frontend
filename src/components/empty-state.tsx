@@ -17,10 +17,12 @@ export function EmptyState({
   className?: string
 }) {
   return (
-    <div className={cn("flex flex-col items-center px-4 py-8 text-center", className)}>
-      <Icon className="size-5 text-muted-foreground" strokeWidth={1.75} aria-hidden />
-      <p className="mt-3 text-ui-medium">{title}</p>
-      <p className="mt-1 max-w-[280px] text-kicker">{body}</p>
+    <div className={cn("flex flex-col items-center px-4 py-10 text-center", className)}>
+      <span className="inline-flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+        <Icon className="size-5" strokeWidth={1.75} aria-hidden />
+      </span>
+      <p className="mt-4 text-section">{title}</p>
+      <p className="mt-1 max-w-[320px] text-kicker">{body}</p>
       {action ? <div className="mt-3">{action}</div> : null}
     </div>
   )
