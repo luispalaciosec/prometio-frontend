@@ -5,8 +5,8 @@ import { CalendarClock } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
 import { TableSkeleton } from "@/components/skeleton"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,16 +34,6 @@ import { useAuthStore } from "@/store/auth-store"
 import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
 import type { Perfil } from "@/types/perfil"
 
-function estadoDe(row: Actividad): { label: string; variant: "secondary" | "default" | "outline" } {
-  if (row.programada_para != null && row.reportada_en == null) {
-    return { label: "programada", variant: "secondary" }
-  }
-  if (row.reportada_en) {
-    return { label: "reportada", variant: "default" }
-  }
-  return { label: "actividad", variant: "outline" }
-}
-
 export function ActividadesPage() {
   const navigate = useNavigate()
   const perfil = useAuthStore((state) => state.perfil)
@@ -58,19 +48,22 @@ export function ActividadesPage() {
   const [hasta, setHasta] = useState("")
   const [responsableId, setResponsableId] = useState<string | null>(null)
 
-  async function reload() {
+  async function reload(filtro?: { desde: string; hasta: string; responsable_id: string | null }) {
     if (!perfil) {
       return
     }
+    const desdeFiltro = filtro?.desde ?? desde
+    const hastaFiltro = filtro?.hasta ?? hasta
+    const responsableFiltro = filtro ? filtro.responsable_id : responsableId
     try {
       const query: Parameters<typeof listActividades>[0] = { perfil }
-      if (desde && hasta) {
-        query.desde = `${desde}T00:00:00`
-        query.hasta = `${hasta}T23:59:59`
+      if (desdeFiltro && hastaFiltro) {
+        query.desde = `${desdeFiltro}T00:00:00`
+        query.hasta = `${hastaFiltro}T23:59:59`
       }
       if (mostrarAlcance) {
-        if (responsableId) {
-          query.responsable_id = responsableId
+        if (responsableFiltro) {
+          query.responsable_id = responsableFiltro
         }
       } else {
         query.responsable_id = perfil.id
@@ -210,6 +203,23 @@ export function ActividadesPage() {
               ? "Ninguna actividad pasa esos filtros. Probá otro rango o responsable."
               : "Cuando el equipo programe o reporte, aparecen acá. No están anidadas a una sola oportunidad."
           }
+          action={
+            hayFiltro ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setDesde("")
+                  setHasta("")
+                  setResponsableId(null)
+                  void reload({ desde: "", hasta: "", responsable_id: null })
+                }}
+              >
+                Limpiar filtros
+              </Button>
+            ) : null
+          }
         />
       ) : (
         <Table>
@@ -225,7 +235,6 @@ export function ActividadesPage() {
           </TableHeader>
           <TableBody>
             {rows.map((row) => {
-              const estado = estadoDe(row)
               const destino = row.oportunidad_id
                 ? `/pipeline/${row.oportunidad_id}`
                 : row.contacto_id
@@ -243,20 +252,16 @@ export function ActividadesPage() {
                 >
                   <TableCell className="text-ui-medium">{TIPO_ACTIVIDAD_LABELS[row.tipo]}</TableCell>
                   <TableCell>
-                    <Badge variant={estado.variant}>{estado.label}</Badge>
+                    <ActividadEstadoBadge actividad={row} />
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDateTime(row.programada_para)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDateTime(row.reportada_en)}
-                  </TableCell>
+                  <TableCell className="text-ui">{formatDateTime(row.programada_para)}</TableCell>
+                  <TableCell className="text-ui">{formatDateTime(row.reportada_en)}</TableCell>
                   {mostrarAlcance ? (
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-ui">
                       {nombres.responsables.get(row.responsable_id) ?? "—"}
                     </TableCell>
                   ) : null}
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-ui">
                     {row.contacto_id ? (nombres.contactos.get(row.contacto_id) ?? "—") : "—"}
                   </TableCell>
                 </TableRow>

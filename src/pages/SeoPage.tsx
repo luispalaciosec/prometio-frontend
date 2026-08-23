@@ -325,13 +325,13 @@ export function SeoPage() {
                         <TableCell className="max-w-[280px] truncate font-mono text-micro" title={pagina.url}>
                           {pagina.url}
                         </TableCell>
-                        <TableCell className="tabular-nums">
+                        <TableCell className="text-ui tabular-nums">
                           {pagina.status_code ?? "—"}
                         </TableCell>
-                        <TableCell className="max-w-[200px] truncate" title={pagina.title ?? undefined}>
+                        <TableCell className="max-w-[200px] truncate text-ui" title={pagina.title ?? undefined}>
                           {pagina.title || "—"}
                         </TableCell>
-                        <TableCell className="max-w-[160px] truncate" title={pagina.h1_texto ?? undefined}>
+                        <TableCell className="max-w-[160px] truncate text-ui" title={pagina.h1_texto ?? undefined}>
                           {pagina.h1_texto || "—"}
                         </TableCell>
                         <TableCell>

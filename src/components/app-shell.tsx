@@ -22,7 +22,6 @@ import { PrometioLogo } from "@/components/prometio-logo"
 import { ModeToggle } from "@/components/mode-toggle"
 import { SidebarSection } from "@/components/sidebar-section"
 import { sidebarNavClass } from "@/components/sidebar-nav"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { puedeVerModuloMarketing, puedeVerModuloVentas } from "@/lib/pipeline-acceso"
 import { cn } from "@/lib/utils"
@@ -110,19 +109,19 @@ export function AppShell() {
                   <CalendarClock className="size-4 shrink-0 opacity-80" aria-hidden />
                   Actividades
                 </NavLink>
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/40">
+                <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/40">
                   <Calendar className="size-4 shrink-0 opacity-80" aria-hidden />
                   <span className="min-w-0 flex-1">Calendario</span>
-                  <Badge variant="secondary" className="h-4 px-1.5 text-[0.6rem]">
+                  <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
                     Próximamente
-                  </Badge>
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/40">
+                <div className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/40">
                   <History className="size-4 shrink-0 opacity-80" aria-hidden />
                   <span className="min-w-0 flex-1">Timeline</span>
-                  <Badge variant="secondary" className="h-4 px-1.5 text-[0.6rem]">
+                  <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
                     Próximamente
-                  </Badge>
+                  </span>
                 </div>
               </SidebarSection>
             </>

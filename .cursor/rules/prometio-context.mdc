@@ -27,6 +27,14 @@ Este repo se construye **desde cero** — `npm create vite@latest` limpio, sin r
 
 Referencia principal: **Apollo.io** — tablas limpias, buen uso de badges de estado, sidebar delgado, alto contraste entre texto primario y secundario. Templa esa base con el minimalismo de Linear/Notion en navegación y formularios (menos bordes, más espacio en blanco, transiciones suaves). Nada de estética recargada tipo HubSpot clásico.
 
+**Toda pantalla nueva nace con el lenguaje de Fase C.** No es un pase posterior. Referencia: Pipeline, Dashboard, Oportunidad, Contactos, Empresas.
+
+- Tablas: `Table` del sistema (13px). Primera columna `text-ui-medium`; el resto `text-ui` o `text-muted-foreground`. `TableRow` con hover (`hover:bg-muted/50`) y `cursor-pointer` si la fila navega. No tipografía genérica de 14/400.
+- Badges de estado: el `Badge` de `ui/badge` (pill `rounded-full`), con variantes `outline` / `warning` / `success` / `destructive` — el mismo patrón que `CotizacionEstadoBadge` y `AlertaEstadoBadge`. No `default`/`secondary` sólidos ni radio de botón.
+- Vacíos: `EmptyState` (ícono + título `text-ui-medium` + copy `text-kicker`). Cero filas o filtro sin match → empty, nunca una tabla en blanco.
+- Nav “Próximamente”: texto `text-micro` en tokens del sidebar, no un chip `Badge` con color de canvas (`secondary`/`warning`).
+- Tokens: `text-page` / `text-section` / `text-ui` / `text-kicker` / `text-micro`, `rounded-xl`, `ring-border`, `shadow-raised`. Sin hex en componentes.
+
 **Theming por organización, no hardcodeado:** logo, color primario y color secundario vienen de la tabla `organizacion` (vía API), no de constantes en el código. Cada usuario elige claro/oscuro individualmente (`perfil.tema_preferido`).
 
 ## Fase actual

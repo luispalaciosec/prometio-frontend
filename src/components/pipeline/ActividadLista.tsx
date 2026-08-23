@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/empty-state"
 import { Skeleton } from "@/components/skeleton"
 import { ActividadForm, type ActividadFormValores } from "@/components/pipeline/ActividadForm"
 import { ActividadReportar } from "@/components/pipeline/ActividadReportar"
-import { Badge } from "@/components/ui/badge"
+import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
 import { Button } from "@/components/ui/button"
 import { formatDateTime } from "@/lib/datetime-local"
 import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
@@ -84,9 +84,7 @@ export function ActividadLista({
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-ui-medium">{TIPO_ACTIVIDAD_LABELS[actividad.tipo]}</p>
-                  <Badge variant={pendiente ? "secondary" : actividad.reportada_en ? "default" : "outline"}>
-                    {pendiente ? "programada" : actividad.reportada_en ? "reportada" : "actividad"}
-                  </Badge>
+                  <ActividadEstadoBadge actividad={actividad} />
                 </div>
                 <p className="text-kicker">
                   programada_para {formatDateTime(actividad.programada_para)} · reportada_en{" "}
