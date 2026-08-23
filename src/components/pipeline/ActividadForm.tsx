@@ -9,13 +9,12 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
 import { fromDatetimeLocalValue, toDatetimeLocalValue } from "@/lib/datetime-local"
 import {
   TIPOS_ACTIVIDAD,
-  TIPO_ACTIVIDAD_LABELS,
   type Actividad,
   type TipoActividad,
 } from "@/types/actividad"
@@ -69,12 +68,12 @@ export function ActividadForm({
           <Label htmlFor="actividad-tipo">Tipo</Label>
           <Select value={tipo} onValueChange={(value) => setTipo(value as TipoActividad)}>
             <SelectTrigger id="actividad-tipo" className="w-full">
-              <SelectValue />
+              <TipoActividadMark tipo={tipo} />
             </SelectTrigger>
             <SelectContent>
               {TIPOS_ACTIVIDAD.map((codigo) => (
                 <SelectItem key={codigo} value={codigo}>
-                  {TIPO_ACTIVIDAD_LABELS[codigo]}
+                  <TipoActividadMark tipo={codigo} />
                 </SelectItem>
               ))}
             </SelectContent>

@@ -5,9 +5,10 @@ import { Skeleton } from "@/components/skeleton"
 import { ActividadForm, type ActividadFormValores } from "@/components/pipeline/ActividadForm"
 import { ActividadReportar } from "@/components/pipeline/ActividadReportar"
 import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
+import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
 import { Button } from "@/components/ui/button"
 import { formatDateTime } from "@/lib/datetime-local"
-import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
+import type { Actividad } from "@/types/actividad"
 
 export function ActividadLista({
   actividades,
@@ -83,7 +84,7 @@ export function ActividadLista({
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-ui-medium">{TIPO_ACTIVIDAD_LABELS[actividad.tipo]}</p>
+                  <TipoActividadMark tipo={actividad.tipo} size="md" />
                   <ActividadEstadoBadge actividad={actividad} />
                 </div>
                 <p className="text-kicker">

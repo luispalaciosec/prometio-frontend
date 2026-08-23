@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { fromDatetimeLocalValue, toDatetimeLocalValue } from "@/lib/datetime-local"
-import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
+import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
+import type { Actividad } from "@/types/actividad"
 
 export function ActividadReportar({
   actividad,
@@ -36,10 +37,10 @@ export function ActividadReportar({
 
   return (
     <form onSubmit={enviar} className="mt-3 space-y-3 rounded-lg p-3 ring-1 ring-foreground/10">
-      <p className="text-sm">
-        Reportar {TIPO_ACTIVIDAD_LABELS[actividad.tipo]} — se agrega reportada_en; programada_para se
-        conserva.
-      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <TipoActividadMark tipo={actividad.tipo} />
+        <p className="text-kicker">Se agrega reportada_en; programada_para se conserva.</p>
+      </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={`reportar-${actividad.id}-fecha`}>reportada_en</Label>
         <Input

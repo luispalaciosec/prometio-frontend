@@ -6,6 +6,7 @@ import { CalendarClock } from "lucide-react"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
+import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,7 +32,7 @@ import { listPerfiles, listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles
 import { formatDateTime } from "@/lib/datetime-local"
 import { puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
-import { TIPO_ACTIVIDAD_LABELS, type Actividad } from "@/types/actividad"
+import type { Actividad } from "@/types/actividad"
 import type { Perfil } from "@/types/perfil"
 
 export function ActividadesPage() {
@@ -250,7 +251,9 @@ export function ActividadesPage() {
                     }
                   }}
                 >
-                  <TableCell className="text-ui-medium">{TIPO_ACTIVIDAD_LABELS[row.tipo]}</TableCell>
+                  <TableCell>
+                    <TipoActividadMark tipo={row.tipo} />
+                  </TableCell>
                   <TableCell>
                     <ActividadEstadoBadge actividad={row} />
                   </TableCell>

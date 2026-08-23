@@ -8,6 +8,7 @@
   --primary #05729f · --sidebar #0d2030 · --highlight #05c7e8 (solo detalle/hover)
   --foreground #06080b · rampa --brand-teal/--brand-shadow/--brand-deep/--brand-navy
   Semáforo: --warning #C9842A, --destructive del sistema.
+  Kind (tipos de entidad): --kind-* alias de paleta D + --kind-email propio. Hex solo acá.
   organizacion.color_* podrá pisar --primary/--secondary cuando exista la API.
 */
 
@@ -38,6 +39,12 @@
     --color-success: var(--success);
     --color-success-foreground: var(--success-foreground);
     --color-highlight: var(--highlight);
+    --color-kind-llamada: var(--kind-llamada);
+    --color-kind-whatsapp: var(--kind-whatsapp);
+    --color-kind-visita: var(--kind-visita);
+    --color-kind-videollamada: var(--kind-videollamada);
+    --color-kind-email: var(--kind-email);
+    --color-kind-tarea: var(--kind-tarea);
     --color-primary-hover: var(--primary-hover);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
@@ -85,6 +92,12 @@
     --success-foreground: #ffffff;
     --warning: #c9842a;
     --warning-foreground: #ffffff;
+    --kind-llamada: var(--primary);
+    --kind-whatsapp: var(--success);
+    --kind-visita: var(--warning);
+    --kind-videollamada: var(--highlight);
+    --kind-email: #2b6a86;
+    --kind-tarea: var(--muted-foreground);
     --destructive: oklch(0.577 0.245 27.325);
     --border: #e4eaed;
     --input: #e4eaed;
@@ -132,6 +145,12 @@
     --success-foreground: #ffffff;
     --warning: #c9842a;
     --warning-foreground: #ffffff;
+    --kind-llamada: var(--primary);
+    --kind-whatsapp: var(--success);
+    --kind-visita: var(--warning);
+    --kind-videollamada: var(--highlight);
+    --kind-email: #7eb8ce;
+    --kind-tarea: var(--muted-foreground);
     --destructive: oklch(0.704 0.191 22.216);
     --border: #083b55;
     --input: #083b55;
