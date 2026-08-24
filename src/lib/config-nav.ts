@@ -90,7 +90,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/conectores",
         label: "Conectores",
-        body: "Claude, OpenAI y Gemini. Sin conexión activa todavía.",
+        body: "Claude por MCP stdio local. ChatGPT y Gemini todavía no.",
         icon: Plug,
       },
       {
