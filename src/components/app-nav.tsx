@@ -9,6 +9,7 @@ import {
   CircleUser,
   Columns3,
   History,
+  House,
   Inbox,
   LayoutDashboard,
   LayoutList,
@@ -30,7 +31,8 @@ import { useAuthStore } from "@/store/auth-store"
 type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
 
 const crmNav: NavItem[] = [
-  { to: "/", label: "Resumen", icon: LayoutList, end: true },
+  { to: "/", label: "Bienvenida", icon: House, end: true },
+  { to: "/resumen", label: "Resumen", icon: LayoutList },
   { to: "/contactos", label: "Contactos", icon: Users },
   { to: "/empresas", label: "Empresas", icon: Building2 },
   { to: "/bandeja", label: "Bandeja", icon: Inbox },

@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
 import { AlertasPage } from "@/pages/AlertasPage"
 import { ActividadesPage } from "@/pages/ActividadesPage"
+import { ResumenPage } from "@/pages/ResumenPage"
 import { AuditoriaPage } from "@/pages/AuditoriaPage"
 import { CumpleanosPage } from "@/pages/CumpleanosPage"
 import { BandejaPage } from "@/pages/BandejaPage"
@@ -61,6 +62,14 @@ export default function App() {
               }
             >
               <Route path="/" element={<HomePage />} />
+              <Route
+                path="/resumen"
+                element={
+                  <VentasRoute>
+                    <ResumenPage />
+                  </VentasRoute>
+                }
+              />
               <Route path="/cuenta" element={<CuentaPage />} />
               <Route
                 path="/pipeline"
