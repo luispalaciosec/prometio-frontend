@@ -277,7 +277,6 @@ export function BandejaPage() {
         enviando={convirtiendo}
         error={convertirError}
         onSubmit={(body) => void convertir(body)}
-        onVincularDuplicado={(contactoId) => void convertir({ contacto_id: contactoId })}
         onCancel={() => {
           setConvertirOpen(false)
           setDuplicadoId(null)

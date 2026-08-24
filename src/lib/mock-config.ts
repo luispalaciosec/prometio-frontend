@@ -474,6 +474,7 @@ export async function createConfiguracionGeneral(
       input.multiplicador_escalamiento_supervisor,
       "multiplicador_escalamiento_supervisor",
     ),
+    resend_dashboard_url: "https://resend.com/overview",
   }
   db.configuracion_general = created
   persist(db)
