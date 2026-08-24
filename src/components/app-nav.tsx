@@ -66,11 +66,11 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const sitioActivo = location.pathname.startsWith("/seo")
 
   return (
-    <>
-      <NavLink to="/" className="px-1" onClick={onNavigate}>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <NavLink to="/" className="shrink-0 px-1" onClick={onNavigate}>
         <PrometioLogo onDark className="h-7 w-auto" />
       </NavLink>
-      <nav className="mt-6 flex flex-1 flex-col overflow-y-auto overscroll-contain">
+      <nav className="mt-6 min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {isVentas ? (
           <>
             <SidebarSection title="CRM" active={crmActivo}>
@@ -109,13 +109,14 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
                 <CalendarClock className="size-[18px] shrink-0 opacity-80" aria-hidden />
                 Actividades
               </NavLink>
-              <div className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground/40">
+              <NavLink
+                to="/agenda/calendario"
+                onClick={onNavigate}
+                className={({ isActive }) => sidebarNavClass(isActive)}
+              >
                 <Calendar className="size-[18px] shrink-0 opacity-80" aria-hidden />
-                <span className="min-w-0 flex-1">Calendario</span>
-                <span className="text-[11px] font-medium tracking-wide text-sidebar-foreground/45">
-                  Próximamente
-                </span>
-              </div>
+                Calendario
+              </NavLink>
               <NavLink
                 to="/agenda/timeline"
                 onClick={onNavigate}
@@ -168,7 +169,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
           </p>
         ) : null}
       </nav>
-      <div className="mt-auto space-y-2 border-t border-sidebar-border pt-4">
+      <div className="mt-auto shrink-0 space-y-2 border-t border-sidebar-border pt-4">
         <NavLink to="/cuenta" onClick={onNavigate} className={({ isActive }) => sidebarNavClass(isActive)}>
           <CircleUser className="size-[18px] shrink-0 opacity-80" aria-hidden />
           Mi cuenta
@@ -188,6 +189,6 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
           <ModeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
         </div>
       </div>
-    </>
+    </div>
   )
 }

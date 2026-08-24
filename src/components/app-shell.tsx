@@ -36,7 +36,7 @@ export function AppShell() {
   }, [menuAbierto])
 
   return (
-    <div className="flex min-h-svh flex-col bg-background md:flex-row">
+    <div className="flex min-h-svh flex-col bg-background md:h-svh md:flex-row md:overflow-hidden">
       <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] md:hidden">
         <Button
           type="button"
@@ -50,7 +50,7 @@ export function AppShell() {
         <PrometioLogo className="h-6 w-auto" />
       </header>
 
-      <aside className="hidden w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
+      <aside className="sticky top-0 hidden h-svh w-56 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
         <AppNav />
       </aside>
 
@@ -68,7 +68,7 @@ export function AppShell() {
         />
         <aside
           className={cn(
-            "absolute inset-y-0 left-0 flex w-[min(18rem,88vw)] flex-col bg-sidebar px-3 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] text-sidebar-foreground shadow-modal transition-transform duration-200",
+            "absolute inset-y-0 left-0 flex min-h-0 w-[min(18rem,88vw)] flex-col overflow-hidden bg-sidebar px-3 py-5 pt-[max(1.25rem,env(safe-area-inset-top))] text-sidebar-foreground shadow-modal transition-transform duration-200",
             menuAbierto ? "translate-x-0" : "-translate-x-full",
           )}
         >

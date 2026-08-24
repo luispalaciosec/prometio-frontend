@@ -13,6 +13,7 @@ import { AuditoriaPage } from "@/pages/AuditoriaPage"
 import { CumpleanosPage } from "@/pages/CumpleanosPage"
 import { BandejaPage } from "@/pages/BandejaPage"
 import { CausasPerdidaPage } from "@/pages/CausasPerdidaPage"
+import { CalendarioPage } from "@/pages/CalendarioPage"
 import { ConfiguracionPage } from "@/pages/ConfiguracionPage"
 import { ConectoresPage } from "@/pages/ConectoresPage"
 import { ContactoPage } from "@/pages/ContactoPage"
@@ -146,6 +147,14 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <ActividadesPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/agenda/calendario"
+                element={
+                  <VentasRoute>
+                    <CalendarioPage />
                   </VentasRoute>
                 }
               />

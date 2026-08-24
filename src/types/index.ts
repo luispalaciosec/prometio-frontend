@@ -10,6 +10,13 @@ export { ETAPAS_CICLO_VIDA, ETAPA_CICLO_LABELS } from "./contacto"
 export type { DashboardKPIs, MetasComerciales, MetaVendedor } from "./dashboard"
 export type { TimelineEvento, TipoTimeline } from "./timeline"
 export { TIPOS_TIMELINE, TIPO_TIMELINE_LABELS, esTipoTimeline } from "./timeline"
+export type {
+  CalendarioResponse,
+  EventoCalendario,
+  TipoEventoCalendario,
+  VistaCalendario,
+} from "./calendario"
+export { TIPOS_EVENTO_CALENDARIO } from "./calendario"
 export type { MetaComercial, MetaComercialCreate, PeriodoTipo } from "./meta-comercial"
 export { PERIODO_TIPOS, PERIODO_TIPO_LABELS } from "./meta-comercial"
 export type { Resumen } from "./resumen"
