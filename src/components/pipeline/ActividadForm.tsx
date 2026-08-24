@@ -9,6 +9,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
@@ -68,12 +69,12 @@ export function ActividadForm({
           <Label htmlFor="actividad-tipo">Tipo</Label>
           <Select value={tipo} onValueChange={(value) => setTipo(value as TipoActividad)}>
             <SelectTrigger id="actividad-tipo" className="w-full">
-              <TipoActividadMark tipo={tipo} />
+              <SelectValue placeholder="Elegí un tipo" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper" align="start">
               {TIPOS_ACTIVIDAD.map((codigo) => (
                 <SelectItem key={codigo} value={codigo}>
-                  <TipoActividadMark tipo={codigo} />
+                  <TipoActividadMark tipo={codigo} size="sm" />
                 </SelectItem>
               ))}
             </SelectContent>
@@ -81,7 +82,7 @@ export function ActividadForm({
         </div>
         {muestraProgramada ? (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="actividad-programada">programada_para</Label>
+            <Label htmlFor="actividad-programada">Programada para</Label>
             <Input
               id="actividad-programada"
               type="datetime-local"
@@ -92,7 +93,7 @@ export function ActividadForm({
         ) : null}
         {muestraReportada ? (
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="actividad-reportada">reportada_en</Label>
+            <Label htmlFor="actividad-reportada">Reportada</Label>
             <Input
               id="actividad-reportada"
               type="datetime-local"
@@ -104,7 +105,7 @@ export function ActividadForm({
       </div>
       {muestraReportada ? (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="actividad-feedback">feedback</Label>
+          <Label htmlFor="actividad-feedback">Notas</Label>
           <Textarea
             id="actividad-feedback"
             value={feedbackRaw}
