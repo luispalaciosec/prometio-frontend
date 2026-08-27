@@ -1,6 +1,18 @@
 export type ModeloCobro = "por_hora" | "fee_fijo" | "fee_recurrente"
 
+export const MODELO_COBRO_LABELS: Record<ModeloCobro, string> = {
+  por_hora: "Por hora",
+  fee_fijo: "Fee fijo",
+  fee_recurrente: "Fee recurrente",
+}
+
 export type ServicioEstado = "borrador" | "activo" | "archivado"
+
+export const SERVICIO_ESTADO_LABELS: Record<ServicioEstado, string> = {
+  borrador: "Borrador",
+  activo: "Activo",
+  archivado: "Archivado",
+}
 
 export type ServicioFase = {
   nombre: string

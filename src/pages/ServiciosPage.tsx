@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { listServicios } from "@/lib/config-api"
-import type { Servicio } from "@/types/servicio"
+import { MODELO_COBRO_LABELS, SERVICIO_ESTADO_LABELS, type Servicio } from "@/types/servicio"
 
 export function ServiciosPage() {
   const [rows, setRows] = useState<Servicio[] | null>(null)
@@ -29,7 +29,7 @@ export function ServiciosPage() {
     <>
       <PageHeader
         title="Servicios"
-        description="Borradores y activos. El wizard guarda estado = borrador hasta Activar."
+        description="Borradores y activos. El wizard guarda como borrador hasta Activar."
         action={
           <Button asChild>
             <Link to="/configuracion/servicios/nuevo">Nuevo servicio</Link>
@@ -53,10 +53,10 @@ export function ServiciosPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>nombre</TableHead>
-            <TableHead>categoria</TableHead>
-            <TableHead>modelo_cobro</TableHead>
-            <TableHead>estado</TableHead>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Categoría</TableHead>
+            <TableHead>Modelo de cobro</TableHead>
+            <TableHead>Estado</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
@@ -65,10 +65,10 @@ export function ServiciosPage() {
               <TableRow key={row.id}>
                 <TableCell className="text-ui-medium">{row.nombre || "Sin nombre"}</TableCell>
                 <TableCell>{row.categoria ?? "—"}</TableCell>
-                <TableCell className="font-mono text-xs">{row.modelo_cobro}</TableCell>
+                <TableCell>{MODELO_COBRO_LABELS[row.modelo_cobro]}</TableCell>
                 <TableCell>
-                  <Badge variant={row.estado === "activo" ? "default" : "secondary"}>
-                    {row.estado}
+                  <Badge variant={row.estado === "activo" ? "success" : "outline"}>
+                    {SERVICIO_ESTADO_LABELS[row.estado]}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">

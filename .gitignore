@@ -17,6 +17,9 @@ dist-ssr
 .env.*
 !.env.example
 
+# PDFs / previews generados localmente
+tmp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

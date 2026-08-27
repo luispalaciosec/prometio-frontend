@@ -5,7 +5,7 @@ import { CalendarClock } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
-import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
+import { ActividadEstadoBadge, estadoActividad } from "@/components/pipeline/ActividadEstadoBadge"
 import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
@@ -33,7 +33,7 @@ import { listPerfiles, listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles
 import { formatDateTime } from "@/lib/datetime-local"
 import { puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
-import type { Actividad } from "@/types/actividad"
+import { TIPO_ACTIVIDAD_LABELS, TIPOS_ACTIVIDAD, type Actividad, type TipoActividad } from "@/types/actividad"
 import type { Perfil } from "@/types/perfil"
 
 export function ActividadesPage() {
@@ -49,6 +49,9 @@ export function ActividadesPage() {
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
   const [responsableId, setResponsableId] = useState<string | null>(null)
+  const [tipo, setTipo] = useState<TipoActividad | null>(null)
+  const [contactoId, setContactoId] = useState<string | null>(null)
+  const [estadoFiltro, setEstadoFiltro] = useState<"programada" | "reportada" | null>(null)
   const [calendarConectado, setCalendarConectado] = useState<boolean | null>(null)
 
   async function reload(filtro?: { desde: string; hasta: string; responsable_id: string | null }) {
@@ -140,7 +143,30 @@ export function ActividadesPage() {
     }
   }, [perfil, mostrarAlcance])
 
-  const hayFiltro = Boolean(desde && hasta) || Boolean(responsableId)
+  const hayFiltro =
+    Boolean(desde && hasta) ||
+    Boolean(responsableId) ||
+    Boolean(tipo) ||
+    Boolean(contactoId) ||
+    Boolean(estadoFiltro)
+
+  const visibles = useMemo(() => {
+    if (rows == null) {
+      return []
+    }
+    return rows.filter((row) => {
+      if (tipo && row.tipo !== tipo) {
+        return false
+      }
+      if (contactoId && row.contacto_id !== contactoId) {
+        return false
+      }
+      if (estadoFiltro && estadoActividad(row) !== estadoFiltro) {
+        return false
+      }
+      return true
+    })
+  }, [rows, tipo, contactoId, estadoFiltro])
 
   const tituloRango = useMemo(() => {
     if (mostrarAlcance && !responsableId) {
@@ -211,19 +237,77 @@ export function ActividadesPage() {
             </Select>
           </div>
         ) : null}
+        <div className="filter-field">
+          <Label htmlFor="agenda-tipo">Tipo</Label>
+          <Select
+            value={tipo ?? "all"}
+            onValueChange={(value) => setTipo(value === "all" ? null : (value as TipoActividad))}
+          >
+            <SelectTrigger id="agenda-tipo">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {TIPOS_ACTIVIDAD.map((item) => (
+                <SelectItem key={item} value={item}>
+                  {TIPO_ACTIVIDAD_LABELS[item]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="filter-field">
+          <Label htmlFor="agenda-contacto">Contacto</Label>
+          <Select
+            value={contactoId ?? "all"}
+            onValueChange={(value) => setContactoId(value === "all" ? null : value)}
+          >
+            <SelectTrigger id="agenda-contacto">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              {[...nombres.contactos.entries()]
+                .sort((a, b) => a[1].localeCompare(b[1], "es"))
+                .map(([id, nombre]) => (
+                  <SelectItem key={id} value={id}>
+                    {nombre}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="filter-field">
+          <Label htmlFor="agenda-estado">Estado</Label>
+          <Select
+            value={estadoFiltro ?? "all"}
+            onValueChange={(value) =>
+              setEstadoFiltro(value === "all" ? null : (value as "programada" | "reportada"))
+            }
+          >
+            <SelectTrigger id="agenda-estado">
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="programada">Programada</SelectItem>
+              <SelectItem value="reportada">Reportada</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <Button type="submit" variant="outline">
           Aplicar
         </Button>
       </form>
       {rows == null ? (
         <TableSkeleton />
-      ) : rows.length === 0 ? (
+      ) : visibles.length === 0 ? (
         <EmptyState
           icon={CalendarClock}
           title={hayFiltro ? "Nada coincide" : "Sin actividades"}
           body={
             hayFiltro
-              ? "Ninguna actividad pasa esos filtros. Probá otro rango o responsable."
+              ? "Ninguna actividad pasa esos filtros. Probá otro rango, tipo, contacto o estado."
               : "Cuando el equipo programe o reporte, aparecen acá. No están anidadas a una sola oportunidad."
           }
           action={
@@ -236,6 +320,9 @@ export function ActividadesPage() {
                   setDesde("")
                   setHasta("")
                   setResponsableId(null)
+                  setTipo(null)
+                  setContactoId(null)
+                  setEstadoFiltro(null)
                   void reload({ desde: "", hasta: "", responsable_id: null })
                 }}
               >
@@ -257,7 +344,7 @@ export function ActividadesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((row) => {
+            {visibles.map((row) => {
               const destino = row.oportunidad_id
                 ? `/pipeline/${row.oportunidad_id}`
                 : row.contacto_id

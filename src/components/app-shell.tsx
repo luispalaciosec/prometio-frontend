@@ -36,8 +36,8 @@ export function AppShell() {
   }, [menuAbierto])
 
   return (
-    <div className="flex min-h-svh flex-col bg-background md:h-svh md:flex-row md:overflow-hidden">
-      <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] md:hidden">
+    <div className="flex h-svh flex-col overflow-hidden bg-background md:flex-row">
+      <header className="z-30 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] md:hidden">
         <Button
           type="button"
           variant="ghost"
@@ -50,7 +50,7 @@ export function AppShell() {
         <PrometioLogo className="h-6 w-auto" />
       </header>
 
-      <aside className="sticky top-0 hidden h-svh w-56 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
+      <aside className="hidden h-full min-h-0 w-56 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
         <AppNav />
       </aside>
 
@@ -89,11 +89,12 @@ export function AppShell() {
       <main
         className={cn(
           "min-h-0 min-w-0 flex-1",
-          isBandeja ? "flex flex-col overflow-hidden" : "overflow-auto",
+          isBandeja ? "flex flex-col overflow-hidden" : "overflow-y-auto overscroll-contain",
         )}
       >
         <div
           className={cn(
+            "min-w-0",
             isBandeja
               ? "flex min-h-0 flex-1 flex-col"
               : isPipeline

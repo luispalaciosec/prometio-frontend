@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { Badge } from "@/components/ui/badge"
 
 import { ConectorCard } from "@/components/conectores/ConectorCard"
+import { ConectorMark } from "@/components/conectores/ConectorMark"
 import { CopyBlock } from "@/components/conectores/CopyBlock"
 import { PageHeader } from "@/components/page-header"
 
@@ -43,12 +44,7 @@ export function ConectoresPage() {
       <div className="space-y-4">
         <section className="rounded-xl p-4 ring-1 ring-border">
           <div className="flex items-start gap-3">
-            <div
-              aria-hidden
-              className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-medium"
-            >
-              C
-            </div>
+            <ConectorMark id="claude" />
             <div className="min-w-0 space-y-1">
               <p className="text-ui-medium">Claude</p>
               <Badge variant="outline">stdio local</Badge>
@@ -100,8 +96,8 @@ export function ConectoresPage() {
           </ol>
         </section>
         <div className="grid gap-3 sm:grid-cols-2">
-          <ConectorCard nombre="ChatGPT" inicial="C" estado="proximamente" />
-          <ConectorCard nombre="Gemini" inicial="G" estado="proximamente" />
+          <ConectorCard id="chatgpt" estado="proximamente" />
+          <ConectorCard id="gemini" estado="proximamente" />
         </div>
       </div>
     </>

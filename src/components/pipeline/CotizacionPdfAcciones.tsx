@@ -9,12 +9,16 @@ export function CotizacionPdfAcciones({
   cotizacionId,
   perfil,
   ejecutivoId,
+  sinLineas = false,
 }: {
   cotizacionId: string
   perfil: Perfil
   ejecutivoId: string
+  sinLineas?: boolean
 }) {
   const verInterno = puedeVerDesgloseCotizacion(perfil, ejecutivoId)
+  const bloqueado = sinLineas
+  const motivo = "Agregá al menos una línea antes de generar el PDF."
 
   async function abrir(variante: "cliente" | "interno") {
     try {
@@ -25,15 +29,34 @@ export function CotizacionPdfAcciones({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button type="button" variant="outline" size="sm" onClick={() => void abrir("cliente")}>
-        Descargar PDF
-      </Button>
-      {verInterno ? (
-        <Button type="button" variant="ghost" size="sm" onClick={() => void abrir("interno")}>
-          Ver PDF interno
-        </Button>
-      ) : null}
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        <span className="inline-flex" title={bloqueado ? motivo : undefined}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={bloqueado}
+            onClick={() => void abrir("cliente")}
+          >
+            Descargar PDF
+          </Button>
+        </span>
+        {verInterno ? (
+          <span className="inline-flex" title={bloqueado ? motivo : undefined}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={bloqueado}
+              onClick={() => void abrir("interno")}
+            >
+              Ver PDF interno
+            </Button>
+          </span>
+        ) : null}
+      </div>
+      {bloqueado ? <p className="text-kicker">{motivo}</p> : null}
     </div>
   )
 }

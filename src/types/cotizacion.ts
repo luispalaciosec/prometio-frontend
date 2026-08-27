@@ -11,6 +11,15 @@ export const COTIZACION_ESTADOS = [
 
 export type CotizacionEstado = (typeof COTIZACION_ESTADOS)[number]
 
+export const COTIZACION_ESTADO_LABELS: Record<CotizacionEstado, string> = {
+  borrador: "Borrador",
+  preparacion: "En preparación",
+  enviada: "Enviada",
+  aprobada: "Aprobada",
+  rechazada: "Rechazada",
+  vencida: "Vencida",
+}
+
 export type Cotizacion = {
   id: string
   numero: string

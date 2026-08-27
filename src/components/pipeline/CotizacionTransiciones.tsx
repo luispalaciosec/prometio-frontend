@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import {
   accionesVisibles,
+  mensajeSinTransicion,
   type AccionCotizacion,
 } from "@/lib/cotizacion-transiciones"
 import type { CotizacionEstado } from "@/types/cotizacion"
@@ -30,7 +31,7 @@ export function CotizacionTransiciones({
 }) {
   const acciones = accionesVisibles(perfil, estado, ejecutivoId)
   if (acciones.length === 0) {
-    return null
+    return <p className="text-kicker">{mensajeSinTransicion(perfil, estado, ejecutivoId)}</p>
   }
 
   return (

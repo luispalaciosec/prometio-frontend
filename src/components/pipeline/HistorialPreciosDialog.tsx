@@ -24,9 +24,11 @@ import { ApiError } from "@/lib/api-client"
 export function HistorialPreciosDialog({
   servicioId,
   servicioNombre,
+  mapeado,
 }: {
   servicioId: string
   servicioNombre: string
+  mapeado: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [cargando, setCargando] = useState(false)
@@ -34,6 +36,11 @@ export function HistorialPreciosDialog({
 
   async function abrir() {
     setOpen(true)
+    if (!mapeado) {
+      setCargando(false)
+      setData(null)
+      return
+    }
     setCargando(true)
     setData(null)
     try {
@@ -62,12 +69,18 @@ export function HistorialPreciosDialog({
           <DialogHeader>
             <DialogTitle>Histórico Contífico · {servicioNombre}</DialogTitle>
           </DialogHeader>
-          {data?.cuenta_verificada === false ? (
-            <p className="rounded-md bg-warning/15 px-3 py-2 text-sm text-warning">
+          {mapeado ? null : (
+            <p className="rounded-md bg-warning/15 px-3 py-2 text-ui text-warning">
+              Este servicio no tiene un producto de Contífico mapeado. Un admin lo carga en el
+              catálogo de Servicios. Sin ese vínculo no se puede consultar el histórico.
+            </p>
+          )}
+          {mapeado && data?.cuenta_verificada === false ? (
+            <p className="rounded-md bg-warning/15 px-3 py-2 text-ui text-warning">
               Fuente de datos sin verificar, no usar como precio de referencia confiable.
             </p>
           ) : null}
-          {cargando ? (
+          {!mapeado ? null : cargando ? (
             <TableSkeleton rows={4} />
           ) : data == null ? null : data.resultados.length === 0 ? (
             <p className="text-kicker">No hay documentos recientes para este producto.</p>

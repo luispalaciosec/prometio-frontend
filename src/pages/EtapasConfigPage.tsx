@@ -72,7 +72,7 @@ export function EtapasConfigPage() {
     if (general) {
       const multiplicador_escalamiento_supervisor = Number(multiplicador)
       if (Number.isNaN(multiplicador_escalamiento_supervisor)) {
-        toast.error("multiplicador_escalamiento_supervisor inválido.")
+        toast.error("El multiplicador de escalamiento no es un número válido.")
         return
       }
       await updateConfiguracionGeneral({
@@ -91,12 +91,12 @@ export function EtapasConfigPage() {
     <>
       <PageHeader
         title="Etapas y alertas"
-        description="9 etapas fijas. codigo, nombre y orden no se editan. umbral_alerta_horas en NULL desactiva la alerta (cierres)."
+        description="Las 9 etapas son fijas: código, nombre y orden no se editan. Si el umbral de alerta queda vacío, esa etapa no genera alerta (cierres)."
         action={<Button onClick={() => void save()}>Guardar</Button>}
       />
-      <div className="mb-6 max-w-xs space-y-2">
+      <div className="mb-6 max-w-lg space-y-2">
         <Label htmlFor="multiplicador_escalamiento_supervisor">
-          multiplicador_escalamiento_supervisor
+          Multiplicador de escalamiento al supervisor
         </Label>
         <Input
           id="multiplicador_escalamiento_supervisor"
@@ -108,20 +108,22 @@ export function EtapasConfigPage() {
           onChange={(event) => setMultiplicador(event.target.value)}
         />
         <p className="text-kicker">
-          Vive en configuracion_general, no en etapa_pipeline.{" "}
+          Es global, no cambia por etapa. Si una oportunidad se queda sin actividad más allá del
+          umbral de la etapa, entra en alerta. Si además supera umbral × este número (2 = el doble
+          de horas), escala al supervisor.{" "}
           {general
-            ? "2× el umbral escala al supervisor."
-            : "Crea la fila en Márgenes e impuestos (POST) para editarlo."}
+            ? null
+            : "Creá la fila en Márgenes e impuestos para poder editarlo."}
         </p>
       </div>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>orden</TableHead>
-            <TableHead>codigo</TableHead>
-            <TableHead>nombre</TableHead>
-            <TableHead>probabilidad_cierre_default_pct</TableHead>
-            <TableHead>umbral_alerta_horas</TableHead>
+            <TableHead>Orden</TableHead>
+            <TableHead>Código</TableHead>
+            <TableHead>Etapa</TableHead>
+            <TableHead>Probabilidad de cierre (%)</TableHead>
+            <TableHead>Umbral de alerta (horas)</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

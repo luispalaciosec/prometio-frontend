@@ -67,7 +67,7 @@ export function TarifasInternasPage() {
   async function save() {
     const costo_hora = Number(draft.costo_hora)
     if (!draft.nombre_rol.trim() || Number.isNaN(costo_hora)) {
-      toast.error("nombre_rol y costo_hora son obligatorios.")
+      toast.error("El nombre del rol y el costo por hora son obligatorios.")
       return
     }
     await upsertTarifaInterna({
@@ -109,8 +109,8 @@ export function TarifasInternasPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>nombre_rol</TableHead>
-            <TableHead>costo_hora</TableHead>
+            <TableHead>Rol</TableHead>
+            <TableHead>Costo por hora</TableHead>
             <TableHead className="w-40" />
           </TableRow>
         </TableHeader>
@@ -140,7 +140,7 @@ export function TarifasInternasPage() {
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="nombre_rol">nombre_rol</Label>
+              <Label htmlFor="nombre_rol">Nombre del rol</Label>
               <Input
                 id="nombre_rol"
                 value={draft.nombre_rol}
@@ -148,9 +148,10 @@ export function TarifasInternasPage() {
                   setDraft((prev) => ({ ...prev, nombre_rol: event.target.value }))
                 }
               />
+              <p className="text-kicker">Se costea por rol (ej. Diseñador), nunca por una persona.</p>
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="costo_hora">costo_hora</Label>
+              <Label htmlFor="costo_hora">Costo por hora</Label>
               <Input
                 id="costo_hora"
                 type="number"
@@ -161,6 +162,7 @@ export function TarifasInternasPage() {
                   setDraft((prev) => ({ ...prev, costo_hora: event.target.value }))
                 }
               />
+              <p className="text-kicker">Costo interno en USD. No es el precio al cliente.</p>
             </div>
           </div>
           <DialogFooter>

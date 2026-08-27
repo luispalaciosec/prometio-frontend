@@ -50,7 +50,7 @@ export function TiposDocumentoPage() {
 
   async function save() {
     if (!draft.nombre.trim()) {
-      toast.error("nombre es obligatorio.")
+      toast.error("El nombre es obligatorio.")
       return
     }
     await upsertTipoDocumento({
@@ -103,8 +103,8 @@ export function TiposDocumentoPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>nombre</TableHead>
-            <TableHead>plantilla_base</TableHead>
+            <TableHead>Nombre</TableHead>
+            <TableHead>Plantilla base</TableHead>
             <TableHead className="w-40" />
           </TableRow>
         </TableHeader>
@@ -156,7 +156,7 @@ export function TiposDocumentoPage() {
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="nombre">nombre</Label>
+              <Label htmlFor="nombre">Nombre</Label>
               <Input
                 id="nombre"
                 value={draft.nombre}
@@ -166,7 +166,7 @@ export function TiposDocumentoPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="plantilla_base">plantilla_base</Label>
+              <Label htmlFor="plantilla_base">Plantilla base</Label>
               <Textarea
                 id="plantilla_base"
                 value={draft.plantilla_base}
@@ -174,6 +174,7 @@ export function TiposDocumentoPage() {
                   setDraft((prev) => ({ ...prev, plantilla_base: event.target.value }))
                 }
               />
+              <p className="text-kicker">Texto o notas de la plantilla. Opcional.</p>
             </div>
           </div>
           <DialogFooter>

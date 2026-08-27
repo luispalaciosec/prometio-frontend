@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
+  COTIZACION_ESTADO_LABELS,
   COTIZACION_ESTADOS,
   type CotizacionConLineas,
   type CotizacionEstado,
@@ -108,7 +109,7 @@ export function CotizacionLista({
               <SelectItem value="all">Todos</SelectItem>
               {COTIZACION_ESTADOS.map((item) => (
                 <SelectItem key={item} value={item}>
-                  {item}
+                  {COTIZACION_ESTADO_LABELS[item]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -143,7 +144,7 @@ export function CotizacionLista({
                 </TableCell>
                 <TableCell className="text-right">
                   <Button type="button" variant="ghost" size="sm" onClick={() => onAbrir(row.id)}>
-                    {row.estado === "borrador" ? "Armar" : "Ver"}
+                    {row.estado === "borrador" ? "Armar cotización" : "Abrir"}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -151,6 +152,10 @@ export function CotizacionLista({
           </TableBody>
         </Table>
       )}
+      <p className="text-kicker">
+        Enviar, aprobar o rechazar está adentro, después de Armar o Abrir. Los botones
+        cambian según el estado y tu rol — no están en esta lista.
+      </p>
     </div>
   )
 }

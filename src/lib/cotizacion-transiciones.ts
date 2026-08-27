@@ -45,3 +45,26 @@ export function accionesVisibles(
   ]
   return todas.filter((accion) => puedeEjecutarTransicion(accion, perfil, estado, ejecutivoId))
 }
+
+/** Copy cuando no hay botones: el flujo existe, pero este rol/estado no desbloquea nada. */
+export function mensajeSinTransicion(
+  perfil: Perfil,
+  estado: CotizacionEstado,
+  ejecutivoId: string,
+): string {
+  if (accionesVisibles(perfil, estado, ejecutivoId).length > 0) {
+    return ""
+  }
+  switch (estado) {
+    case "borrador":
+      return "Para enviarla tenés que ser el dueño de la oportunidad, o un supervisor/admin."
+    case "preparacion":
+      return "Hay un descuento que pide aprobación. Solo un supervisor o admin puede aprobar o rechazar."
+    case "enviada":
+      return "Cuando el cliente responde, el dueño o un supervisor marca aprobada, rechazada o vencida."
+    case "aprobada":
+    case "rechazada":
+    case "vencida":
+      return "Esta cotización ya está cerrada. No hay más cambios de estado."
+  }
+}

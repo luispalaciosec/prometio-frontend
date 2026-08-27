@@ -189,12 +189,16 @@ export function LineaCotizacionForm({
           </SelectContent>
         </Select>
         {servicio ? (
-          <HistorialPreciosDialog servicioId={servicio.id} servicioNombre={servicio.nombre} />
+          <HistorialPreciosDialog
+            servicioId={servicio.id}
+            servicioNombre={servicio.nombre}
+            mapeado={Boolean(servicio.contifico_producto_id)}
+          />
         ) : null}
       </div>
       {caminoFijoConProveedor === false ? null : (
         <div className="flex flex-col gap-2">
-          <Label htmlFor="linea-costo">costo_proveedor</Label>
+          <Label htmlFor="linea-costo">Costo del proveedor</Label>
           <Input
             id="linea-costo"
             type="number"
@@ -204,8 +208,9 @@ export function LineaCotizacionForm({
             onChange={(event) => setCostoRaw(event.target.value)}
           />
           {modo === "alta" ? (
-            <p className="text-xs text-muted-foreground">
-              Vacío = camino sin proveedor (null). Cero es un costo válido.
+            <p className="text-kicker">
+              Dejalo vacío para cotizar sin proveedor (precio directo del servicio). Cero es un
+              costo válido, no es lo mismo que vacío.
             </p>
           ) : null}
         </div>
@@ -229,7 +234,7 @@ export function LineaCotizacionForm({
             </Select>
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="linea-margen">margen_pct</Label>
+            <Label htmlFor="linea-margen">Margen de agencia (%)</Label>
             <Input
               id="linea-margen"
               type="number"
@@ -240,7 +245,7 @@ export function LineaCotizacionForm({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="linea-comision">comision_agencia_pct</Label>
+            <Label htmlFor="linea-comision">Comisión de agencia (%)</Label>
             <Input
               id="linea-comision"
               type="number"
@@ -249,22 +254,22 @@ export function LineaCotizacionForm({
               value={comisionRaw}
               onChange={(event) => setComisionRaw(event.target.value)}
             />
-            <p className="text-xs text-muted-foreground">
-              Default visible: mínimo del rango sugerido del servicio.
+            <p className="text-kicker">
+              El valor inicial es el mínimo del rango sugerido del servicio.
             </p>
           </div>
         </>
       ) : (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-ui text-muted-foreground">
           Precio directo:{" "}
           {servicio?.precio_base_cliente != null
             ? servicio.precio_base_cliente
-            : "este servicio no tiene precio_base_cliente"}
+            : "este servicio no tiene un precio base al cliente"}
           . Margen y comisión no aplican.
         </p>
       )}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="linea-cantidad">cantidad</Label>
+        <Label htmlFor="linea-cantidad">Cantidad</Label>
         <Input
           id="linea-cantidad"
           type="number"
@@ -276,8 +281,8 @@ export function LineaCotizacionForm({
       </div>
       <LineaCalculoVivo calculo={calculo} conProveedor={conProveedor} />
       {!config ? (
-        <p className="text-xs text-destructive">
-          Falta configuracion_general (tasa_impuesto_pct). No se puede calcular.
+        <p className="text-kicker text-destructive">
+          Falta la tasa de impuesto en Márgenes e impuestos. No se puede calcular.
         </p>
       ) : null}
       <div className="flex gap-2">

@@ -31,7 +31,6 @@ import { useAuthStore } from "@/store/auth-store"
 type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
 
 const crmNav: NavItem[] = [
-  { to: "/", label: "Bienvenida", icon: House, end: true },
   { to: "/resumen", label: "Resumen", icon: LayoutList },
   { to: "/contactos", label: "Contactos", icon: Users },
   { to: "/empresas", label: "Empresas", icon: Building2 },
@@ -75,6 +74,15 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
       <nav className="mt-6 min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {isVentas ? (
           <>
+            <NavLink
+              to="/"
+              end
+              onClick={onNavigate}
+              className={({ isActive }) => sidebarNavClass(isActive)}
+            >
+              <House className="size-[18px] shrink-0 opacity-80" aria-hidden />
+              Bienvenida
+            </NavLink>
             <SidebarSection title="CRM" active={crmActivo}>
               {crmNav.map((item) => (
                 <NavLink

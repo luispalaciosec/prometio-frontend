@@ -9,6 +9,7 @@
   --foreground #06080b · rampa --brand-teal/--brand-shadow/--brand-deep/--brand-navy
   Semáforo: --warning #C9842A, --destructive del sistema.
   Kind (tipos de entidad): --kind-* alias de paleta D + --kind-email propio. Hex solo acá.
+  Conectores (marcas ajenas, no paleta D): --conector-claude/--conector-openai/--conector-gemini-*.
   organizacion.color_* pisa --primary/--secondary/--highlight/--sidebar.
 */
 
@@ -45,6 +46,11 @@
     --color-kind-videollamada: var(--kind-videollamada);
     --color-kind-email: var(--kind-email);
     --color-kind-tarea: var(--kind-tarea);
+    --color-conector-claude: var(--conector-claude);
+    --color-conector-openai: var(--conector-openai);
+    --color-conector-gemini-from: var(--conector-gemini-from);
+    --color-conector-gemini-via: var(--conector-gemini-via);
+    --color-conector-gemini-to: var(--conector-gemini-to);
     --color-primary-hover: var(--primary-hover);
     --color-accent-foreground: var(--accent-foreground);
     --color-accent: var(--accent);
@@ -98,6 +104,11 @@
     --kind-videollamada: var(--highlight);
     --kind-email: #2b6a86;
     --kind-tarea: var(--muted-foreground);
+    --conector-claude: #c15f3c;
+    --conector-openai: #10a37f;
+    --conector-gemini-from: #4285f4;
+    --conector-gemini-via: #9b72cb;
+    --conector-gemini-to: #d96570;
     --destructive: oklch(0.577 0.245 27.325);
     --border: #e4eaed;
     --input: #e4eaed;

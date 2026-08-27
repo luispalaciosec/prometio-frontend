@@ -101,7 +101,7 @@ export function CausasPerdidaPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>nombre</TableHead>
+            <TableHead>Nombre</TableHead>
             <TableHead className="w-40" />
           </TableRow>
         </TableHeader>
@@ -145,7 +145,7 @@ export function CausasPerdidaPage() {
             <DialogTitle>{draft.id ? "Editar causa" : "Nueva causa"}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="nombre">nombre</Label>
+            <Label htmlFor="nombre">Nombre</Label>
             <Input
               id="nombre"
               value={draft.nombre}

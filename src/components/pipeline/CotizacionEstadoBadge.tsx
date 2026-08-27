@@ -1,14 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import type { CotizacionEstado } from "@/types/cotizacion"
-
-const LABELS: Record<CotizacionEstado, string> = {
-  borrador: "borrador",
-  preparacion: "preparacion",
-  enviada: "enviada",
-  aprobada: "aprobada",
-  rechazada: "rechazada",
-  vencida: "vencida",
-}
+import { COTIZACION_ESTADO_LABELS, type CotizacionEstado } from "@/types/cotizacion"
 
 const VARIANTS: Record<
   CotizacionEstado,
@@ -23,5 +14,5 @@ const VARIANTS: Record<
 }
 
 export function CotizacionEstadoBadge({ estado }: { estado: CotizacionEstado }) {
-  return <Badge variant={VARIANTS[estado]}>{LABELS[estado]}</Badge>
+  return <Badge variant={VARIANTS[estado]}>{COTIZACION_ESTADO_LABELS[estado]}</Badge>
 }

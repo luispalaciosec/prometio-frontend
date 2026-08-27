@@ -150,7 +150,7 @@ export function MarcaPage() {
                   void subirLogo("claro", file)
                 }}
               />
-              <p className="text-kicker">PNG, JPEG, WebP o SVG. Máximo 2 MB.</p>
+              <p className="text-kicker">PNG, JPEG, WebP o SVG. Máximo 2 MB. Para fondos claros.</p>
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="marca-logo-oscuro">Logo oscuro</Label>
@@ -165,7 +165,7 @@ export function MarcaPage() {
                   void subirLogo("oscuro", file)
                 }}
               />
-              <p className="text-kicker">Para el sidebar. Si no hay, se usa el claro.</p>
+              <p className="text-kicker">Para el sidebar y el PDF de cotización (header oscuro). Si no hay, se usa el claro.</p>
             </div>
           </div>
         </section>

@@ -126,10 +126,22 @@ export function CotizacionConstructor({
 
   return (
     <div className="mt-4 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium">{cotizacion.numero}</p>
-          <CotizacionEstadoBadge estado={cotizacion.estado} />
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-section">{cotizacion.numero}</p>
+        <CotizacionEstadoBadge estado={cotizacion.estado} />
+      </div>
+      <div className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+        <div>
+          <p className="text-ui-medium">Cambiar estado</p>
+          <p className="mt-1 text-kicker">
+            {esBorrador
+              ? "Cuando las líneas estén listas, enviá la cotización. Si hay un descuento grande, pasa a preparación para que la apruebe un supervisor."
+              : cotizacion.estado === "preparacion"
+                ? "Un supervisor o admin aprueba o rechaza el descuento. Recién después se puede enviar al cliente."
+                : cotizacion.estado === "enviada"
+                  ? "El cliente ya la tiene. Acá se marca el resultado: aprobada, rechazada o vencida."
+                  : "Esta cotización ya no cambia de estado."}
+          </p>
         </div>
         <CotizacionTransiciones
           perfil={perfil}
@@ -143,6 +155,7 @@ export function CotizacionConstructor({
         cotizacionId={cotizacion.id}
         perfil={perfil}
         ejecutivoId={ejecutivoId}
+        sinLineas={cotizacion.lineas.length === 0}
       />
       {cotizacion.estado === "preparacion" ? (
         <p className="rounded-lg bg-secondary px-3 py-2 text-sm">

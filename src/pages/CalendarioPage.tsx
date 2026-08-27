@@ -8,6 +8,11 @@ import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { getCalendario } from "@/lib/api/calendario"
+import { listActividades } from "@/lib/api/actividad"
+import { listContactos } from "@/lib/api/contacto"
+import { listPerfiles } from "@/lib/api/perfiles"
+import { useAuthStore } from "@/store/auth-store"
+import type { ContextoAgenda } from "@/components/calendario/CalendarioEventoFila"
 import {
   celdasRango,
   endOfMonth,
@@ -34,31 +39,63 @@ function vistaInicial(): VistaCalendario {
 }
 
 export function CalendarioPage() {
+  const perfil = useAuthStore((state) => state.perfil)
   const [vista, setVista] = useState<VistaCalendario>(vistaInicial)
   const [ancla, setAncla] = useState(() => new Date())
   const [eventos, setEventos] = useState<EventoCalendario[] | null>(null)
+  const [contexto, setContexto] = useState<ContextoAgenda>({ actividades: new Map() })
 
   const rango = useMemo(() => rangoDeVista(vista, ancla), [vista, ancla])
 
   useEffect(() => {
     let cancelled = false
     setEventos(null)
-    void getCalendario({ desde: rango.desde, hasta: rango.hasta })
-      .then((data) => {
-        if (!cancelled) {
-          setEventos(data.eventos)
+    void (async () => {
+      try {
+        const data = await getCalendario({ desde: rango.desde, hasta: rango.hasta })
+        if (cancelled) {
+          return
         }
-      })
-      .catch((error: unknown) => {
+        setEventos(data.eventos)
+        if (!perfil) {
+          return
+        }
+        const [actividades, contactos, perfiles] = await Promise.all([
+          listActividades({
+            perfil,
+            desde: `${rango.desde}T00:00:00`,
+            hasta: `${rango.hasta}T23:59:59`,
+          }),
+          listContactos({ incluir_inactivos: true }),
+          listPerfiles(),
+        ])
+        if (cancelled) {
+          return
+        }
+        const contactosMap = new Map(contactos.map((row) => [row.id, row.nombre_completo]))
+        const responsablesMap = new Map(perfiles.map((row) => [row.id, row.nombre_completo]))
+        setContexto({
+          actividades: new Map(
+            actividades.map((row) => [
+              row.id,
+              {
+                responsable: responsablesMap.get(row.responsable_id) ?? "—",
+                contacto: row.contacto_id ? (contactosMap.get(row.contacto_id) ?? "—") : "—",
+              },
+            ]),
+          ),
+        })
+      } catch (error: unknown) {
         if (!cancelled) {
           toast.error(error instanceof Error ? error.message : "No se pudo cargar el calendario.")
           setEventos([])
         }
-      })
+      }
+    })()
     return () => {
       cancelled = true
     }
-  }, [rango.desde, rango.hasta])
+  }, [rango.desde, rango.hasta, perfil])
 
   const celdas = useMemo(() => {
     const rows = eventos ?? []
@@ -111,7 +148,7 @@ export function CalendarioPage() {
       ) : vista === "semana" ? (
         <CalendarioSemana celdas={celdas} />
       ) : (
-        <CalendarioAgenda celdas={celdas} />
+        <CalendarioAgenda celdas={celdas} contexto={contexto} />
       )}
     </>
   )

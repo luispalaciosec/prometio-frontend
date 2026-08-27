@@ -55,13 +55,13 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/etapas",
         label: "Etapas y alertas",
-        body: "probabilidad_cierre_default_pct, umbral_alerta_horas y multiplicador_escalamiento_supervisor.",
+        body: "Probabilidad de cierre, umbral de alerta en horas y multiplicador de escalamiento al supervisor.",
         icon: ListOrdered,
       },
       {
         to: "/configuracion/margenes",
         label: "Márgenes e impuestos",
-        body: "margen_agencia_default_pct, comisión de agencia (rango) y tasa_impuesto_pct.",
+        body: "Margen de agencia, rango de comisión y tasa de impuesto.",
         icon: Percent,
       },
       {
@@ -96,7 +96,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/formulario-web",
         label: "Formulario web",
-        body: "Snippet embebible para landings. POST /formulario.",
+        body: "Snippet para landings, campos fijos y URL de conexión.",
         icon: Code2,
       },
     ],

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge"
-import { cn } from "@/lib/utils"
+import { ConectorMark } from "@/components/conectores/ConectorMark"
+import { CONECTOR_VISUAL, type ConectorId } from "@/lib/conectores-visual"
 
 export type ConectorEstado = "stdio_local" | "proximamente"
 
@@ -9,27 +10,17 @@ const ESTADO_LABEL: Record<ConectorEstado, string> = {
 }
 
 export function ConectorCard({
-  nombre,
-  inicial,
+  id,
   estado,
 }: {
-  nombre: string
-  inicial: string
+  id: ConectorId
   estado: ConectorEstado
 }) {
   return (
     <div className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border">
-      <div
-        aria-hidden
-        className={cn(
-          "flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted font-medium",
-          inicial.length > 1 ? "text-micro" : "text-sm",
-        )}
-      >
-        {inicial}
-      </div>
+      <ConectorMark id={id} />
       <div className="min-w-0 space-y-1">
-        <p className="text-ui-medium">{nombre}</p>
+        <p className="text-ui-medium">{CONECTOR_VISUAL[id].label}</p>
         <Badge variant="outline">{ESTADO_LABEL[estado]}</Badge>
       </div>
     </div>

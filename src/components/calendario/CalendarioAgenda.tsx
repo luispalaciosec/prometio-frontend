@@ -1,11 +1,17 @@
 import { Calendar } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
-import { CalendarioEventoFila } from "@/components/calendario/CalendarioEventoFila"
+import { CalendarioEventoFila, type ContextoAgenda } from "@/components/calendario/CalendarioEventoFila"
 import { formatDateOnly } from "@/lib/datetime-local"
 import { claveEvento, type CeldaCalendario } from "@/lib/calendario-rango"
 
-export function CalendarioAgenda({ celdas }: { celdas: CeldaCalendario[] }) {
+export function CalendarioAgenda({
+  celdas,
+  contexto,
+}: {
+  celdas: CeldaCalendario[]
+  contexto?: ContextoAgenda
+}) {
   const conEventos = celdas.filter((celda) => celda.eventos.length > 0)
   if (conEventos.length === 0) {
     return (
@@ -24,7 +30,7 @@ export function CalendarioAgenda({ celdas }: { celdas: CeldaCalendario[] }) {
           <ul className="space-y-2">
             {celda.eventos.map((evento) => (
               <li key={claveEvento(evento)}>
-                <CalendarioEventoFila evento={evento} />
+                <CalendarioEventoFila evento={evento} contexto={contexto} />
               </li>
             ))}
           </ul>

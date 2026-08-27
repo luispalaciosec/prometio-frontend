@@ -63,7 +63,7 @@ export function SaludPage() {
         }
       />
       {data ? (
-        <p className="mb-6 text-kicker">
+        <p className="mb-4 text-kicker">
           Verificado {formatoHora(data.verificado_en)}
         </p>
       ) : null}
@@ -76,7 +76,9 @@ export function SaludPage() {
           body="No se pudo consultar el estado de los servicios."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <>
+          <SaludResumen servicios={data.servicios} />
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
           {data.servicios.map((servicio) => (
             <article
               key={servicio.nombre}
@@ -101,7 +103,47 @@ export function SaludPage() {
             </article>
           ))}
         </div>
+        </>
       )}
     </>
+  )
+}
+
+function SaludResumen({ servicios }: { servicios: SaludSistema["servicios"] }) {
+  const todosOperativos = servicios.every((row) => row.estado === "operativo")
+  const algunoCaido = servicios.some((row) => row.estado === "caido")
+  const tono = todosOperativos ? "ok" : algunoCaido ? "down" : "warn"
+  const titulo =
+    tono === "ok"
+      ? "Todos los sistemas operativos"
+      : tono === "down"
+        ? "Hay sistemas caídos"
+        : "Hay sistemas degradados"
+  const cuerpo =
+    tono === "ok"
+      ? "Railway, Vercel, Supabase y WeasyPrint responden. El detalle de cada uno está abajo."
+      : "Revisá las tarjetas de abajo. El resumen no reemplaza el detalle por servicio."
+
+  return (
+    <div
+      className={cn(
+        "rounded-xl p-5 ring-1",
+        tono === "ok" && "bg-success/10 ring-success/30",
+        tono === "down" && "bg-destructive/10 ring-destructive/30",
+        tono === "warn" && "bg-warning/10 ring-warning/30",
+      )}
+    >
+      <p
+        className={cn(
+          "text-page",
+          tono === "ok" && "text-success",
+          tono === "down" && "text-destructive",
+          tono === "warn" && "text-warning",
+        )}
+      >
+        {titulo}
+      </p>
+      <p className="mt-1 text-kicker">{cuerpo}</p>
+    </div>
   )
 }

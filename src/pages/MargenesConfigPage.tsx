@@ -101,12 +101,12 @@ export function MargenesConfigPage() {
 
   async function save() {
     if (tasaRaw.trim() === "") {
-      toast.error("tasa_impuesto_pct es obligatorio (sin default en el schema).")
+      toast.error("La tasa de impuesto es obligatoria (no hay un default en el sistema).")
       return
     }
     const tasa_impuesto_pct = parseTasaImpuestoPct(tasaRaw)
     if (tasa_impuesto_pct === null) {
-      toast.error("tasa_impuesto_pct debe ser numérico.")
+      toast.error("La tasa de impuesto debe ser un número.")
       return
     }
 
@@ -114,7 +114,7 @@ export function MargenesConfigPage() {
     for (const key of DEFAULT_FIELDS) {
       const parsed = parseOptionalNumber(form[key])
       if (parsed === "invalid") {
-        toast.error(`${key} debe ser numérico.`)
+        toast.error("Revisá que todos los porcentajes sean números.")
         return
       }
       if (parsed !== "empty") {
@@ -127,7 +127,7 @@ export function MargenesConfigPage() {
       const updated = await updateConfiguracionGeneral(payload)
       setForm(formFromRow(updated))
       setTasaRaw(String(updated.tasa_impuesto_pct))
-      toast.success("configuracion_general actualizada.")
+      toast.success("Configuración actualizada.")
       return
     }
     const created = await createConfiguracionGeneral({
@@ -137,20 +137,34 @@ export function MargenesConfigPage() {
     setExists(true)
     setForm(formFromRow(created))
     setTasaRaw(String(created.tasa_impuesto_pct))
-    toast.success("configuracion_general creada.")
+    toast.success("Configuración creada.")
   }
 
-  const fields: { key: DefaultField; hint: string }[] = [
-    { key: "margen_agencia_default_pct", hint: "Margen de agencia global (default 30). En blanco, aplica el default de la base." },
-    { key: "comision_agencia_default_min_pct", hint: "Piso del rango de comisión de agencia (default 13)." },
-    { key: "comision_agencia_default_max_pct", hint: "Techo del rango de comisión de agencia (default 20)." },
+  const fields: { key: DefaultField; label: string; hint: string }[] = [
+    {
+      key: "margen_agencia_default_pct",
+      label: "Margen de agencia por defecto (%)",
+      hint: "Se aplica a las líneas con proveedor si el servicio no tiene un override. Default 30.",
+    },
+    {
+      key: "comision_agencia_default_min_pct",
+      label: "Comisión de agencia mínima (%)",
+      hint: "Piso del rango que ve el vendedor al armar una cotización. Default 13.",
+    },
+    {
+      key: "comision_agencia_default_max_pct",
+      label: "Comisión de agencia máxima (%)",
+      hint: "Techo del mismo rango. Default 20.",
+    },
     {
       key: "umbral_descuento_aprobacion_pct",
-      hint: "Por encima de este % el descuento pide aprobación (default 10).",
+      label: "Umbral de descuento que pide aprobación (%)",
+      hint: "Por encima de este porcentaje, la cotización pasa a preparación para que la apruebe un supervisor. Default 10.",
     },
     {
       key: "multiplicador_escalamiento_supervisor",
-      hint: "Global, no por etapa. También visible en Etapas y alertas (default 2).",
+      label: "Multiplicador de escalamiento al supervisor",
+      hint: "Global, no por etapa. Si una oportunidad supera umbral × este número, escala al supervisor. También se edita en Etapas y alertas. Default 2.",
     },
   ]
 
@@ -167,8 +181,8 @@ export function MargenesConfigPage() {
           title="Márgenes e impuestos"
           description={
             exists
-              ? "Fila única de configuracion_general. PATCH si ya existe. Campos en blanco no se envían."
-              : "Todavía no hay fila. POST de creación — tasa_impuesto_pct es obligatorio; el resto, si queda en blanco, usa el DEFAULT del schema."
+              ? "Valores por defecto de toda la agencia. Un campo en blanco no se envía y deja el valor actual."
+              : "Todavía no hay configuración. La tasa de impuesto es obligatoria; el resto, si queda en blanco, usa el default del sistema."
           }
           action={
             <Button type="submit">{exists ? "Guardar" : "Crear"}</Button>
@@ -177,7 +191,7 @@ export function MargenesConfigPage() {
       </div>
       {fields.map((field) => (
         <div key={field.key} className="flex flex-col gap-2">
-          <Label htmlFor={field.key}>{field.key}</Label>
+          <Label htmlFor={field.key}>{field.label}</Label>
           <Input
             id={field.key}
             type="number"
@@ -190,7 +204,7 @@ export function MargenesConfigPage() {
         </div>
       ))}
       <div className="flex flex-col gap-2">
-        <Label htmlFor="tasa_impuesto_pct">tasa_impuesto_pct</Label>
+        <Label htmlFor="tasa_impuesto_pct">Tasa de impuesto / IVA (%)</Label>
         <Input
           id="tasa_impuesto_pct"
           name="tasa_impuesto_pct"
@@ -201,7 +215,7 @@ export function MargenesConfigPage() {
           onChange={(event) => setTasaRaw(event.target.value)}
         />
         <p className="text-kicker">
-          Obligatoria al crear. Nunca se inventa una tasa de IVA.
+          Obligatoria al crear. Nunca se inventa una tasa: hay que cargar la real de la organización.
         </p>
       </div>
     </form>

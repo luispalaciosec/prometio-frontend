@@ -7,28 +7,51 @@ import { formatMoney } from "@/lib/costo-interno"
 import { cn } from "@/lib/utils"
 import type { EventoCalendario } from "@/types/calendario"
 
-function detalle(evento: EventoCalendario): string | null {
+function detalle(evento: EventoCalendario, contexto?: ContextoAgenda): string | null {
   if (evento.tipo === "cumpleanos") {
     return evento.nombre_completo
   }
   if (evento.tipo === "vencimiento_cotizacion") {
     return `${evento.numero} · ${formatMoney(evento.total)}`
   }
+  if (evento.tipo === "actividad" && contexto) {
+    const extra = contexto.actividades.get(evento.actividad_id)
+    if (!extra) {
+      return null
+    }
+    const partes = [extra.responsable, extra.contacto].filter((item) => item && item !== "—")
+    return partes.length > 0 ? partes.join(" · ") : null
+  }
   return null
 }
 
-export function CalendarioEventoFila({ evento }: { evento: EventoCalendario }) {
+export type ContextoAgenda = {
+  actividades: Map<string, { responsable: string; contacto: string }>
+}
+
+export function CalendarioEventoFila({
+  evento,
+  contexto,
+}: {
+  evento: EventoCalendario
+  contexto?: ContextoAgenda
+}) {
   const dest = destinoCalendario(evento)
-  const extra = detalle(evento)
+  const extra = detalle(evento, contexto)
   const cuerpo = (
-    <div className="flex min-w-0 flex-wrap items-center gap-2">
-      <CalendarioEventoMark evento={evento} size="md" />
-      {evento.tipo === "actividad" ? (
-        <Badge variant={evento.reportada ? "success" : "warning"}>
-          {evento.reportada ? "reportada" : "programada"}
-        </Badge>
-      ) : extra ? (
-        <p className="min-w-0 truncate text-ui">{extra}</p>
+    <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <CalendarioEventoMark evento={evento} size="md" />
+        {evento.tipo === "actividad" ? (
+          <Badge variant={evento.reportada ? "success" : "warning"}>
+            {evento.reportada ? "Reportada" : "Programada"}
+          </Badge>
+        ) : extra ? (
+          <p className="min-w-0 truncate text-ui">{extra}</p>
+        ) : null}
+      </div>
+      {evento.tipo === "actividad" && extra ? (
+        <p className="pl-10 text-kicker">{extra}</p>
       ) : null}
     </div>
   )

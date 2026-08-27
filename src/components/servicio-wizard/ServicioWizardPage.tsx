@@ -23,6 +23,7 @@ import {
   activarServicio,
   getConfiguracionGeneral,
   getServicio,
+  listServicios,
   listTarifasInternas,
   listTiposDocumento,
   upsertServicio,
@@ -73,6 +74,7 @@ export function ServicioWizardPage() {
   const [tarifas, setTarifas] = useState<TarifaInterna[]>([])
   const [tipos, setTipos] = useState<TipoDocumento[]>([])
   const [defaults, setDefaults] = useState<ConfiguracionGeneral | null>(null)
+  const [categorias, setCategorias] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -83,11 +85,17 @@ export function ServicioWizardPage() {
       listTarifasInternas(),
       listTiposDocumento(),
       getConfiguracionGeneral(),
+      listServicios(),
       id ? getServicio(id) : Promise.resolve(null),
-    ]).then(([tarifasRows, tiposRows, general, existing]) => {
+    ]).then(([tarifasRows, tiposRows, general, catalogo, existing]) => {
       setTarifas(tarifasRows)
       setTipos(tiposRows)
       setDefaults(general)
+      setCategorias(
+        [...new Set(catalogo.map((row) => row.categoria).filter((item): item is string => Boolean(item)))].sort(
+          (a, b) => a.localeCompare(b, "es"),
+        ),
+      )
       setDraft(existing ?? blankServicio(organizacion_id, created_by, general))
     })
   }, [id, perfil])
@@ -142,7 +150,7 @@ export function ServicioWizardPage() {
 
   async function saveDraft() {
     if (!current.nombre.trim()) {
-      toast.error("nombre es obligatorio para guardar el borrador.")
+      toast.error("El nombre es obligatorio para guardar el borrador.")
       return null
     }
     setSaving(true)
@@ -181,7 +189,7 @@ export function ServicioWizardPage() {
       ...prev,
       tipos_documento_requeridos: [...(prev.tipos_documento_requeridos ?? []), created.id],
     }))
-    toast.success("tipo_documento creado.")
+    toast.success("Tipo de documento creado.")
   }
 
   function siguiente() {
@@ -228,7 +236,9 @@ export function ServicioWizardPage() {
         ))}
       </ol>
 
-      {paso === 1 ? <PasoDatosBasicos draft={draft} setDraft={update} /> : null}
+      {paso === 1 ? (
+        <PasoDatosBasicos draft={draft} setDraft={update} categorias={categorias} />
+      ) : null}
       {paso === 2 ? <PasoModeloCobro draft={draft} setDraft={update} /> : null}
       {paso === 3 ? (
         <PasoEquipoCosteo draft={draft} setDraft={update} tarifas={tarifas} />
