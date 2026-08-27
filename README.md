@@ -27,6 +27,7 @@ El dev server queda en `http://127.0.0.1:5173` (host/puerto configurables). Comp
 | `VITE_SUPABASE_URL` | Project URL de Supabase (Auth) |
 | `VITE_SUPABASE_ANON_KEY` | Anon key de Supabase (pública, va al browser) |
 | `VITE_API_URL` | URL pública del backend, **sin barra final**. En local **dejala vacía**: el cliente usa `/api-backend` y Vite proxea. En Vercel es `https://prometio-backend-production.up.railway.app` |
+| `VITE_BASECAMP_CLIENT_ID` | Client id público de la app OAuth en Launchpad. Local y producción son integraciones distintas (redirect `http://127.0.0.1:5173/auth/basecamp/callback` vs `https://prometio.vercel.app/auth/basecamp/callback`). El secret queda en el backend |
 | `DEV_API_PROXY_TARGET` | Solo `npm run dev`. Destino del proxy `/api-backend`. Default del example: `http://127.0.0.1:8000` (uvicorn local). Podés apuntarlo a Railway si no tenés backend local |
 | `DEV_SERVER_HOST` / `DEV_SERVER_PORT` | Bind del Vite. Opcional |
 

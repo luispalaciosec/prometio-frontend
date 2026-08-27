@@ -7,6 +7,7 @@ import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardP
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
+import { BasecampCallbackPage } from "@/pages/BasecampCallbackPage"
 import { AlertasPage } from "@/pages/AlertasPage"
 import { ActividadesPage } from "@/pages/ActividadesPage"
 import { ResumenPage } from "@/pages/ResumenPage"
@@ -46,6 +47,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/auth/basecamp/callback" element={<BasecampCallbackPage />} />
             <Route
               path="/login"
               element={

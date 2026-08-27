@@ -7,6 +7,11 @@ import { applyOrganizationTheme, clearOrganizationTheme } from "@/lib/theme"
 import { useAuthStore } from "@/store/auth-store"
 import { useOrgStore } from "@/store/org-store"
 
+function esPkceSupabasePendiente(): boolean {
+  const path = window.location.pathname.replace(/\/$/, "") || "/"
+  return path === "/auth/callback" && new URLSearchParams(window.location.search).has("code")
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const setSession = useAuthStore((state) => state.setSession)
   const setPerfil = useAuthStore((state) => state.setPerfil)
@@ -20,8 +25,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
       if (!userId) {
-        const pendingCode = new URLSearchParams(window.location.search).has("code")
-        if (pendingCode) {
+        // Solo el PKCE de Google/Supabase vive en /auth/callback.
+        // Un ?code= de Basecamp en /auth/basecamp/callback no es PKCE: no hay que esperar.
+        if (esPkceSupabasePendiente()) {
           return
         }
         setPerfil(null)
@@ -56,9 +62,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     }
 
-    // Solo onAuthStateChange: espera INITIAL_SESSION (incluye el canje PKCE del ?code=).
+    // Solo onAuthStateChange: espera INITIAL_SESSION (incluye el canje PKCE en /auth/callback).
     // getSession() en paralelo marcaba loading=false con session=null y ProtectedRoute
-    // mandaba a /login, borrando el code.
+    // mandaba a /login, borrando el code de Supabase.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {

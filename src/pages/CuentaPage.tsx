@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react"
 import { useLocation } from "react-router-dom"
-import { CalendarDays } from "lucide-react"
+import { CalendarDays, Tent } from "lucide-react"
 import { toast } from "sonner"
 
 import { KindMark } from "@/components/kind-mark"
 import { PageHeader } from "@/components/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { getEstadoBasecamp } from "@/lib/api/basecamp"
 import { getEstadoCalendar } from "@/lib/api/google-calendar"
+import { iniciarConexionBasecamp } from "@/lib/basecamp-oauth"
 import { iniciarConexionCalendar } from "@/lib/google-oauth"
 import { puedeVerModuloVentas } from "@/lib/pipeline-acceso"
 import { isSupabaseConfigured } from "@/lib/supabase"
 import { useAuthStore } from "@/store/auth-store"
+import type { EstadoBasecamp } from "@/types/basecamp"
 import type { EstadoCalendar } from "@/types/google-calendar"
 import type { Equipo, RolVentas } from "@/types/perfil"
 
@@ -26,74 +29,111 @@ const ROL_LABEL: Record<RolVentas, string> = {
   supervisor: "Supervisor",
 }
 
-type CalendarLocationState = {
+type CuentaLocationState = {
   calendarOk?: boolean
   calendarError?: string
+  basecampOk?: boolean
+  basecampError?: string
 }
 
 export function CuentaPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const location = useLocation()
-  const puedeCalendar = perfil ? puedeVerModuloVentas(perfil) : false
-  const [estado, setEstado] = useState<EstadoCalendar | null>(null)
-  const [conectando, setConectando] = useState(false)
+  const puedeIntegraciones = perfil ? puedeVerModuloVentas(perfil) : false
+  const [estadoCalendar, setEstadoCalendar] = useState<EstadoCalendar | null>(null)
+  const [estadoBasecamp, setEstadoBasecamp] = useState<EstadoBasecamp | null>(null)
+  const [conectandoCalendar, setConectandoCalendar] = useState(false)
+  const [conectandoBasecamp, setConectandoBasecamp] = useState(false)
 
   useEffect(() => {
-    const state = location.state as CalendarLocationState | null
+    const state = location.state as CuentaLocationState | null
     if (state?.calendarOk) {
       toast.success("Google Calendar conectado.")
     } else if (state?.calendarError) {
       toast.error(state.calendarError)
     }
-    if (state?.calendarOk || state?.calendarError) {
+    if (state?.basecampOk) {
+      toast.success("Basecamp conectado.")
+    } else if (state?.basecampError) {
+      toast.error(state.basecampError)
+    }
+    if (state?.calendarOk || state?.calendarError || state?.basecampOk || state?.basecampError) {
       window.history.replaceState({}, document.title)
     }
   }, [location.state])
 
   useEffect(() => {
-    if (!puedeCalendar) {
+    if (!puedeIntegraciones) {
       return
     }
     let cancelled = false
     void getEstadoCalendar()
       .then((row) => {
         if (!cancelled) {
-          setEstado(row)
+          setEstadoCalendar(row)
         }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
           toast.error(error instanceof Error ? error.message : "No se pudo leer el estado de Calendar.")
-          setEstado({ conectado: false, google_email: null })
+          setEstadoCalendar({ conectado: false, google_email: null })
+        }
+      })
+    void getEstadoBasecamp()
+      .then((row) => {
+        if (!cancelled) {
+          setEstadoBasecamp(row)
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : "No se pudo leer el estado de Basecamp.")
+          setEstadoBasecamp({
+            conectado: false,
+            basecamp_email: null,
+            basecamp_nombre: null,
+            basecamp_avatar_url: null,
+          })
         }
       })
     return () => {
       cancelled = true
     }
-  }, [puedeCalendar])
+  }, [puedeIntegraciones])
 
-  async function conectar() {
+  async function conectarCalendar() {
     if (!isSupabaseConfigured) {
       toast.error("Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY en el entorno.")
       return
     }
-    setConectando(true)
+    setConectandoCalendar(true)
     try {
       await iniciarConexionCalendar()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo abrir Google.")
-      setConectando(false)
+      setConectandoCalendar(false)
+    }
+  }
+
+  function conectarBasecamp() {
+    setConectandoBasecamp(true)
+    try {
+      iniciarConexionBasecamp()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo abrir Basecamp.")
+      setConectandoBasecamp(false)
     }
   }
 
   const equipo = perfil ? EQUIPO_LABEL[perfil.equipo] : "—"
   const rol = perfil?.rol_ventas ? ROL_LABEL[perfil.rol_ventas] : null
+  const nombreBasecamp = estadoBasecamp?.basecamp_nombre ?? estadoBasecamp?.basecamp_email
 
   return (
     <>
       <PageHeader
         title="Mi cuenta"
-        description="Datos de tu perfil. La conexión de Calendar es tuya, no de la organización."
+        description="Datos de tu perfil. Calendar y Basecamp son tuyos, no de la organización."
       />
       <div className="space-y-4">
         <section className="rounded-xl p-4 ring-1 ring-border">
@@ -114,17 +154,19 @@ export function CuentaPage() {
           </dl>
         </section>
 
-        {puedeCalendar ? (
+        {puedeIntegraciones ? (
           <section className="rounded-xl p-4 ring-1 ring-border">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
                 <KindMark icon={CalendarDays} tone="bg-muted text-muted-foreground" size="lg" label="Google Calendar" />
-                {estado == null ? (
+                {estadoCalendar == null ? (
                   <p className="text-kicker">Leyendo el estado…</p>
-                ) : estado.conectado ? (
+                ) : estadoCalendar.conectado ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="success">Conectado</Badge>
-                    {estado.google_email ? <p className="text-kicker">{estado.google_email}</p> : null}
+                    {estadoCalendar.google_email ? (
+                      <p className="text-kicker">{estadoCalendar.google_email}</p>
+                    ) : null}
                   </div>
                 ) : (
                   <p className="max-w-prose text-kicker">
@@ -133,9 +175,50 @@ export function CuentaPage() {
                   </p>
                 )}
               </div>
-              {estado && !estado.conectado ? (
-                <Button type="button" onClick={() => void conectar()} disabled={conectando}>
-                  {conectando ? "Abriendo Google…" : "Conectar"}
+              {estadoCalendar && !estadoCalendar.conectado ? (
+                <Button type="button" onClick={() => void conectarCalendar()} disabled={conectandoCalendar}>
+                  {conectandoCalendar ? "Abriendo Google…" : "Conectar"}
+                </Button>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
+        {puedeIntegraciones ? (
+          <section className="rounded-xl p-4 ring-1 ring-border">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-2">
+                {estadoBasecamp?.conectado && estadoBasecamp.basecamp_avatar_url ? (
+                  <span className="inline-flex min-w-0 items-center gap-2">
+                    <img
+                      src={estadoBasecamp.basecamp_avatar_url}
+                      alt=""
+                      className="size-11 shrink-0 rounded-xl object-cover ring-1 ring-border"
+                    />
+                    <span className="truncate text-ui-medium">{nombreBasecamp ?? "Basecamp"}</span>
+                  </span>
+                ) : (
+                  <KindMark icon={Tent} tone="bg-muted text-muted-foreground" size="lg" label="Basecamp" />
+                )}
+                {estadoBasecamp == null ? (
+                  <p className="text-kicker">Leyendo el estado…</p>
+                ) : estadoBasecamp.conectado ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="success">Conectado</Badge>
+                    {estadoBasecamp.basecamp_email && estadoBasecamp.basecamp_nombre ? (
+                      <p className="text-kicker">{estadoBasecamp.basecamp_email}</p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <p className="max-w-prose text-kicker">
+                    Conectá tu usuario de Basecamp para mostrar tu nombre y foto en prometIO. El permiso es tuyo, no de
+                    la organización.
+                  </p>
+                )}
+              </div>
+              {estadoBasecamp && !estadoBasecamp.conectado ? (
+                <Button type="button" onClick={conectarBasecamp} disabled={conectandoBasecamp}>
+                  {conectandoBasecamp ? "Abriendo Basecamp…" : "Conectar"}
                 </Button>
               ) : null}
             </div>
