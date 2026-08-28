@@ -4,6 +4,10 @@ export const SALUD_SERVICIOS = [
   "supabase-db",
   "supabase-storage",
   "weasyprint",
+  "basecamp",
+  "apify",
+  "resend",
+  "mcp",
 ] as const
 
 export type SaludServicioNombre = (typeof SALUD_SERVICIOS)[number]
@@ -29,6 +33,16 @@ export const SALUD_SERVICIO_LABELS: Record<SaludServicioNombre, string> = {
   "supabase-db": "Supabase DB",
   "supabase-storage": "Supabase Storage",
   weasyprint: "WeasyPrint",
+  basecamp: "Basecamp",
+  apify: "Apify",
+  resend: "Resend",
+  mcp: "MCP",
+}
+
+export function etiquetaSaludServicio(nombre: string): string {
+  return nombre in SALUD_SERVICIO_LABELS
+    ? SALUD_SERVICIO_LABELS[nombre as SaludServicioNombre]
+    : nombre
 }
 
 export const SALUD_ESTADO_LABELS: Record<SaludEstado, string> = {

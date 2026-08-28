@@ -8,11 +8,11 @@ import { TilesSkeleton } from "@/components/skeleton"
 import { Activity } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { getSalud } from "@/lib/api/salud"
-import { SALUD_SERVICIO_VISUAL } from "@/lib/salud-visual"
+import { visualSaludServicio } from "@/lib/salud-visual"
 import { cn } from "@/lib/utils"
 import {
+  etiquetaSaludServicio,
   SALUD_ESTADO_LABELS,
-  SALUD_SERVICIO_LABELS,
   type SaludEstado,
   type SaludSistema,
 } from "@/types/salud"
@@ -79,29 +79,28 @@ export function SaludPage() {
         <>
           <SaludResumen servicios={data.servicios} />
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {data.servicios.map((servicio) => (
-            <article
-              key={servicio.nombre}
-              className="flex items-start gap-4 rounded-xl p-5 ring-1 ring-border"
-            >
-              <KindMark
-                icon={SALUD_SERVICIO_VISUAL[servicio.nombre].icon}
-                tone={SALUD_SERVICIO_VISUAL[servicio.nombre].tone}
-                size="lg"
-              />
-              <div className="min-w-0">
-                <p className="text-section">{SALUD_SERVICIO_LABELS[servicio.nombre]}</p>
-                <p className="mt-1 flex items-center gap-2 text-ui">
-                  <span
-                    aria-hidden
-                    className={cn("size-2.5 shrink-0 rounded-full", ESTADO_CLASE[servicio.estado])}
-                  />
-                  {SALUD_ESTADO_LABELS[servicio.estado]}
-                  {servicio.latencia_ms != null ? ` · ${servicio.latencia_ms} ms` : ""}
-                </p>
-              </div>
-            </article>
-          ))}
+          {data.servicios.map((servicio) => {
+            const visual = visualSaludServicio(servicio.nombre)
+            return (
+              <article
+                key={servicio.nombre}
+                className="flex items-start gap-4 rounded-xl p-5 ring-1 ring-border"
+              >
+                <KindMark icon={visual.icon} tone={visual.tone} size="lg" />
+                <div className="min-w-0">
+                  <p className="text-section">{etiquetaSaludServicio(servicio.nombre)}</p>
+                  <p className="mt-1 flex items-center gap-2 text-ui">
+                    <span
+                      aria-hidden
+                      className={cn("size-2.5 shrink-0 rounded-full", ESTADO_CLASE[servicio.estado])}
+                    />
+                    {SALUD_ESTADO_LABELS[servicio.estado]}
+                    {servicio.latencia_ms != null ? ` · ${servicio.latencia_ms} ms` : ""}
+                  </p>
+                </div>
+              </article>
+            )
+          })}
         </div>
         </>
       )}
@@ -121,7 +120,7 @@ function SaludResumen({ servicios }: { servicios: SaludSistema["servicios"] }) {
         : "Hay sistemas degradados"
   const cuerpo =
     tono === "ok"
-      ? "Railway, Vercel, Supabase y WeasyPrint responden. El detalle de cada uno está abajo."
+      ? "Los servicios chequeados responden. El detalle de cada uno está abajo."
       : "Revisá las tarjetas de abajo. El resumen no reemplaza el detalle por servicio."
 
   return (
