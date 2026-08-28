@@ -16,6 +16,7 @@ import {
   calcularLineaConProveedor,
   calcularLineaSinProveedor,
   parseOptionalNumber,
+  precioDirectoServicio,
 } from "@/lib/calculo-cotizacion"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { LineaCotizacion } from "@/types/linea-cotizacion"
@@ -78,6 +79,7 @@ export function LineaCotizacionForm({
   const [cantidadRaw, setCantidadRaw] = useState(String(linea?.cantidad ?? 1))
 
   const servicio = servicios.find((row) => row.id === servicioId)
+  const precioDirecto = precioDirectoServicio(servicio)
   const costoParsed = parseOptionalNumber(costoRaw)
   const conProveedor =
     caminoFijoConProveedor ?? (costoParsed !== null && costoParsed !== "invalid")
@@ -108,10 +110,11 @@ export function LineaCotizacionForm({
       }
       return calcularLineaConProveedor(costo, margen, comision, config.tasa_impuesto_pct)
     }
-    if (servicio?.precio_base_cliente == null) {
+    const precio = precioDirectoServicio(servicio)
+    if (precio == null) {
       return null
     }
-    return calcularLineaSinProveedor(servicio.precio_base_cliente, config.tasa_impuesto_pct)
+    return calcularLineaSinProveedor(precio, config.tasa_impuesto_pct)
   }, [config, conProveedor, costoRaw, margenRaw, comisionRaw, cantidadRaw, servicio])
 
   function submit() {
@@ -157,7 +160,7 @@ export function LineaCotizacionForm({
         parseOptionalNumber(margenRaw) !== "invalid" &&
         parseOptionalNumber(comisionRaw) != null &&
         parseOptionalNumber(comisionRaw) !== "invalid"
-      : servicio?.precio_base_cliente != null) &&
+      : precioDirecto != null) &&
     config != null
 
   return (
@@ -262,10 +265,8 @@ export function LineaCotizacionForm({
       ) : (
         <p className="text-ui text-muted-foreground">
           Precio directo:{" "}
-          {servicio?.precio_base_cliente != null
-            ? servicio.precio_base_cliente
-            : "este servicio no tiene un precio base al cliente"}
-          . Margen y comisión no aplican.
+          {precioDirecto != null ? precioDirecto : "este servicio no tiene un precio base al cliente"}.
+          Margen y comisión no aplican.
         </p>
       )}
       <div className="flex flex-col gap-2">

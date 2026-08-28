@@ -23,6 +23,24 @@ export function calcularLineaSinProveedor(
   return { precio_venta_base, subtotal_con_comision, total_linea }
 }
 
+/** Espejo de `_resolver_precio_sin_proveedor` en prometio-backend/app/routers/cotizacion.py */
+export function precioDirectoServicio(servicio: {
+  precio_base_cliente: number | null
+  modelo_cobro: string
+  config_fee: { monto: number } | null
+} | undefined): number | null {
+  if (!servicio) {
+    return null
+  }
+  if (servicio.precio_base_cliente != null) {
+    return servicio.precio_base_cliente
+  }
+  if (servicio.modelo_cobro === "fee_fijo" || servicio.modelo_cobro === "fee_recurrente") {
+    return servicio.config_fee?.monto ?? null
+  }
+  return null
+}
+
 /** Vacío → null (cambia de camino si es costo_proveedor). "0" → 0. */
 export function parseOptionalNumber(raw: string): number | null | "invalid" {
   const trimmed = raw.trim()
