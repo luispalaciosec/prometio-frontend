@@ -32,6 +32,7 @@ import { MarcaPage } from "@/pages/MarcaPage"
 import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
 import { MetaComercialPage } from "@/pages/MetaComercialPage"
 import { PipelinePage } from "@/pages/PipelinePage"
+import { ProveedoresPage } from "@/pages/ProveedoresPage"
 import { OportunidadPage } from "@/pages/OportunidadPage"
 import { SaludPage } from "@/pages/SaludPage"
 import { SeoPage } from "@/pages/SeoPage"
@@ -255,6 +256,14 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <TarifasInternasPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/configuracion/proveedores"
+                element={
+                  <AdminRoute>
+                    <ProveedoresPage />
                   </AdminRoute>
                 }
               />

@@ -11,6 +11,7 @@ import {
   Plug,
   Search,
   Target,
+  Truck,
 } from "lucide-react"
 
 export type ConfigNavItem = {
@@ -40,6 +41,12 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         label: "Tarifas internas",
         body: "Costo/hora por rol. Nunca por persona.",
         icon: Clock,
+      },
+      {
+        to: "/configuracion/proveedores",
+        label: "Proveedores",
+        body: "Quién cotiza costo de proveedor. Tags de servicio libres.",
+        icon: Truck,
       },
       {
         to: "/configuracion/tipos-documento",

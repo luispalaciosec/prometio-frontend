@@ -8,7 +8,6 @@ import { puedeVerDesgloseCotizacion } from "@/lib/pipeline-acceso"
 import type { CotizacionConLineas, CotizacionEstado } from "@/types/cotizacion"
 import type { LineaCotizacionCalculada } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
-import type { Proveedor } from "@/types/proveedor"
 
 export type { AccionCotizacion } from "@/lib/cotizacion-transiciones"
 
@@ -47,9 +46,7 @@ const TRANSICION_PATH: Record<AccionCotizacion, string> = {
   marcar_vencida: "marcar-vencida",
 }
 
-export function listProveedores(): Promise<Proveedor[]> {
-  return apiFetch("/proveedores")
-}
+export { listProveedores } from "@/lib/api/proveedor"
 
 export type ListCotizacionesQuery = {
   oportunidad_id?: string
