@@ -69,6 +69,7 @@ function normalizeDb(raw: MockDb): MockDb {
     ...raw,
     lineas: raw.lineas.map((linea) => ({
       ...linea,
+      descripcion: linea.descripcion ?? null,
       precio_base_cliente_aplicado: linea.precio_base_cliente_aplicado ?? null,
     })),
   }
@@ -218,6 +219,7 @@ export type CrearLineaInput = {
   margen_pct?: number | null
   comision_agencia_pct?: number | null
   cantidad?: number
+  descripcion?: string | null
 }
 
 export async function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalculada> {
@@ -262,6 +264,7 @@ export async function createLinea(input: CrearLineaInput): Promise<LineaCotizaci
     margen_pct,
     comision_agencia_pct,
     cantidad,
+    descripcion: input.descripcion ?? null,
     precio_base_cliente_aplicado: null,
   }
   db.lineas = [...db.lineas, created]
@@ -278,6 +281,7 @@ export type ActualizarLineaInput = {
   margen_pct?: number
   comision_agencia_pct?: number
   cantidad?: number
+  descripcion?: string | null
 }
 
 export async function updateLinea(input: ActualizarLineaInput): Promise<LineaCotizacionCalculada> {
@@ -312,6 +316,7 @@ export async function updateLinea(input: ActualizarLineaInput): Promise<LineaCot
   const next: LineaCotizacion = {
     ...existing,
     cantidad: input.cantidad ?? existing.cantidad,
+    descripcion: "descripcion" in input ? input.descripcion ?? null : existing.descripcion,
     proveedor_id: conProveedor
       ? (input.proveedor_id !== undefined ? input.proveedor_id : existing.proveedor_id)
       : null,
