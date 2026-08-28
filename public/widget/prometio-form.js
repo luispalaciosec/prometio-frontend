@@ -13,6 +13,7 @@
   ];
 
   const UTM = ["utm_source", "utm_medium", "utm_campaign", "fclid", "gclid"];
+  const HEX6 = /^#[0-9A-Fa-f]{6}$/;
 
   const CSS = `
     :host {
@@ -21,6 +22,8 @@
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
       color: #06080b;
       line-height: 1.4;
+      --pf-primario: #05729f;
+      --pf-acento: #05c7e8;
     }
     * { box-sizing: border-box; }
     form {
@@ -30,15 +33,25 @@
       border: 1px solid #e4eaed;
       border-radius: 0.625rem;
     }
+    .logo-wrap {
+      margin: 0 0 1rem;
+    }
+    .logo-wrap[hidden] { display: none; }
+    .logo {
+      display: block;
+      max-height: 2.5rem;
+      max-width: 11rem;
+      object-fit: contain;
+    }
     .campo { margin: 0 0 0.85rem; }
     label {
       display: block;
       margin-bottom: 0.35rem;
       font-size: 0.8rem;
       font-weight: 500;
-      color: #083b55;
+      color: var(--pf-primario);
     }
-    .req { color: #05729f; }
+    .req { color: var(--pf-acento); }
     input {
       width: 100%;
       height: 2.25rem;
@@ -52,8 +65,8 @@
       outline: none;
     }
     input:focus {
-      border-color: #05c7e8;
-      box-shadow: 0 0 0 3px color-mix(in srgb, #05c7e8 35%, transparent);
+      border-color: var(--pf-acento);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--pf-acento) 35%, transparent);
     }
     .hp {
       position: absolute;
@@ -69,14 +82,16 @@
       height: 2.35rem;
       border: 0;
       border-radius: 0.5rem;
-      background: #05729f;
+      background: var(--pf-primario);
       color: #ffffff;
       font: inherit;
       font-size: 0.9rem;
       font-weight: 500;
       cursor: pointer;
     }
-    button:hover:not(:disabled) { background: #075373; }
+    button:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--pf-primario) 88%, #000000);
+    }
     button:disabled {
       opacity: 0.55;
       cursor: not-allowed;
@@ -89,7 +104,7 @@
     }
     .ok {
       background: #f2f6f8;
-      color: #083b55;
+      color: var(--pf-primario);
       border: 1px solid #e4eaed;
     }
     .err {
@@ -118,7 +133,47 @@
     return trimmed ? trimmed : null;
   }
 
+  function esHex(value) {
+    return typeof value === "string" && HEX6.test(value.trim());
+  }
+
+  function esUrlHttp(value) {
+    if (typeof value !== "string" || !value.trim()) {
+      return false;
+    }
+    try {
+      const parsed = new URL(value.trim());
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
+  function urlMarca(api) {
+    if (!api) {
+      return null;
+    }
+    try {
+      const parsed = new URL(api, window.location.href);
+      const path = parsed.pathname.replace(/\/+$/, "");
+      if (path.endsWith("/formulario")) {
+        parsed.pathname = `${path.slice(0, -"/formulario".length)}/formulario/marca`;
+      } else {
+        parsed.pathname = `${path}/formulario/marca`;
+      }
+      parsed.search = "";
+      parsed.hash = "";
+      return parsed.toString();
+    } catch {
+      return null;
+    }
+  }
+
   class PrometioFormulario extends HTMLElement {
+    static get observedAttributes() {
+      return ["api"];
+    }
+
     constructor() {
       super();
       this.enviando = false;
@@ -126,10 +181,16 @@
     }
 
     connectedCallback() {
-      if (this.shadowRoot.childElementCount) {
-        return;
+      if (!this.shadowRoot.childElementCount) {
+        this.render();
       }
-      this.render();
+      void this.aplicarMarca();
+    }
+
+    attributeChangedCallback(name, prev, next) {
+      if (name === "api" && next && next !== prev) {
+        void this.aplicarMarca();
+      }
     }
 
     render() {
@@ -146,6 +207,9 @@
       wrap.innerHTML = `
         <style>${CSS}</style>
         <form novalidate>
+          <div class="logo-wrap" hidden>
+            <img class="logo" alt="" />
+          </div>
           <p class="err" hidden></p>
           ${campos}
           <div class="hp" aria-hidden="true">
@@ -159,6 +223,52 @@
       this.shadowRoot.querySelector("form").addEventListener("submit", (event) => {
         void this.onSubmit(event);
       });
+    }
+
+    async aplicarMarca() {
+      const url = urlMarca(this.getAttribute("api"));
+      if (!url) {
+        return;
+      }
+      let marca = {};
+      try {
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (res.ok) {
+          marca = await res.json();
+        }
+      } catch {
+        return;
+      }
+      this.pintarMarca(marca);
+    }
+
+    pintarMarca(marca) {
+      if (esHex(marca.color_primario)) {
+        this.style.setProperty("--pf-primario", marca.color_primario.trim());
+      }
+      const acento = esHex(marca.color_terciario)
+        ? marca.color_terciario.trim()
+        : esHex(marca.color_secundario)
+          ? marca.color_secundario.trim()
+          : esHex(marca.color_primario)
+            ? marca.color_primario.trim()
+            : null;
+      if (acento) {
+        this.style.setProperty("--pf-acento", acento);
+      }
+
+      const wrap = this.shadowRoot.querySelector(".logo-wrap");
+      const img = this.shadowRoot.querySelector(".logo");
+      if (!wrap || !img) {
+        return;
+      }
+      if (esUrlHttp(marca.logo_url)) {
+        img.src = marca.logo_url.trim();
+        wrap.hidden = false;
+      } else {
+        img.removeAttribute("src");
+        wrap.hidden = true;
+      }
     }
 
     async onSubmit(event) {

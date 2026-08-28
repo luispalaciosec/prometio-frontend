@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 const WIDGET_SRC = "https://prometio.vercel.app/widget/prometio-form.js"
 const FORMULARIO_API = "https://prometio-backend-production.up.railway.app/formulario"
+const FORMULARIO_MARCA = "https://prometio-backend-production.up.railway.app/formulario/marca"
 
 const SNIPPET = `<script src="${WIDGET_SRC}"></script>
 <prometio-formulario api="${FORMULARIO_API}"></prometio-formulario>`
@@ -80,11 +81,16 @@ export function FormularioWebPage() {
               <dd className="text-ui-medium">{dominioDe(FORMULARIO_API)}</dd>
               <dd className="break-all text-kicker">{FORMULARIO_API}</dd>
             </div>
+            <div>
+              <dt className="text-kicker">Marca (colores y logo)</dt>
+              <dd className="text-ui-medium">{dominioDe(FORMULARIO_MARCA)}</dd>
+              <dd className="break-all text-kicker">{FORMULARIO_MARCA}</dd>
+            </div>
           </dl>
           <p className="text-kicker">
-            El widget es público. No lleva token: el backend acepta el alta anónima. Colores del
-            embed: pendiente de confirmar con backend si ya salen de la marca o si hace falta algo
-            nuevo. Mientras tanto el snippet no se toca.
+            El widget es público. No lleva token. A partir del atributo api pide solo GET
+            /formulario/marca y pinta color primario, acento y logo de Configuración → Marca. Los
+            campos del formulario siguen fijos.
           </p>
         </section>
 
