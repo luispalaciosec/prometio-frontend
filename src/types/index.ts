@@ -59,12 +59,14 @@ export type {
 } from "./etapa-pipeline"
 export { ETAPA_PIPELINE_CODIGOS } from "./etapa-pipeline"
 export type {
-  EstimacionHorasPorRol,
+  EstimacionInterna,
+  EstimacionInternaPorRol,
   ModeloCobro,
   Servicio,
   ServicioConfigFee,
   ServicioEstado,
   ServicioFase,
 } from "./servicio"
-export type { TarifaInterna } from "./tarifa-interna"
+export type { ModeloTarifa, TarifaInterna } from "./tarifa-interna"
+export { CANTIDAD_ESTIMACION_LABELS, COSTO_TARIFA_LABELS, MODELO_TARIFA_LABELS, MODELOS_TARIFA } from "./tarifa-interna"
 export type { TipoDocumento } from "./tipo-documento"

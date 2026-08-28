@@ -7,5 +7,6 @@ export type ConfiguracionGeneral = {
   umbral_descuento_aprobacion_pct: number
   multiplicador_escalamiento_supervisor: number
   tasa_impuesto_pct: number
+  horas_laborales_mes: number
   resend_dashboard_url: string
 }

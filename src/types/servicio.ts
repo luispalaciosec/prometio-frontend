@@ -26,8 +26,12 @@ export type ServicioConfigFee = {
   ciclo_renovacion: string
 }
 
-/** JSONB `estimacion_horas_por_rol`: clave = tarifa_interna.id, valor = horas. */
-export type EstimacionHorasPorRol = Record<string, number>
+/** JSONB `estimacion_interna_por_rol`: clave = tarifa_interna.id. */
+export type EstimacionInterna = {
+  cantidad: number
+}
+
+export type EstimacionInternaPorRol = Record<string, EstimacionInterna>
 
 export type Servicio = {
   id: string
@@ -38,7 +42,7 @@ export type Servicio = {
   modelo_cobro: ModeloCobro
   tiene_fases: boolean
   precio_base_cliente: number | null
-  estimacion_horas_por_rol: EstimacionHorasPorRol | null
+  estimacion_interna_por_rol: EstimacionInternaPorRol | null
   fases: ServicioFase[] | null
   config_fee: ServicioConfigFee | null
   margen_default_pct: number | null

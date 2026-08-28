@@ -11,6 +11,7 @@ import {
   getConfiguracionGeneral,
   updateConfiguracionGeneral,
 } from "@/lib/config-api"
+import { HORAS_LABORALES_MES_DEFAULT } from "@/lib/costo-interno"
 import { useAuthStore } from "@/store/auth-store"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 
@@ -80,6 +81,7 @@ export function MargenesConfigPage() {
   const [exists, setExists] = useState(false)
   const [form, setForm] = useState<Form>(empty)
   const [tasaRaw, setTasaRaw] = useState("")
+  const [horasRaw, setHorasRaw] = useState("")
 
   useEffect(() => {
     void getConfiguracionGeneral().then((row) => {
@@ -87,11 +89,13 @@ export function MargenesConfigPage() {
         setExists(false)
         setForm(empty)
         setTasaRaw("")
+        setHorasRaw("")
         return
       }
       setExists(true)
       setForm(formFromRow(row))
       setTasaRaw(String(row.tasa_impuesto_pct))
+      setHorasRaw(String(row.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT))
     })
   }, [])
 
@@ -109,6 +113,15 @@ export function MargenesConfigPage() {
       toast.error("La tasa de impuesto debe ser un número.")
       return
     }
+    if (horasRaw.trim() === "") {
+      toast.error("Las horas laborales del mes son obligatorias.")
+      return
+    }
+    const horas_laborales_mes = parseTasaImpuestoPct(horasRaw)
+    if (horas_laborales_mes === null || horas_laborales_mes <= 0) {
+      toast.error("Las horas laborales del mes deben ser un número mayor a 0.")
+      return
+    }
 
     const defaults: Partial<Record<DefaultField, number>> = {}
     for (const key of DEFAULT_FIELDS) {
@@ -122,11 +135,12 @@ export function MargenesConfigPage() {
       }
     }
 
-    const payload = { ...defaults, tasa_impuesto_pct }
+    const payload = { ...defaults, tasa_impuesto_pct, horas_laborales_mes }
     if (exists) {
       const updated = await updateConfiguracionGeneral(payload)
       setForm(formFromRow(updated))
       setTasaRaw(String(updated.tasa_impuesto_pct))
+      setHorasRaw(String(updated.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT))
       toast.success("Configuración actualizada.")
       return
     }
@@ -137,6 +151,7 @@ export function MargenesConfigPage() {
     setExists(true)
     setForm(formFromRow(created))
     setTasaRaw(String(created.tasa_impuesto_pct))
+    setHorasRaw(String(created.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT))
     toast.success("Configuración creada.")
   }
 
@@ -216,6 +231,23 @@ export function MargenesConfigPage() {
         />
         <p className="text-kicker">
           Obligatoria al crear. Nunca se inventa una tasa: hay que cargar la real de la organización.
+        </p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="horas_laborales_mes">Horas laborales del mes</Label>
+        <Input
+          id="horas_laborales_mes"
+          name="horas_laborales_mes"
+          type="number"
+          min="1"
+          step="1"
+          required
+          placeholder={String(HORAS_LABORALES_MES_DEFAULT)}
+          value={horasRaw}
+          onChange={(event) => setHorasRaw(event.target.value)}
+        />
+        <p className="text-kicker">
+          Base para costear tarifas por sueldo (% del mes). Default {HORAS_LABORALES_MES_DEFAULT}.
         </p>
       </div>
     </form>

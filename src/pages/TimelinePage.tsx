@@ -4,7 +4,7 @@ import { History } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
-import { TableSkeleton } from "@/components/skeleton"
+import { TimelineSkeleton } from "@/components/skeleton"
 import { TimelineEventoFila } from "@/components/timeline/TimelineEventoFila"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -18,6 +18,7 @@ import {
 import { listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles"
 import { listTimeline } from "@/lib/api/timeline"
 import { puedeVerEquipo } from "@/lib/pipeline-acceso"
+import { agruparTimelinePorDia } from "@/lib/timeline-grupos"
 import { useAuthStore } from "@/store/auth-store"
 import type { Perfil } from "@/types/perfil"
 import {
@@ -143,7 +144,7 @@ export function TimelinePage() {
         </Button>
       </form>
       {rows == null ? (
-        <TableSkeleton />
+        <TimelineSkeleton />
       ) : rows.length === 0 ? (
         <EmptyState
           icon={History}
@@ -171,11 +172,20 @@ export function TimelinePage() {
           }
         />
       ) : (
-        <ul className="space-y-3">
-          {rows.map((row) => (
-            <TimelineEventoFila key={row.id} row={row} />
+        <div className="space-y-6">
+          {agruparTimelinePorDia(rows).map((grupo) => (
+            <section key={grupo.clave} className="space-y-2">
+              <h2 className="text-section">{grupo.label}</h2>
+              <ul className="space-y-2">
+                {grupo.eventos.map((row) => (
+                  <li key={row.id}>
+                    <TimelineEventoFila row={row} />
+                  </li>
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       )}
     </>
   )

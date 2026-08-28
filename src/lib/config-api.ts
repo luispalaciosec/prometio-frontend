@@ -55,6 +55,7 @@ export async function getServicio(id: string): Promise<Servicio | null> {
 function cuerpoServicio(
   input: Omit<Servicio, "id" | "created_at"> & { id?: string; created_at?: string },
 ) {
+  const estimacion = input.estimacion_interna_por_rol
   return {
     nombre: input.nombre,
     descripcion: input.descripcion ?? null,
@@ -62,7 +63,8 @@ function cuerpoServicio(
     modelo_cobro: input.modelo_cobro,
     tiene_fases: input.tiene_fases,
     precio_base_cliente: input.precio_base_cliente ?? null,
-    estimacion_horas_por_rol: input.estimacion_horas_por_rol ?? null,
+    estimacion_interna_por_rol:
+      estimacion && Object.keys(estimacion).length > 0 ? estimacion : null,
     fases: input.fases ?? null,
     config_fee: input.config_fee ?? null,
     margen_default_pct: input.margen_default_pct ?? null,
@@ -129,10 +131,21 @@ export function listTarifasInternas(): Promise<TarifaInterna[]> {
   return apiFetch("/config/tarifas-internas")
 }
 
+function cuerpoTarifa(input: Pick<TarifaInterna, "nombre_rol" | "modelo" | "costo_hora" | "costo_mensual" | "costo_evento">) {
+  const modelo = input.modelo
+  return {
+    nombre_rol: input.nombre_rol,
+    modelo,
+    costo_hora: modelo === "por_hora" ? input.costo_hora : null,
+    costo_mensual: modelo === "por_sueldo" ? input.costo_mensual : null,
+    costo_evento: modelo === "por_evento" ? input.costo_evento : null,
+  }
+}
+
 export function upsertTarifaInterna(
   input: Omit<TarifaInterna, "id"> & { id?: string },
 ): Promise<TarifaInterna> {
-  const body = { nombre_rol: input.nombre_rol, costo_hora: input.costo_hora }
+  const body = cuerpoTarifa(input)
   if (input.id) {
     return apiFetch(`/config/tarifas-internas/${input.id}`, {
       method: "PATCH",
@@ -192,6 +205,7 @@ type ConfiguracionGeneralWrite = {
   comision_agencia_default_max_pct?: number
   umbral_descuento_aprobacion_pct?: number
   multiplicador_escalamiento_supervisor?: number
+  horas_laborales_mes?: number
 }
 
 function cuerpoConfig(input: ConfiguracionGeneralWrite) {
@@ -213,6 +227,9 @@ function cuerpoConfig(input: ConfiguracionGeneralWrite) {
   }
   if (input.multiplicador_escalamiento_supervisor !== undefined) {
     body.multiplicador_escalamiento_supervisor = input.multiplicador_escalamiento_supervisor
+  }
+  if (input.horas_laborales_mes !== undefined) {
+    body.horas_laborales_mes = input.horas_laborales_mes
   }
   return body
 }

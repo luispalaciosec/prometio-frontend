@@ -1,25 +1,11 @@
 import { Link } from "react-router-dom"
 
-import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
-import { Badge } from "@/components/ui/badge"
+import { TimelineEventoMark } from "@/components/timeline/TimelineEventoMark"
 import { formatMoney } from "@/lib/costo-interno"
-import { formatDateTime } from "@/lib/datetime-local"
+import { formatTimeOnly } from "@/lib/datetime-local"
 import { TIPOS_ACTIVIDAD, type TipoActividad } from "@/types/actividad"
 import { CANAL_LABELS, type CanalConversacion } from "@/types/conversacion"
-import {
-  TIPO_TIMELINE_LABELS,
-  esTipoTimeline,
-  type TimelineEvento,
-  type TipoTimeline,
-} from "@/types/timeline"
-
-const BADGE_VARIANTE: Record<TipoTimeline, "success" | "destructive" | "outline"> = {
-  actividad_reportada: "success",
-  oportunidad_cierre_ganado: "success",
-  oportunidad_cierre_perdido: "destructive",
-  cotizacion_aprobada: "success",
-  lead_convertido: "outline",
-}
+import type { TimelineEvento } from "@/types/timeline"
 
 function textoDetalle(detalle: Record<string, unknown>, key: string): string | null {
   const value = detalle[key]
@@ -54,11 +40,6 @@ function destinoEvento(row: TimelineEvento): string | null {
     return `/contactos/${row.entidad_id}`
   }
   return null
-}
-
-function tipoActividadDe(row: TimelineEvento): TipoActividad | null {
-  const raw = textoDetalle(row.detalle, "tipo_actividad")
-  return esTipoActividad(raw) ? raw : null
 }
 
 function resumenDetalle(row: TimelineEvento): string | null {
@@ -96,41 +77,30 @@ function resumenDetalle(row: TimelineEvento): string | null {
 }
 
 export function TimelineEventoFila({ row }: { row: TimelineEvento }) {
-  const tipo = esTipoTimeline(row.tipo_evento) ? row.tipo_evento : null
-  const actividad = tipoActividadDe(row)
   const dest = destinoEvento(row)
   const resumen = resumenDetalle(row)
-  const etiqueta = tipo ? TIPO_TIMELINE_LABELS[tipo] : row.tipo_evento
-
   const cuerpo = (
-    <div className="flex flex-wrap items-start justify-between gap-2">
-      <div className="min-w-0 space-y-1">
-        <div className="flex flex-wrap items-center gap-2">
-          {actividad ? <TipoActividadMark tipo={actividad} size="md" /> : null}
-          <Badge variant={tipo ? BADGE_VARIANTE[tipo] : "outline"}>
-            {tipo === "actividad_reportada" ? "reportada" : etiqueta}
-          </Badge>
-        </div>
-        {resumen ? <p className="text-ui">{resumen}</p> : null}
-        <p className="text-kicker">
-          {row.perfil_nombre} · {formatDateTime(row.created_at)}
-        </p>
+    <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <TimelineEventoMark row={row} size="md" />
       </div>
+      {resumen ? <p className="pl-10 text-ui">{resumen}</p> : null}
+      <p className="pl-10 text-kicker">
+        {row.perfil_nombre} · {formatTimeOnly(row.created_at)}
+      </p>
     </div>
   )
 
   if (dest) {
     return (
-      <li>
-        <Link
-          to={dest}
-          className="block rounded-xl p-3 ring-1 ring-border transition-colors hover:bg-muted/50"
-        >
-          {cuerpo}
-        </Link>
-      </li>
+      <Link
+        to={dest}
+        className="block cursor-pointer rounded-xl p-3 ring-1 ring-border transition-colors hover:bg-muted/50"
+      >
+        {cuerpo}
+      </Link>
     )
   }
 
-  return <li className="rounded-xl p-3 ring-1 ring-border">{cuerpo}</li>
+  return <div className="rounded-xl p-3 ring-1 ring-border">{cuerpo}</div>
 }

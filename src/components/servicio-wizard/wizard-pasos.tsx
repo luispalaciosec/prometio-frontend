@@ -1,6 +1,9 @@
 import type { ModeloCobro, Servicio, ServicioFase } from "@/types/servicio"
 import { MODELO_COBRO_LABELS } from "@/types/servicio"
-import type { TarifaInterna } from "@/types/tarifa-interna"
+import {
+  CANTIDAD_ESTIMACION_LABELS,
+  type TarifaInterna,
+} from "@/types/tarifa-interna"
 import type { TipoDocumento } from "@/types/tipo-documento"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 
@@ -17,7 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { costoInterno, formatMoney } from "@/lib/costo-interno"
+import {
+  HORAS_LABORALES_MES_DEFAULT,
+  costoInterno,
+  etiquetaCostoTarifa,
+  formatMoney,
+  modeloTarifa,
+} from "@/lib/costo-interno"
 
 const SIN_CATEGORIA = "__none__"
 
@@ -180,52 +189,56 @@ export function PasoEquipoCosteo({
   draft,
   setDraft,
   tarifas,
+  horasLaboralesMes = HORAS_LABORALES_MES_DEFAULT,
 }: {
   draft: Servicio
   setDraft: SetDraft
   tarifas: TarifaInterna[]
+  horasLaboralesMes?: number
 }) {
-  const estimacion = draft.estimacion_horas_por_rol ?? {}
+  const estimacion = draft.estimacion_interna_por_rol ?? {}
   const usadas = new Set(Object.keys(estimacion))
   const disponibles = tarifas.filter((row) => !usadas.has(row.id))
-  const total = costoInterno(estimacion, tarifas)
+  const total = costoInterno(estimacion, tarifas, horasLaboralesMes)
 
-  function setHoras(id: string, horas: number) {
+  function setCantidad(id: string, cantidad: number) {
     setDraft((prev) => {
-      const next = { ...(prev.estimacion_horas_por_rol ?? {}) }
-      if (horas <= 0) {
+      const next = { ...(prev.estimacion_interna_por_rol ?? {}) }
+      if (!Number.isFinite(cantidad) || cantidad <= 0) {
         delete next[id]
       } else {
-        next[id] = horas
+        next[id] = { cantidad }
       }
-      return { ...prev, estimacion_horas_por_rol: next }
+      return { ...prev, estimacion_interna_por_rol: next }
     })
   }
 
   return (
     <div className="space-y-4">
-      {Object.entries(estimacion).map(([id, horas]) => {
+      {Object.entries(estimacion).map(([id, item]) => {
         const tarifa = tarifas.find((row) => row.id === id)
+        const modelo = tarifa ? modeloTarifa(tarifa) : "por_hora"
         return (
           <div key={id} className="flex items-end gap-3">
             <div className="flex-1">
-              <p className="text-sm font-medium">{tarifa?.nombre_rol ?? id}</p>
-              <p className="text-xs text-muted-foreground">
-                {tarifa ? `${formatMoney(tarifa.costo_hora)} / h` : ""}
+              <p className="text-ui-medium">{tarifa?.nombre_rol ?? id}</p>
+              <p className="text-kicker text-muted-foreground">
+                {tarifa ? etiquetaCostoTarifa(tarifa) : ""}
               </p>
             </div>
             <div className="w-28">
-              <Label htmlFor={`horas-${id}`}>Horas estimadas</Label>
+              <Label htmlFor={`cantidad-${id}`}>{CANTIDAD_ESTIMACION_LABELS[modelo]}</Label>
               <Input
-                id={`horas-${id}`}
+                id={`cantidad-${id}`}
                 type="number"
                 min="0"
-                step="0.5"
-                value={horas}
-                onChange={(event) => setHoras(id, Number(event.target.value))}
+                step={modelo === "por_sueldo" ? "1" : "0.5"}
+                max={modelo === "por_sueldo" ? 100 : undefined}
+                value={item.cantidad}
+                onChange={(event) => setCantidad(id, Number(event.target.value))}
               />
             </div>
-            <Button variant="ghost" onClick={() => setHoras(id, 0)}>
+            <Button variant="ghost" onClick={() => setCantidad(id, 0)}>
               Quitar
             </Button>
           </div>
@@ -233,19 +246,18 @@ export function PasoEquipoCosteo({
       })}
       {draft.modelo_cobro === "fee_recurrente" ? (
         <CampoAyuda>
-          De las 240 horas laborales del mes, ¿cuántas se dedican a este servicio? Eso alimenta el
-          costo interno del fee recurrente.
+          De las {horasLaboralesMes} horas laborales del mes, cada rol aporta al costo interno del
+          fee: horas, % del mes o veces, según el modelo de su tarifa. Nunca se costea por persona
+          nombrada.
         </CampoAyuda>
       ) : (
         <CampoAyuda>
-          Horas que el rol suele invertir. El costo interno se calcula con la tarifa por hora del
-          rol, nunca con una persona nombrada.
+          La cantidad se interpreta según el modelo de cada tarifa: horas, % del mes (0–100) o
+          veces. El costo interno usa la tarifa del rol, nunca una persona nombrada.
         </CampoAyuda>
       )}
       {disponibles.length > 0 ? (
-        <Select
-          onValueChange={(id) => setHoras(id, 1)}
-        >
+        <Select onValueChange={(id) => setCantidad(id, 1)}>
           <SelectTrigger className="w-72">
             <SelectValue placeholder="Agregar rol" />
           </SelectTrigger>
@@ -258,9 +270,9 @@ export function PasoEquipoCosteo({
           </SelectContent>
         </Select>
       ) : null}
-      <p className="text-sm">
+      <p className="text-ui">
         Costo interno en vivo:{" "}
-        <span className="font-medium">{formatMoney(total)}</span>
+        <span className="text-ui-medium">{formatMoney(total)}</span>
       </p>
     </div>
   )
@@ -523,11 +535,13 @@ export function PasoDocumentos({
 export function PasoRevision({
   draft,
   tarifas,
+  horasLaboralesMes = HORAS_LABORALES_MES_DEFAULT,
 }: {
   draft: Servicio
   tarifas: TarifaInterna[]
+  horasLaboralesMes?: number
 }) {
-  const total = costoInterno(draft.estimacion_horas_por_rol, tarifas)
+  const total = costoInterno(draft.estimacion_interna_por_rol, tarifas, horasLaboralesMes)
   return (
     <dl className="grid max-w-xl gap-3 text-sm">
       <div>

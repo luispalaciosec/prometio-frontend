@@ -127,7 +127,6 @@ export function CuentaPage() {
 
   const equipo = perfil ? EQUIPO_LABEL[perfil.equipo] : "—"
   const rol = perfil?.rol_ventas ? ROL_LABEL[perfil.rol_ventas] : null
-  const nombreBasecamp = estadoBasecamp?.basecamp_nombre ?? estadoBasecamp?.basecamp_email
 
   return (
     <>
@@ -166,7 +165,9 @@ export function CuentaPage() {
                     <Badge variant="success">Conectado</Badge>
                     {estadoCalendar.google_email ? (
                       <p className="text-kicker">{estadoCalendar.google_email}</p>
-                    ) : null}
+                    ) : (
+                      <p className="text-kicker">Sin email todavía. Reconectá para actualizarlo.</p>
+                    )}
                   </div>
                 ) : (
                   <p className="max-w-prose text-kicker">
@@ -175,9 +176,13 @@ export function CuentaPage() {
                   </p>
                 )}
               </div>
-              {estadoCalendar && !estadoCalendar.conectado ? (
+              {estadoCalendar ? (
                 <Button type="button" onClick={() => void conectarCalendar()} disabled={conectandoCalendar}>
-                  {conectandoCalendar ? "Abriendo Google…" : "Conectar"}
+                  {conectandoCalendar
+                    ? "Abriendo Google…"
+                    : estadoCalendar.conectado
+                      ? "Reconectar"
+                      : "Conectar"}
                 </Button>
               ) : null}
             </div>
@@ -188,27 +193,38 @@ export function CuentaPage() {
           <section className="rounded-xl p-4 ring-1 ring-border">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
-                {estadoBasecamp?.conectado && estadoBasecamp.basecamp_avatar_url ? (
-                  <span className="inline-flex min-w-0 items-center gap-2">
-                    <img
-                      src={estadoBasecamp.basecamp_avatar_url}
-                      alt=""
-                      className="size-11 shrink-0 rounded-xl object-cover ring-1 ring-border"
-                    />
-                    <span className="truncate text-ui-medium">{nombreBasecamp ?? "Basecamp"}</span>
-                  </span>
-                ) : (
-                  <KindMark icon={Tent} tone="bg-muted text-muted-foreground" size="lg" label="Basecamp" />
-                )}
+                <KindMark icon={Tent} tone="bg-muted text-muted-foreground" size="lg" label="Basecamp" />
                 {estadoBasecamp == null ? (
                   <p className="text-kicker">Leyendo el estado…</p>
                 ) : estadoBasecamp.conectado ? (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="success">Conectado</Badge>
-                    {estadoBasecamp.basecamp_email && estadoBasecamp.basecamp_nombre ? (
-                      <p className="text-kicker">{estadoBasecamp.basecamp_email}</p>
+                  <>
+                    {estadoBasecamp.basecamp_avatar_url || estadoBasecamp.basecamp_nombre ? (
+                      <div className="flex min-w-0 items-center gap-2">
+                        {estadoBasecamp.basecamp_avatar_url ? (
+                          <img
+                            src={estadoBasecamp.basecamp_avatar_url}
+                            alt=""
+                            className="size-8 shrink-0 rounded-lg object-cover ring-1 ring-border"
+                          />
+                        ) : null}
+                        {estadoBasecamp.basecamp_nombre ? (
+                          <p className="truncate text-ui-medium">{estadoBasecamp.basecamp_nombre}</p>
+                        ) : null}
+                      </div>
                     ) : null}
-                  </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="success">Conectado</Badge>
+                      {estadoBasecamp.basecamp_email ? (
+                        <p className="text-kicker">{estadoBasecamp.basecamp_email}</p>
+                      ) : (
+                        <p className="text-kicker">
+                          {estadoBasecamp.basecamp_nombre || estadoBasecamp.basecamp_avatar_url
+                            ? "Sin email todavía. Reconectá para actualizarlo."
+                            : "Sin datos de perfil. Reconectá para actualizarlos."}
+                        </p>
+                      )}
+                    </div>
+                  </>
                 ) : (
                   <p className="max-w-prose text-kicker">
                     Conectá tu usuario de Basecamp para mostrar tu nombre y foto en prometIO. El permiso es tuyo, no de
@@ -216,9 +232,13 @@ export function CuentaPage() {
                   </p>
                 )}
               </div>
-              {estadoBasecamp && !estadoBasecamp.conectado ? (
+              {estadoBasecamp ? (
                 <Button type="button" onClick={conectarBasecamp} disabled={conectandoBasecamp}>
-                  {conectandoBasecamp ? "Abriendo Basecamp…" : "Conectar"}
+                  {conectandoBasecamp
+                    ? "Abriendo Basecamp…"
+                    : estadoBasecamp.conectado
+                      ? "Reconectar"
+                      : "Conectar"}
                 </Button>
               ) : null}
             </div>

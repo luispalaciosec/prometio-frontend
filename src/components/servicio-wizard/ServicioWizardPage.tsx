@@ -29,6 +29,7 @@ import {
   upsertServicio,
   upsertTipoDocumento,
 } from "@/lib/config-api"
+import { HORAS_LABORALES_MES_DEFAULT } from "@/lib/costo-interno"
 import { useAuthStore } from "@/store/auth-store"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { Servicio } from "@/types/servicio"
@@ -49,7 +50,7 @@ function blankServicio(
     modelo_cobro: "por_hora",
     tiene_fases: false,
     precio_base_cliente: null,
-    estimacion_horas_por_rol: {},
+    estimacion_interna_por_rol: {},
     fases: null,
     config_fee: null,
     margen_default_pct: defaults?.margen_agencia_default_pct ?? null,
@@ -118,6 +119,7 @@ export function ServicioWizardPage() {
   const current = draft
   const indice = visibles.indexOf(paso)
   const esUltimo = indice === visibles.length - 1
+  const horasLaboralesMes = defaults?.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT
 
   function update(updater: (prev: Servicio) => Servicio) {
     setDraft((prev) => (prev ? updater(prev) : prev))
@@ -135,7 +137,7 @@ export function ServicioWizardPage() {
       modelo_cobro: current.modelo_cobro,
       tiene_fases: current.tiene_fases,
       precio_base_cliente: current.precio_base_cliente,
-      estimacion_horas_por_rol: current.estimacion_horas_por_rol,
+      estimacion_interna_por_rol: current.estimacion_interna_por_rol,
       fases: current.tiene_fases ? current.fases : null,
       config_fee: feeApplies ? current.config_fee : null,
       margen_default_pct: current.margen_default_pct,
@@ -241,7 +243,12 @@ export function ServicioWizardPage() {
       ) : null}
       {paso === 2 ? <PasoModeloCobro draft={draft} setDraft={update} /> : null}
       {paso === 3 ? (
-        <PasoEquipoCosteo draft={draft} setDraft={update} tarifas={tarifas} />
+        <PasoEquipoCosteo
+          draft={draft}
+          setDraft={update}
+          tarifas={tarifas}
+          horasLaboralesMes={horasLaboralesMes}
+        />
       ) : null}
       {paso === 4 ? <PasoConfigFee draft={draft} setDraft={update} /> : null}
       {paso === 5 ? <PasoFases draft={draft} setDraft={update} /> : null}
@@ -256,7 +263,9 @@ export function ServicioWizardPage() {
           onCreateTipo={crearTipo}
         />
       ) : null}
-      {paso === 8 ? <PasoRevision draft={draft} tarifas={tarifas} /> : null}
+      {paso === 8 ? (
+        <PasoRevision draft={draft} tarifas={tarifas} horasLaboralesMes={horasLaboralesMes} />
+      ) : null}
 
       <div className="mt-8 flex items-center gap-2">
         <Button variant="outline" disabled={indice === 0} onClick={atras}>

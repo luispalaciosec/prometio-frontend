@@ -25,31 +25,46 @@ function seed(): MockDb {
         id: "ti-disenador-jr",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre_rol: "Diseñador Jr",
+        modelo: "por_hora",
         costo_hora: 12,
+        costo_mensual: null,
+        costo_evento: null,
       },
       {
         id: "ti-disenador-sr",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre_rol: "Diseñador Sr",
+        modelo: "por_hora",
         costo_hora: 22,
+        costo_mensual: null,
+        costo_evento: null,
       },
       {
         id: "ti-copy",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre_rol: "Copywriter",
+        modelo: "por_hora",
         costo_hora: 18,
+        costo_mensual: null,
+        costo_evento: null,
       },
       {
         id: "ti-community",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre_rol: "Community Manager",
+        modelo: "por_hora",
         costo_hora: 14,
+        costo_mensual: null,
+        costo_evento: null,
       },
       {
         id: "ti-cuenta",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre_rol: "Director de cuenta",
+        modelo: "por_hora",
         costo_hora: 28,
+        costo_mensual: null,
+        costo_evento: null,
       },
     ],
     causas_perdida: [
@@ -199,7 +214,7 @@ function seedServiciosDemo(): Servicio[] {
       modelo_cobro: "fee_fijo",
       tiene_fases: false,
       precio_base_cliente: 8000,
-      estimacion_horas_por_rol: null,
+      estimacion_interna_por_rol: null,
       fases: null,
       config_fee: { monto: 8000, duracion_minima: 1, ciclo_renovacion: "unico" },
       margen_default_pct: 30,
@@ -220,7 +235,7 @@ function seedServiciosDemo(): Servicio[] {
       modelo_cobro: "fee_recurrente",
       tiene_fases: false,
       precio_base_cliente: 2500,
-      estimacion_horas_por_rol: null,
+      estimacion_interna_por_rol: null,
       fases: null,
       config_fee: { monto: 2500, duracion_minima: 3, ciclo_renovacion: "mensual" },
       margen_default_pct: 30,
@@ -398,6 +413,7 @@ type ConfiguracionGeneralWrite = {
   comision_agencia_default_max_pct?: unknown
   umbral_descuento_aprobacion_pct?: unknown
   multiplicador_escalamiento_supervisor?: unknown
+  horas_laborales_mes?: unknown
 }
 
 function requireNumber(value: unknown, field: string): number {
@@ -474,6 +490,10 @@ export async function createConfiguracionGeneral(
       input.multiplicador_escalamiento_supervisor,
       "multiplicador_escalamiento_supervisor",
     ),
+    horas_laborales_mes:
+      input.horas_laborales_mes === undefined
+        ? 240
+        : requireNumber(input.horas_laborales_mes, "horas_laborales_mes"),
     resend_dashboard_url: "https://resend.com/overview",
   }
   db.configuracion_general = created
@@ -521,6 +541,9 @@ export async function updateConfiguracionGeneral(
       patch.multiplicador_escalamiento_supervisor,
       "multiplicador_escalamiento_supervisor",
     )
+  }
+  if ("horas_laborales_mes" in patch) {
+    changes.horas_laborales_mes = requireNumber(patch.horas_laborales_mes, "horas_laborales_mes")
   }
   db.configuracion_general = { ...db.configuracion_general, ...changes }
   persist(db)
