@@ -246,9 +246,7 @@ export function PasoEquipoCosteo({
       })}
       {draft.modelo_cobro === "fee_recurrente" ? (
         <CampoAyuda>
-          De las {horasLaboralesMes} horas laborales del mes, cada rol aporta al costo interno del
-          fee: horas, % del mes o veces, según el modelo de su tarifa. Nunca se costea por persona
-          nombrada.
+          {`De las ${horasLaboralesMes} horas laborales del mes, cada rol aporta al costo interno del fee: horas, % del mes o veces, según el modelo de su tarifa. Nunca se costea por persona nombrada.`}
         </CampoAyuda>
       ) : (
         <CampoAyuda>
