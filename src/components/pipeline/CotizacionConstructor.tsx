@@ -4,7 +4,7 @@ import { toast } from "sonner"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
 import { CotizacionPdfAcciones } from "@/components/pipeline/CotizacionPdfAcciones"
 import { CotizacionTransiciones } from "@/components/pipeline/CotizacionTransiciones"
-import { LineaCotizacionForm } from "@/components/pipeline/LineaCotizacionForm"
+import { LineaCotizacionForm, type LineaCotizacionFormInput } from "@/components/pipeline/LineaCotizacionForm"
 import { Button } from "@/components/ui/button"
 import { formatMoney } from "@/lib/costo-interno"
 import {
@@ -42,14 +42,7 @@ export function CotizacionConstructor({
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [transicionPendiente, setTransicionPendiente] = useState(false)
 
-  async function agregar(input: {
-    servicio_id: string
-    proveedor_id: string | null
-    costo_proveedor: number | null
-    margen_pct: number | null
-    comision_agencia_pct: number | null
-    cantidad: number
-  }) {
+  async function agregar(input: LineaCotizacionFormInput) {
     try {
       await createLinea({
         perfil,
@@ -62,13 +55,7 @@ export function CotizacionConstructor({
     }
   }
 
-  async function guardar(linea: LineaCotizacion, input: {
-    proveedor_id: string | null
-    costo_proveedor: number | null
-    margen_pct: number | null
-    comision_agencia_pct: number | null
-    cantidad: number
-  }) {
+  async function guardar(linea: LineaCotizacion, input: LineaCotizacionFormInput) {
     try {
       if (linea.costo_proveedor != null) {
         if (input.costo_proveedor == null || input.margen_pct == null || input.comision_agencia_pct == null) {
@@ -84,6 +71,7 @@ export function CotizacionConstructor({
           margen_pct: input.margen_pct,
           comision_agencia_pct: input.comision_agencia_pct,
           cantidad: input.cantidad,
+          descripcion: input.descripcion,
         })
       } else {
         await updateLinea({
@@ -91,6 +79,7 @@ export function CotizacionConstructor({
           cotizacion_id: cotizacion.id,
           id: linea.id,
           cantidad: input.cantidad,
+          descripcion: input.descripcion,
         })
       }
       setEditandoId(null)
@@ -191,8 +180,11 @@ export function CotizacionConstructor({
               className="flex flex-wrap items-start justify-between gap-2 rounded-lg p-3 ring-1 ring-foreground/10"
             >
               <div>
-                <p className="text-sm font-medium">{servicio?.nombre ?? linea.servicio_id}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-ui-medium">{servicio?.nombre ?? linea.servicio_id}</p>
+                {linea.descripcion ? (
+                  <p className="mt-1 text-ui text-muted-foreground">{linea.descripcion}</p>
+                ) : null}
+                <p className="text-kicker text-muted-foreground">
                   {linea.costo_proveedor != null ? "Con proveedor" : "Sin proveedor"} · cantidad{" "}
                   {linea.cantidad} · {formatMoney(linea.total_linea_extendido)}
                 </p>

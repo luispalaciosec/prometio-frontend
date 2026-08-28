@@ -5,6 +5,7 @@ import { LineaCalculoVivo } from "@/components/pipeline/LineaCalculoVivo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -24,6 +25,16 @@ import type { Proveedor } from "@/types/proveedor"
 import type { Servicio } from "@/types/servicio"
 
 const SIN_PROVEEDOR = "none"
+
+export type LineaCotizacionFormInput = {
+  servicio_id: string
+  proveedor_id: string | null
+  costo_proveedor: number | null
+  margen_pct: number | null
+  comision_agencia_pct: number | null
+  cantidad: number
+  descripcion: string | null
+}
 
 function defaultsDeServicio(
   servicio: Servicio | undefined,
@@ -53,14 +64,7 @@ export function LineaCotizacionForm({
   servicios: Servicio[]
   proveedores: Proveedor[]
   config: ConfiguracionGeneral | null
-  onSubmit: (input: {
-    servicio_id: string
-    proveedor_id: string | null
-    costo_proveedor: number | null
-    margen_pct: number | null
-    comision_agencia_pct: number | null
-    cantidad: number
-  }) => void
+  onSubmit: (input: LineaCotizacionFormInput) => void
   onCancel?: () => void
 }) {
   const caminoFijoConProveedor =
@@ -77,6 +81,7 @@ export function LineaCotizacionForm({
     linea?.comision_agencia_pct != null ? String(linea.comision_agencia_pct) : "",
   )
   const [cantidadRaw, setCantidadRaw] = useState(String(linea?.cantidad ?? 1))
+  const [descripcion, setDescripcion] = useState(linea?.descripcion ?? "")
 
   const servicio = servicios.find((row) => row.id === servicioId)
   const precioDirecto = precioDirectoServicio(servicio)
@@ -122,6 +127,7 @@ export function LineaCotizacionForm({
     if (cantidad === "invalid" || cantidad == null) {
       return
     }
+    const descripcionLinea = descripcion.trim() ? descripcion.trim() : null
     if (conProveedor) {
       const costo = parseOptionalNumber(costoRaw)
       const margen = parseOptionalNumber(margenRaw)
@@ -136,6 +142,7 @@ export function LineaCotizacionForm({
         margen_pct: margen,
         comision_agencia_pct: comision,
         cantidad,
+        descripcion: descripcionLinea,
       })
       return
     }
@@ -146,6 +153,7 @@ export function LineaCotizacionForm({
       margen_pct: null,
       comision_agencia_pct: null,
       cantidad,
+      descripcion: descripcionLinea,
     })
   }
 
@@ -198,6 +206,18 @@ export function LineaCotizacionForm({
             mapeado={Boolean(servicio.contifico_producto_id)}
           />
         ) : null}
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="linea-descripcion">Descripción</Label>
+        <Textarea
+          id="linea-descripcion"
+          value={descripcion}
+          onChange={(event) => setDescripcion(event.target.value)}
+        />
+        <p className="text-kicker">
+          Opcional. Texto de esta cotización: si lo llenás, el PDF del cliente lo muestra en vez
+          de la descripción del catálogo.
+        </p>
       </div>
       {caminoFijoConProveedor === false ? null : (
         <div className="flex flex-col gap-2">

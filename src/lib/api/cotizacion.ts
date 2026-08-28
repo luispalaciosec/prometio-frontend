@@ -21,6 +21,7 @@ export type CrearLineaInput = {
   margen_pct?: number | null
   comision_agencia_pct?: number | null
   cantidad?: number
+  descripcion?: string | null
 }
 
 export type ActualizarLineaInput = {
@@ -32,6 +33,7 @@ export type ActualizarLineaInput = {
   margen_pct?: number
   comision_agencia_pct?: number
   cantidad?: number
+  descripcion?: string | null
 }
 
 export type PdfCotizacionVariante = "cliente" | "interno"
@@ -80,6 +82,7 @@ export function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalc
       margen_pct: input.margen_pct ?? null,
       comision_agencia_pct: input.comision_agencia_pct ?? null,
       cantidad: input.cantidad ?? 1,
+      descripcion: input.descripcion ?? null,
     }),
   })
 }
@@ -100,6 +103,9 @@ export function updateLinea(input: ActualizarLineaInput): Promise<LineaCotizacio
   }
   if (input.cantidad !== undefined) {
     body.cantidad = input.cantidad
+  }
+  if ("descripcion" in input) {
+    body.descripcion = input.descripcion ?? null
   }
   return apiFetch(`/cotizaciones/${input.cotizacion_id}/lineas/${input.id}`, {
     method: "PATCH",

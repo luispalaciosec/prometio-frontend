@@ -7,6 +7,7 @@ export type LineaCotizacion = {
   margen_pct: number | null
   comision_agencia_pct: number | null
   cantidad: number
+  descripcion: string | null
   precio_base_cliente_aplicado: number | null
 }
 
