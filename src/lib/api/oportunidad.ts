@@ -124,6 +124,15 @@ export type ListOportunidadesQuery = {
   servicio_id?: string | null
 }
 
+/** Lista cruda, incluye inactivas. Para etiquetar cotizaciones u otras entidades ligadas. */
+export async function listOportunidadesLookup(): Promise<Oportunidad[]> {
+  const [rows] = await Promise.all([
+    apiFetch<Oportunidad[]>("/oportunidades?incluir_inactivas=true"),
+    refrescarEtiquetasOportunidad(),
+  ])
+  return rows.map(normalizar)
+}
+
 export async function listOportunidades(query: ListOportunidadesQuery): Promise<OportunidadKanban[]> {
   try {
     const [rows] = await Promise.all([

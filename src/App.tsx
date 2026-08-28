@@ -20,6 +20,7 @@ import { ConfiguracionPage } from "@/pages/ConfiguracionPage"
 import { ConectoresPage } from "@/pages/ConectoresPage"
 import { ContactoPage } from "@/pages/ContactoPage"
 import { ContactosPage } from "@/pages/ContactosPage"
+import { CotizacionesPage } from "@/pages/CotizacionesPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { EmpresaPage } from "@/pages/EmpresaPage"
 import { EmpresasPage } from "@/pages/EmpresasPage"
@@ -134,6 +135,14 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <ContactoPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/cotizaciones"
+                element={
+                  <VentasRoute>
+                    <CotizacionesPage />
                   </VentasRoute>
                 }
               />

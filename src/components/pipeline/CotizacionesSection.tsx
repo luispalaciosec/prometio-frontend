@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 
 import { CotizacionConstructor } from "@/components/pipeline/CotizacionConstructor"
@@ -25,8 +26,10 @@ export function CotizacionesSection({
   ejecutivoId: string
 }) {
   const perfil = useAuthStore((state) => state.perfil)
+  const [searchParams] = useSearchParams()
+  const cotizacionQuery = searchParams.get("cotizacion")
   const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[] | null>(null)
-  const [abiertaId, setAbiertaId] = useState<string | null>(null)
+  const [abiertaId, setAbiertaId] = useState<string | null>(cotizacionQuery)
   const [abierta, setAbierta] = useState<CotizacionConLineas | null>(null)
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [proveedores, setProveedores] = useState<Proveedor[]>([])
@@ -36,7 +39,7 @@ export function CotizacionesSection({
     if (!perfil) {
       return
     }
-    setCotizaciones(await listCotizaciones(oportunidadId, perfil))
+    setCotizaciones(await listCotizaciones({ oportunidad_id: oportunidadId }))
   }, [perfil, oportunidadId])
 
   const reloadAbierta = useCallback(async () => {
@@ -57,6 +60,19 @@ export function CotizacionesSection({
       },
     )
   }, [])
+
+  useEffect(() => {
+    if (cotizacionQuery) {
+      setAbiertaId(cotizacionQuery)
+    }
+  }, [cotizacionQuery])
+
+  useEffect(() => {
+    if (!cotizacionQuery) {
+      return
+    }
+    document.getElementById("cotizaciones")?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [cotizacionQuery])
 
   useEffect(() => {
     void reloadLista().catch((error: unknown) => {
@@ -85,7 +101,7 @@ export function CotizacionesSection({
   }
 
   return (
-    <section className="rounded-xl p-4 ring-1 ring-border">
+    <section id="cotizaciones" className="rounded-xl p-4 ring-1 ring-border">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-section">Cotizaciones</h2>
         <Button type="button" size="sm" onClick={() => void nueva()}>

@@ -5,7 +5,7 @@ import { getOportunidad } from "@/lib/api/oportunidad"
 import { apiFetch, apiFetchBlob } from "@/lib/api-client"
 import type { AccionCotizacion } from "@/lib/cotizacion-transiciones"
 import { puedeVerDesgloseCotizacion } from "@/lib/pipeline-acceso"
-import type { CotizacionConLineas } from "@/types/cotizacion"
+import type { CotizacionConLineas, CotizacionEstado } from "@/types/cotizacion"
 import type { LineaCotizacionCalculada } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
 import type { Proveedor } from "@/types/proveedor"
@@ -51,11 +51,26 @@ export function listProveedores(): Promise<Proveedor[]> {
   return apiFetch("/proveedores")
 }
 
-export function listCotizaciones(
-  oportunidad_id: string,
-  _perfil: Perfil,
-): Promise<CotizacionConLineas[]> {
-  return apiFetch(`/cotizaciones?oportunidad_id=${encodeURIComponent(oportunidad_id)}`)
+export type ListCotizacionesQuery = {
+  oportunidad_id?: string
+  q?: string
+  estado?: CotizacionEstado | null
+}
+
+export function listCotizaciones(query: ListCotizacionesQuery = {}): Promise<CotizacionConLineas[]> {
+  const params = new URLSearchParams()
+  if (query.oportunidad_id) {
+    params.set("oportunidad_id", query.oportunidad_id)
+  }
+  const q = query.q?.trim()
+  if (q) {
+    params.set("q", q)
+  }
+  if (query.estado) {
+    params.set("estado", query.estado)
+  }
+  const qs = params.toString()
+  return apiFetch(`/cotizaciones${qs ? `?${qs}` : ""}`)
 }
 
 export function getCotizacion(id: string, _perfil: Perfil): Promise<CotizacionConLineas> {

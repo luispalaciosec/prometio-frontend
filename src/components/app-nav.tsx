@@ -13,6 +13,7 @@ import {
   Inbox,
   LayoutDashboard,
   LayoutList,
+  FileText,
   ScrollText,
   Search,
   Users,
@@ -40,6 +41,7 @@ const crmNav: NavItem[] = [
 
 const negociosNav: NavItem[] = [
   { to: "/pipeline", label: "Pipeline", icon: Columns3 },
+  { to: "/cotizaciones", label: "Cotizaciones", icon: FileText },
   { to: "/alertas", label: "Alertas", icon: Bell },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ]

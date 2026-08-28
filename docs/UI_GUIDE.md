@@ -18,6 +18,11 @@
 7. Documentos requeridos — seleccionar de `tipo_documento` existentes o crear uno nuevo sin salir del wizard
 8. Revisión y publicación — resumen completo; botón "Activar servicio" solo habilitado para equipo `administrativo`
 
+## Cotizaciones (lista global)
+- Ruta `/cotizaciones` en Negocios, junto a Pipeline / Alertas / Dashboard
+- Lista con búsqueda (`q`: contacto, empresa o número) y filtro por estado; el backend aplica ownership (vendedor ve las suyas)
+- Cada fila: número, contacto/empresa, estado, total, fecha. Click abre `/pipeline/:id?cotizacion=:id` (el constructor de siempre)
+
 ## Cotizador (Fase 1)
 - Constructor de líneas: seleccionar servicio, proveedor (opcional), costo del proveedor
 - Calculadora de margen visible en vivo: costo proveedor → precio con margen → precio con comisión → total con impuestos (fórmula completa en `prometio-backend/CLAUDE.md`)
