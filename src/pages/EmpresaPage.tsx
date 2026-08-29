@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { enriquecerEmpresa, getEmpresa, updateEmpresa } from "@/lib/api/empresa"
+import { enriquecerEmpresa, getEmpresa, updateEmpresa, desactivarEmpresa, reactivarEmpresa } from "@/lib/api/empresa"
 import { puedeEnriquecer, type Empresa } from "@/types/empresa"
 import { Sparkles } from "lucide-react"
 
@@ -24,6 +24,7 @@ export function EmpresaPage() {
   const [ruc, setRuc] = useState("")
   const [guardando, setGuardando] = useState(false)
   const [enriqueciendo, setEnriqueciendo] = useState(false)
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
 
   async function reload(empresaId: string) {
     setEmpresa(null)
@@ -82,6 +83,22 @@ export function EmpresaPage() {
     }
   }
 
+  async function toggleActivo() {
+    if (!id || !empresa) {
+      return
+    }
+    setCambiandoEstado(true)
+    try {
+      const row = empresa.activo ? await desactivarEmpresa(id) : await reactivarEmpresa(id)
+      setEmpresa(row)
+      toast.success(row.activo ? "Empresa reactivada." : "Empresa desactivada.")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo cambiar el estado.")
+    } finally {
+      setCambiandoEstado(false)
+    }
+  }
+
   if (error) {
     return (
       <div className="max-w-md space-y-3">
@@ -115,14 +132,29 @@ export function EmpresaPage() {
           />
         }
         title={empresa.nombre}
-        description={empresa.linkedin_url ? <LinkedInLink href={empresa.linkedin_url} /> : undefined}
+        description={
+          empresa.linkedin_url || !empresa.activo ? (
+            <>
+              {!empresa.activo ? <span>Inactiva</span> : null}
+              <LinkedInLink href={empresa.linkedin_url} />
+            </>
+          ) : undefined
+        }
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {mostrarEnriquecer ? (
               <Button type="button" disabled={enriqueciendo} onClick={() => void enriquecer()}>
                 {enriqueciendo ? "Enriqueciendo…" : "Enriquecer"}
               </Button>
             ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={cambiandoEstado}
+              onClick={() => void toggleActivo()}
+            >
+              {empresa.activo ? "Desactivar" : "Reactivar"}
+            </Button>
             <Button asChild variant="outline">
               <Link to="/empresas">Volver</Link>
             </Button>

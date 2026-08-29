@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/page-header"
 import { VistaToggle } from "@/components/vista-toggle"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -44,6 +45,7 @@ export function EmpresasPage() {
   )
   const [altaOpen, setAltaOpen] = useState(false)
   const [enviando, setEnviando] = useState(false)
+  const [incluirInactivos, setIncluirInactivos] = useState(false)
 
   function cambiarVista(next: VistaListaCuadricula) {
     setVista(next)
@@ -52,7 +54,7 @@ export function EmpresasPage() {
 
   async function reload() {
     try {
-      setRows(await listEmpresas())
+      setRows(await listEmpresas({ incluir_inactivos: incluirInactivos }))
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar las empresas.")
       setRows([])
@@ -61,7 +63,7 @@ export function EmpresasPage() {
 
   useEffect(() => {
     void reload()
-  }, [])
+  }, [incluirInactivos])
 
   const filtradas = useMemo(() => {
     if (!rows) {
@@ -104,6 +106,13 @@ export function EmpresasPage() {
             placeholder="Nombre, web o RUC"
           />
         </div>
+        <label className="flex items-center gap-2 pb-2 text-ui">
+          <Checkbox
+            checked={incluirInactivos}
+            onCheckedChange={(value) => setIncluirInactivos(value === true)}
+          />
+          Mostrar inactivas
+        </label>
         <VistaToggle
           value={vista}
           onChange={cambiarVista}
@@ -125,7 +134,9 @@ export function EmpresasPage() {
           title={rows.length === 0 ? "Sin empresas" : "Nada coincide"}
           body={
             rows.length === 0
-              ? "Todavía no hay empresas. Creá la primera para asociar contactos."
+              ? incluirInactivos
+                ? "Ninguna empresa pasa esos filtros."
+                : "Todavía no hay empresas. Creá la primera para asociar contactos."
               : "Ninguna empresa pasa esa búsqueda."
           }
           action={
@@ -174,6 +185,9 @@ export function EmpresasPage() {
                     />
                     <span className="text-ui-medium">{row.nombre}</span>
                     <LinkedInLink href={row.linkedin_url} compact />
+                    {row.activo === false ? (
+                      <span className="text-kicker">inactiva</span>
+                    ) : null}
                   </div>
                 </TableCell>
                 <TableCell className="text-muted-foreground">{row.web ?? "—"}</TableCell>

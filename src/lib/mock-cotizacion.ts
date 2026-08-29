@@ -39,6 +39,7 @@ function seed(): MockDb {
         email: null,
         calificacion: null,
         servicios: null,
+        activo: true,
       },
       {
         id: "pv-media",
@@ -50,6 +51,7 @@ function seed(): MockDb {
         email: null,
         calificacion: null,
         servicios: null,
+        activo: true,
       },
     ],
     cotizaciones: [],

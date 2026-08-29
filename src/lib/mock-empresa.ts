@@ -28,6 +28,7 @@ function seed(): Empresa[] {
       logo_url: null,
       datos_enriquecidos: {},
       propiedades_custom: {},
+      activo: true,
       created_at,
     },
     {
@@ -52,6 +53,7 @@ function seed(): Empresa[] {
         linkedin: { employeeCount: 1200 },
       },
       propiedades_custom: {},
+      activo: true,
       created_at,
     },
     {
@@ -67,6 +69,7 @@ function seed(): Empresa[] {
       logo_url: null,
       datos_enriquecidos: { enriquecimiento_error: "Timeout de Apify (simulado)." },
       propiedades_custom: {},
+      activo: true,
       created_at,
     },
   ]
@@ -120,6 +123,7 @@ export async function createEmpresa(input: EmpresaCreate): Promise<Empresa> {
     logo_url: null,
     datos_enriquecidos: {},
     propiedades_custom: {},
+    activo: true,
     created_at: new Date().toISOString(),
   }
   const rows = load()

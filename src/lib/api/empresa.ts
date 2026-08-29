@@ -9,8 +9,13 @@ function vacio(value: string | null | undefined): string | null {
   return trimmed === "" ? null : trimmed
 }
 
-export function listEmpresas(): Promise<Empresa[]> {
-  return apiFetch("/empresas")
+export function listEmpresas(query: { incluir_inactivos?: boolean } = {}): Promise<Empresa[]> {
+  const params = new URLSearchParams()
+  if (query.incluir_inactivos) {
+    params.set("incluir_inactivos", "true")
+  }
+  const qs = params.toString()
+  return apiFetch(`/empresas${qs ? `?${qs}` : ""}`)
 }
 
 export function getEmpresa(id: string): Promise<Empresa> {
@@ -54,4 +59,12 @@ export function updateEmpresa(id: string, input: EmpresaUpdate): Promise<Empresa
 
 export function enriquecerEmpresa(id: string): Promise<Empresa> {
   return apiFetch(`/empresas/${id}/enriquecer`, { method: "POST" })
+}
+
+export function desactivarEmpresa(id: string): Promise<Empresa> {
+  return apiFetch(`/empresas/${id}/desactivar`, { method: "POST" })
+}
+
+export function reactivarEmpresa(id: string): Promise<Empresa> {
+  return apiFetch(`/empresas/${id}/reactivar`, { method: "POST" })
 }

@@ -49,6 +49,7 @@ export function ProveedorCard({
         <EntityAvatar name={proveedor.nombre} seed={proveedor.id} kind="empresa" size="md" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-ui-medium">{proveedor.nombre}</p>
+          {proveedor.activo === false ? <p className="text-kicker">Inactivo</p> : null}
           <p className="mt-1 truncate text-kicker">{proveedor.contacto_nombre ?? "Sin contacto"}</p>
           <p className="truncate text-kicker">{proveedor.ruc ?? "Sin RUC"}</p>
           <div className="mt-2">

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button"
 import {
   MOCK_ORGANIZACION_ID,
   activarServicio,
+  archivarServicio,
   getConfiguracionGeneral,
   getServicio,
   listServicios,
@@ -119,6 +120,7 @@ export function ServicioWizardPage() {
   const current = draft
   const indice = visibles.indexOf(paso)
   const esUltimo = indice === visibles.length - 1
+  const archivado = current.estado === "archivado"
   const horasLaboralesMes = defaults?.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT
 
   function update(updater: (prev: Servicio) => Servicio) {
@@ -151,6 +153,10 @@ export function ServicioWizardPage() {
   }
 
   async function saveDraft() {
+    if (archivado) {
+      toast.error("No se puede editar un servicio archivado.")
+      return null
+    }
     if (!current.nombre.trim()) {
       toast.error("El nombre es obligatorio para guardar el borrador.")
       return null
@@ -178,6 +184,22 @@ export function ServicioWizardPage() {
     setDraft(activo)
     toast.success("Servicio activado.")
     navigate("/configuracion/servicios")
+  }
+
+  async function archivar() {
+    if (!current.id) {
+      return
+    }
+    setSaving(true)
+    try {
+      const row = await archivarServicio(current.id)
+      setDraft(row)
+      toast.success("Servicio archivado.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo archivar el servicio.")
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function crearTipo(nombre: string) {
@@ -212,11 +234,30 @@ export function ServicioWizardPage() {
     <>
       <PageHeader
         title={draft.id ? draft.nombre || "Borrador" : "Nuevo servicio"}
-        description={`${PASO_TITULO[paso]} · paso ${indice + 1} de ${visibles.length}`}
+        description={
+          <>
+            {archivado ? <span>Archivado</span> : null}
+            <span>
+              {PASO_TITULO[paso]} · paso {indice + 1} de {visibles.length}
+            </span>
+          </>
+        }
         action={
-          <Button variant="outline" disabled={saving} onClick={() => void saveDraft()}>
-            Guardar borrador
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" disabled={saving || archivado} onClick={() => void saveDraft()}>
+              Guardar borrador
+            </Button>
+            {isAdmin && current.id && !archivado ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={saving}
+                onClick={() => void archivar()}
+              >
+                Archivar
+              </Button>
+            ) : null}
+          </div>
         }
       />
 
@@ -272,7 +313,7 @@ export function ServicioWizardPage() {
           Atrás
         </Button>
         {!esUltimo ? <Button onClick={siguiente}>Siguiente</Button> : null}
-        {esUltimo && isAdmin ? (
+        {esUltimo && isAdmin && !archivado ? (
           <Button disabled={saving} onClick={() => void activar()}>
             Activar servicio
           </Button>

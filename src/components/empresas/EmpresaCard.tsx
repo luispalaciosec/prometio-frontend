@@ -31,6 +31,7 @@ export function EmpresaCard({ empresa, onOpen }: { empresa: Empresa; onOpen: () 
             ) : (
               <Badge variant="success">Enriquecida</Badge>
             )}
+            {empresa.activo === false ? <span className="text-kicker">inactiva</span> : null}
           </div>
         </div>
       </div>

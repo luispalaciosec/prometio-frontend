@@ -29,7 +29,7 @@ export function ServiciosPage() {
     <>
       <PageHeader
         title="Servicios"
-        description="Borradores y activos. El wizard guarda como borrador hasta Activar."
+        description="Borradores, activos y archivados. Archivar saca el servicio del catálogo que usa el cotizador."
         action={
           <Button asChild>
             <Link to="/configuracion/servicios/nuevo">Nuevo servicio</Link>
@@ -67,7 +67,15 @@ export function ServiciosPage() {
                 <TableCell>{row.categoria ?? "—"}</TableCell>
                 <TableCell>{MODELO_COBRO_LABELS[row.modelo_cobro]}</TableCell>
                 <TableCell>
-                  <Badge variant={row.estado === "activo" ? "success" : "outline"}>
+                  <Badge
+                    variant={
+                      row.estado === "activo"
+                        ? "success"
+                        : row.estado === "archivado"
+                          ? "warning"
+                          : "outline"
+                    }
+                  >
                     {SERVICIO_ESTADO_LABELS[row.estado]}
                   </Badge>
                 </TableCell>

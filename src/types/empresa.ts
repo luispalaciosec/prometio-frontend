@@ -24,6 +24,7 @@ export type Empresa = {
   logo_url: string | null
   datos_enriquecidos: DatosEnriquecidos
   propiedades_custom: Record<string, unknown>
+  activo: boolean
   created_at: string
 }
 

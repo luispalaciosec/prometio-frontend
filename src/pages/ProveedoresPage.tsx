@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -41,7 +42,9 @@ import {
 import {
   createProveedor,
   deleteProveedor,
+  desactivarProveedor,
   listProveedores,
+  reactivarProveedor,
   updateProveedor,
 } from "@/lib/api/proveedor"
 import { coincideTexto } from "@/lib/lista-filtros"
@@ -69,6 +72,7 @@ type Draft = {
   email: string
   calificacion: number | null
   servicios: string[]
+  activo: boolean
 }
 
 const emptyDraft: Draft = {
@@ -79,6 +83,7 @@ const emptyDraft: Draft = {
   email: "",
   calificacion: null,
   servicios: [],
+  activo: true,
 }
 
 function textoOpcional(value: string): string | null {
@@ -96,6 +101,7 @@ function draftDe(row: Proveedor): Draft {
     email: row.email ?? "",
     calificacion: row.calificacion == null ? null : Math.round(row.calificacion),
     servicios: row.servicios ?? [],
+    activo: row.activo !== false,
   }
 }
 
@@ -108,6 +114,8 @@ export function ProveedoresPage() {
   )
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Draft>(emptyDraft)
+  const [incluirInactivos, setIncluirInactivos] = useState(false)
+  const [cambiandoEstado, setCambiandoEstado] = useState(false)
 
   function cambiarVista(next: VistaListaCuadricula) {
     setVista(next)
@@ -115,7 +123,7 @@ export function ProveedoresPage() {
   }
 
   async function reload() {
-    setRows(await listProveedores())
+    setRows(await listProveedores({ incluir_inactivos: incluirInactivos }))
   }
 
   useEffect(() => {
@@ -123,7 +131,7 @@ export function ProveedoresPage() {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar los proveedores.")
       setRows([])
     })
-  }, [])
+  }, [incluirInactivos])
 
   const sugerencias = useMemo(() => {
     const seen = new Set<string>()
@@ -209,6 +217,25 @@ export function ProveedoresPage() {
     }
   }
 
+  async function toggleActivo() {
+    if (!draft.id) {
+      return
+    }
+    setCambiandoEstado(true)
+    try {
+      const row = draft.activo
+        ? await desactivarProveedor(draft.id)
+        : await reactivarProveedor(draft.id)
+      setDraft(draftDe(row))
+      toast.success(row.activo ? "Proveedor reactivado." : "Proveedor desactivado.")
+      await reload()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo cambiar el estado.")
+    } finally {
+      setCambiandoEstado(false)
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -247,6 +274,13 @@ export function ProveedoresPage() {
             </Select>
           </div>
         ) : null}
+        <label className="flex items-center gap-2 pb-2 text-ui">
+          <Checkbox
+            checked={incluirInactivos}
+            onCheckedChange={(value) => setIncluirInactivos(value === true)}
+          />
+          Mostrar inactivos
+        </label>
         <VistaToggle
           value={vista}
           onChange={cambiarVista}
@@ -268,7 +302,9 @@ export function ProveedoresPage() {
           title={rows.length === 0 ? "Sin proveedores" : "Nada coincide"}
           body={
             rows.length === 0
-              ? "El cotizador los pide al armar una línea con costo. Creá el primero."
+              ? incluirInactivos
+                ? "Ningún proveedor pasa esos filtros."
+                : "El cotizador los pide al armar una línea con costo. Creá el primero."
               : "Ningún proveedor pasa esa búsqueda o servicio."
           }
           action={
@@ -309,7 +345,12 @@ export function ProveedoresPage() {
           <TableBody>
             {filtrados.map((row) => (
               <TableRow key={row.id}>
-                <TableCell className="text-ui-medium">{row.nombre}</TableCell>
+                <TableCell className="text-ui-medium">
+                  {row.nombre}
+                  {row.activo === false ? (
+                    <span className="ml-1.5 text-kicker">inactivo</span>
+                  ) : null}
+                </TableCell>
                 <TableCell className="text-ui">{row.contacto_nombre ?? "—"}</TableCell>
                 <TableCell className="text-ui">{row.ruc ?? "—"}</TableCell>
                 <TableCell className="text-ui">{row.telefono ?? "—"}</TableCell>
@@ -352,7 +393,12 @@ export function ProveedoresPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{draft.id ? "Editar proveedor" : "Nuevo proveedor"}</DialogTitle>
+            <DialogTitle>
+              {draft.id ? "Editar proveedor" : "Nuevo proveedor"}
+              {draft.id && !draft.activo ? (
+                <span className="ml-2 text-kicker font-normal">Inactivo</span>
+              ) : null}
+            </DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
@@ -415,11 +461,25 @@ export function ProveedoresPage() {
               <p className="text-kicker">Tags libres. Enter o Agregar; no se escriben separados por comas.</p>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={() => void save()}>Guardar</Button>
+          <DialogFooter className="gap-2 sm:justify-between">
+            {draft.id ? (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={cambiandoEstado}
+                onClick={() => void toggleActivo()}
+              >
+                {draft.activo ? "Desactivar" : "Reactivar"}
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={() => void save()}>Guardar</Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

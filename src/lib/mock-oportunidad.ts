@@ -72,6 +72,7 @@ function empresaSeed(id: string, organizacion_id: string, nombre: string): Empre
     logo_url: null,
     datos_enriquecidos: {},
     propiedades_custom: {},
+    activo: true,
     created_at: "2026-03-01T15:00:00.000Z",
   }
 }

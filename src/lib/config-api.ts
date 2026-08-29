@@ -97,6 +97,10 @@ export function activarServicio(id: string): Promise<Servicio> {
   })
 }
 
+export function archivarServicio(id: string): Promise<Servicio> {
+  return apiFetch(`/servicios/${id}/archivar`, { method: "POST" })
+}
+
 export function listHistorialPrecios(
   servicioId: string,
   meses = 6,
