@@ -1,4 +1,4 @@
-import { apiFetch } from "@/lib/api-client"
+import { apiFetch, apiFetchBlob } from "@/lib/api-client"
 import type {
   SeoCoreWebVitals,
   SeoCrawl,
@@ -37,4 +37,14 @@ export function medirSeoCoreWebVitals(url?: string): Promise<SeoCoreWebVitals[]>
     method: "POST",
     body: JSON.stringify(triggerBody(url)),
   })
+}
+
+export async function descargarInformeSeoPdf(): Promise<void> {
+  const { blob, filename } = await apiFetchBlob("/seo/informe-pdf")
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename ?? "informe-seo.pdf"
+  link.click()
+  URL.revokeObjectURL(url)
 }

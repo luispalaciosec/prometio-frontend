@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
+  descargarInformeSeoPdf,
   getSeoCrawl,
   iniciarSeoCrawl,
   listSeoCoreWebVitals,
@@ -131,6 +132,7 @@ export function SeoPage() {
   const [cargando, setCargando] = useState(true)
   const [corriendoCrawl, setCorriendoCrawl] = useState(false)
   const [midiendoCwv, setMidiendoCwv] = useState(false)
+  const [descargandoPdf, setDescargandoPdf] = useState(false)
 
   const cargarDetalle = useCallback(async (id: string) => {
     const detalle = await getSeoCrawl(id)
@@ -216,6 +218,17 @@ export function SeoPage() {
     }
   }
 
+  async function onInformePdf() {
+    setDescargandoPdf(true)
+    try {
+      await descargarInformeSeoPdf()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo descargar el informe.")
+    } finally {
+      setDescargandoPdf(false)
+    }
+  }
+
   const agrupado = agruparCwvPorFuente(cwv)
   const hayCampo = fuenteTieneDatos(agrupado.campo)
   const hayLab = fuenteTieneDatos(agrupado.laboratorio)
@@ -228,6 +241,17 @@ export function SeoPage() {
       <PageHeader
         title="SEO"
         description="Crawl técnico y Core Web Vitals del sitio de la agencia. Campo y laboratorio no se mezclan."
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            disabled={descargandoPdf}
+            onClick={() => void onInformePdf()}
+          >
+            {descargandoPdf ? <Loader2 className="size-4 animate-spin" /> : null}
+            {descargandoPdf ? "Generando informe…" : "Descargar informe PDF"}
+          </Button>
+        }
       />
 
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end">
