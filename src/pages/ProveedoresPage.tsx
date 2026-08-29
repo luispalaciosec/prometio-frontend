@@ -5,9 +5,14 @@ import { Truck } from "lucide-react"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { CalificacionEstrellas } from "@/components/proveedores/CalificacionEstrellas"
+import {
+  mismoServicio,
+  ProveedorCard,
+  ServicioTagChip,
+} from "@/components/proveedores/ProveedorCard"
 import { ServiciosTagsInput } from "@/components/proveedores/ServiciosTagsInput"
-import { TableSkeleton } from "@/components/skeleton"
-import { Badge } from "@/components/ui/badge"
+import { TableSkeleton, TilesSkeleton } from "@/components/skeleton"
+import { VistaToggle } from "@/components/vista-toggle"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,6 +23,13 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -32,7 +44,21 @@ import {
   listProveedores,
   updateProveedor,
 } from "@/lib/api/proveedor"
+import { coincideTexto } from "@/lib/lista-filtros"
+import {
+  guardarVistaLocal,
+  leerVistaLocal,
+  VISTA_LISTA_CUADRICULA,
+  type VistaListaCuadricula,
+} from "@/lib/vista-preferida"
 import type { Proveedor } from "@/types/proveedor"
+
+const VISTA_KEY = "prometio-proveedores-vista"
+
+function tieneServicio(row: Proveedor, tag: string): boolean {
+  const needle = tag.toLocaleLowerCase("es")
+  return (row.servicios ?? []).some((item) => item.toLocaleLowerCase("es") === needle)
+}
 
 type Draft = {
   id?: string
@@ -75,8 +101,18 @@ function draftDe(row: Proveedor): Draft {
 
 export function ProveedoresPage() {
   const [rows, setRows] = useState<Proveedor[] | null>(null)
+  const [busqueda, setBusqueda] = useState("")
+  const [servicio, setServicio] = useState<string | null>(null)
+  const [vista, setVista] = useState<VistaListaCuadricula>(() =>
+    leerVistaLocal(VISTA_KEY, VISTA_LISTA_CUADRICULA, "lista"),
+  )
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Draft>(emptyDraft)
+
+  function cambiarVista(next: VistaListaCuadricula) {
+    setVista(next)
+    guardarVistaLocal(VISTA_KEY, next)
+  }
 
   async function reload() {
     setRows(await listProveedores())
@@ -104,6 +140,26 @@ export function ProveedoresPage() {
     }
     return tags.sort((a, b) => a.localeCompare(b, "es"))
   }, [rows])
+
+  const filtrados = useMemo(() => {
+    if (!rows) {
+      return []
+    }
+    return rows.filter((row) => {
+      if (!coincideTexto(busqueda, row.nombre, row.contacto_nombre ?? "", row.ruc ?? "")) {
+        return false
+      }
+      if (servicio && !tieneServicio(row, servicio)) {
+        return false
+      }
+      return true
+    })
+  }, [rows, busqueda, servicio])
+
+  function filtrarServicio(tag: string) {
+    const canonico = sugerencias.find((item) => mismoServicio(item, tag)) ?? tag
+    setServicio((prev) => (mismoServicio(prev, canonico) ? null : canonico))
+  }
 
   function startCreate() {
     setDraft(emptyDraft)
@@ -160,19 +216,82 @@ export function ProveedoresPage() {
         description="Quién entra como costo en una línea de cotización. Los servicios son tags libres, no un catálogo aparte."
         action={<Button onClick={startCreate}>Nuevo proveedor</Button>}
       />
+      <div className="filter-bar">
+        <div className="filter-field sm:min-w-56 sm:max-w-sm sm:flex-1">
+          <Label htmlFor="proveedor-busqueda">Buscar</Label>
+          <Input
+            id="proveedor-busqueda"
+            value={busqueda}
+            onChange={(event) => setBusqueda(event.target.value)}
+            placeholder="Nombre, contacto o RUC"
+          />
+        </div>
+        {sugerencias.length > 0 ? (
+          <div className="filter-field">
+            <Label htmlFor="proveedor-servicio">Servicio</Label>
+            <Select
+              value={servicio ?? "all"}
+              onValueChange={(value) => setServicio(value === "all" ? null : value)}
+            >
+              <SelectTrigger id="proveedor-servicio">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {sugerencias.map((tag) => (
+                  <SelectItem key={tag} value={tag}>
+                    {tag}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
+        <VistaToggle
+          value={vista}
+          onChange={cambiarVista}
+          opciones={[
+            { value: "lista", label: "Lista" },
+            { value: "cuadricula", label: "Cuadrícula" },
+          ]}
+        />
+      </div>
       {rows == null ? (
-        <TableSkeleton />
-      ) : rows.length === 0 ? (
+        vista === "cuadricula" ? (
+          <TilesSkeleton count={6} className="lg:grid-cols-3" />
+        ) : (
+          <TableSkeleton />
+        )
+      ) : filtrados.length === 0 ? (
         <EmptyState
           icon={Truck}
-          title="Sin proveedores"
-          body="El cotizador los pide al armar una línea con costo. Creá el primero."
+          title={rows.length === 0 ? "Sin proveedores" : "Nada coincide"}
+          body={
+            rows.length === 0
+              ? "El cotizador los pide al armar una línea con costo. Creá el primero."
+              : "Ningún proveedor pasa esa búsqueda o servicio."
+          }
           action={
-            <Button type="button" variant="ghost" size="sm" onClick={startCreate}>
-              Nuevo proveedor
-            </Button>
+            rows.length === 0 ? (
+              <Button type="button" variant="ghost" size="sm" onClick={startCreate}>
+                Nuevo proveedor
+              </Button>
+            ) : null
           }
         />
+      ) : vista === "cuadricula" ? (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filtrados.map((row) => (
+            <ProveedorCard
+              key={row.id}
+              proveedor={row}
+              servicioFiltro={servicio}
+              onOpen={() => startEdit(row)}
+              onEliminar={() => void remove(row.id)}
+              onFiltrarServicio={filtrarServicio}
+            />
+          ))}
+        </div>
       ) : (
         <Table>
           <TableHeader>
@@ -188,7 +307,7 @@ export function ProveedoresPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((row) => (
+            {filtrados.map((row) => (
               <TableRow key={row.id}>
                 <TableCell className="text-ui-medium">{row.nombre}</TableCell>
                 <TableCell className="text-ui">{row.contacto_nombre ?? "—"}</TableCell>
@@ -196,7 +315,9 @@ export function ProveedoresPage() {
                 <TableCell className="text-ui">{row.telefono ?? "—"}</TableCell>
                 <TableCell className="text-muted-foreground">{row.email ?? "—"}</TableCell>
                 <TableCell>
-                  <CalificacionEstrellas value={row.calificacion == null ? null : Math.round(row.calificacion)} />
+                  <CalificacionEstrellas
+                    value={row.calificacion == null ? null : Math.round(row.calificacion)}
+                  />
                 </TableCell>
                 <TableCell className="whitespace-normal">
                   {(row.servicios ?? []).length === 0 ? (
@@ -204,9 +325,12 @@ export function ProveedoresPage() {
                   ) : (
                     <div className="flex flex-wrap gap-1">
                       {(row.servicios ?? []).map((tag) => (
-                        <Badge key={tag} variant="outline">
-                          {tag}
-                        </Badge>
+                        <ServicioTagChip
+                          key={tag}
+                          tag={tag}
+                          selected={mismoServicio(servicio, tag)}
+                          onSelect={filtrarServicio}
+                        />
                       ))}
                     </div>
                   )}
