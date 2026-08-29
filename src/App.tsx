@@ -148,6 +148,15 @@ export default function App() {
                 }
               />
               <Route
+                path="/proveedores"
+                element={
+                  <AdminRoute>
+                    <ProveedoresPage />
+                  </AdminRoute>
+                }
+              />
+              <Route path="/configuracion/proveedores" element={<Navigate to="/proveedores" replace />} />
+              <Route
                 path="/alertas"
                 element={
                   <VentasRoute>
@@ -256,14 +265,6 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <TarifasInternasPage />
-                  </AdminRoute>
-                }
-              />
-              <Route
-                path="/configuracion/proveedores"
-                element={
-                  <AdminRoute>
-                    <ProveedoresPage />
                   </AdminRoute>
                 }
               />

@@ -16,6 +16,7 @@ import {
   FileText,
   ScrollText,
   Search,
+  Truck,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -29,7 +30,7 @@ import { Button } from "@/components/ui/button"
 import { puedeVerModuloMarketing, puedeVerModuloVentas } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 
-type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean }
+type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean; adminOnly?: boolean }
 
 const crmNav: NavItem[] = [
   { to: "/resumen", label: "Resumen", icon: LayoutList },
@@ -44,6 +45,7 @@ const negociosNav: NavItem[] = [
   { to: "/cotizaciones", label: "Cotizaciones", icon: FileText },
   { to: "/alertas", label: "Alertas", icon: Bell },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/proveedores", label: "Proveedores", icon: Truck, adminOnly: true },
 ]
 
 function itemActive(pathname: string, item: NavItem) {
@@ -62,6 +64,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const isVentas = perfil ? puedeVerModuloVentas(perfil) : false
   const isMarketing = perfil ? puedeVerModuloMarketing(perfil) : false
   const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
+  const negociosVisible = negociosNav.filter((item) => !item.adminOnly || isAdmin)
   const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
   const agendaActivo = location.pathname.startsWith("/agenda")
   const saludActivo =
@@ -100,7 +103,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
               ))}
             </SidebarSection>
             <SidebarSection title="Negocios" active={negociosActivo}>
-              {negociosNav.map((item) => (
+              {negociosVisible.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
