@@ -4,6 +4,7 @@ import { FileText } from "lucide-react"
 import { EmptyState } from "@/components/empty-state"
 import { Skeleton } from "@/components/skeleton"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
+import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
 import { formatMoney } from "@/lib/costo-interno"
 import { coincideTexto } from "@/lib/lista-filtros"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ import {
   type CotizacionConLineas,
   type CotizacionEstado,
 } from "@/types/cotizacion"
+import type { DocumentoAlcance } from "@/types/documento-alcance"
 
 export function CotizacionLista({
   cotizaciones,
@@ -37,12 +39,14 @@ export function CotizacionLista({
   onAbrir,
   onNueva,
   cargando = false,
+  docsPorCotizacion = {},
 }: {
   cotizaciones: CotizacionConLineas[]
   abiertaId: string | null
   onAbrir: (id: string) => void
   onNueva?: () => void
   cargando?: boolean
+  docsPorCotizacion?: Record<string, DocumentoAlcance[]>
 }) {
   const [busqueda, setBusqueda] = useState("")
   const [estado, setEstado] = useState<CotizacionEstado | null>(null)
@@ -128,6 +132,7 @@ export function CotizacionLista({
             <TableRow>
               <TableHead>Número</TableHead>
               <TableHead>Estado</TableHead>
+              <TableHead>Alcance</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead />
             </TableRow>
@@ -138,6 +143,9 @@ export function CotizacionLista({
                 <TableCell className="text-ui-medium">{row.numero}</TableCell>
                 <TableCell>
                   <CotizacionEstadoBadge estado={row.estado} />
+                </TableCell>
+                <TableCell>
+                  <DocumentoAlcanceIndicador docs={docsPorCotizacion[row.id]} />
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {formatMoney(row.total_cotizacion)}

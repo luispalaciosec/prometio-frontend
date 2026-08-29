@@ -11,10 +11,12 @@ import {
   listCotizaciones,
   listProveedores,
 } from "@/lib/api/cotizacion"
+import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import { getConfiguracionGeneral, listServicios } from "@/lib/config-api"
 import { useAuthStore } from "@/store/auth-store"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas } from "@/types/cotizacion"
+import type { DocumentoAlcance } from "@/types/documento-alcance"
 import type { Proveedor } from "@/types/proveedor"
 import type { Servicio } from "@/types/servicio"
 
@@ -28,12 +30,14 @@ export function CotizacionesSection({
   const perfil = useAuthStore((state) => state.perfil)
   const [searchParams] = useSearchParams()
   const cotizacionQuery = searchParams.get("cotizacion")
+  const documentoQuery = searchParams.get("documento")
   const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[] | null>(null)
   const [abiertaId, setAbiertaId] = useState<string | null>(cotizacionQuery)
   const [abierta, setAbierta] = useState<CotizacionConLineas | null>(null)
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [proveedores, setProveedores] = useState<Proveedor[]>([])
   const [config, setConfig] = useState<ConfiguracionGeneral | null>(null)
+  const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
 
   const reloadLista = useCallback(async () => {
     if (!perfil) {
@@ -68,11 +72,35 @@ export function CotizacionesSection({
   }, [cotizacionQuery])
 
   useEffect(() => {
+    if (!cotizaciones) {
+      return
+    }
+    let cancelled = false
+    void Promise.all(
+      cotizaciones.map(async (row) => [row.id, await listDocumentosAlcance(row.id)] as const),
+    )
+      .then((pares) => {
+        if (!cancelled) {
+          setDocsPorCotizacion(Object.fromEntries(pares))
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : "No se pudieron cargar los documentos de alcance.")
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [cotizaciones])
+
+  useEffect(() => {
     if (!cotizacionQuery) {
       return
     }
-    document.getElementById("cotizaciones")?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }, [cotizacionQuery])
+    const target = documentoQuery ? "documento-alcance" : "cotizaciones"
+    document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [cotizacionQuery, documentoQuery])
 
   useEffect(() => {
     void reloadLista().catch((error: unknown) => {
@@ -112,6 +140,7 @@ export function CotizacionesSection({
         cotizaciones={cotizaciones ?? []}
         cargando={cotizaciones == null}
         abiertaId={abiertaId}
+        docsPorCotizacion={docsPorCotizacion}
         onAbrir={setAbiertaId}
         onNueva={() => void nueva()}
       />
@@ -123,7 +152,12 @@ export function CotizacionesSection({
           servicios={servicios}
           proveedores={proveedores}
           config={config}
+          documentoIdInicial={documentoQuery}
+          documentos={docsPorCotizacion[abierta.id]}
           onChange={reloadAbierta}
+          onDocumentosChange={(rows) =>
+            setDocsPorCotizacion((prev) => ({ ...prev, [abierta.id]: rows }))
+          }
         />
       ) : null}
     </section>

@@ -9,4 +9,8 @@ export type ConfiguracionGeneral = {
   tasa_impuesto_pct: number
   horas_laborales_mes: number
   resend_dashboard_url: string
+  exclusiones_default_texto?: string | null
+  consideraciones_default_texto?: string | null
+  por_que_geeks_default_texto?: string | null
+  requiere_documento_alcance?: boolean
 }

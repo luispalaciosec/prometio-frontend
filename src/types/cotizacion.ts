@@ -28,6 +28,7 @@ export type Cotizacion = {
   requiere_aprobacion: boolean
   aprobado_por: string | null
   tasa_impuesto_pct_aplicada: number | null
+  requiere_documento_alcance?: boolean
   created_at: string
 }
 

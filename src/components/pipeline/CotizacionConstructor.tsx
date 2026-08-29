@@ -4,6 +4,8 @@ import { toast } from "sonner"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
 import { CotizacionPdfAcciones } from "@/components/pipeline/CotizacionPdfAcciones"
 import { CotizacionTransiciones } from "@/components/pipeline/CotizacionTransiciones"
+import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
+import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
 import { LineaCotizacionForm, type LineaCotizacionFormInput } from "@/components/pipeline/LineaCotizacionForm"
 import { Button } from "@/components/ui/button"
 import { formatMoney } from "@/lib/costo-interno"
@@ -16,6 +18,7 @@ import {
 } from "@/lib/api/cotizacion"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas } from "@/types/cotizacion"
+import type { DocumentoAlcance } from "@/types/documento-alcance"
 import type { LineaCotizacion } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
 import type { Proveedor } from "@/types/proveedor"
@@ -28,7 +31,10 @@ export function CotizacionConstructor({
   servicios,
   proveedores,
   config,
+  documentoIdInicial,
+  documentos,
   onChange,
+  onDocumentosChange,
 }: {
   cotizacion: CotizacionConLineas
   perfil: Perfil
@@ -36,7 +42,10 @@ export function CotizacionConstructor({
   servicios: Servicio[]
   proveedores: Proveedor[]
   config: ConfiguracionGeneral | null
+  documentoIdInicial?: string | null
+  documentos?: DocumentoAlcance[]
   onChange: () => Promise<void>
+  onDocumentosChange?: (docs: DocumentoAlcance[]) => void
 }) {
   const esBorrador = cotizacion.estado === "borrador"
   const [editandoId, setEditandoId] = useState<string | null>(null)
@@ -118,13 +127,16 @@ export function CotizacionConstructor({
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-section">{cotizacion.numero}</p>
         <CotizacionEstadoBadge estado={cotizacion.estado} />
+        <DocumentoAlcanceIndicador docs={documentos} />
       </div>
       <div className="space-y-3 rounded-xl p-4 ring-1 ring-border">
         <div>
           <p className="text-ui-medium">Cambiar estado</p>
           <p className="mt-1 text-kicker">
             {esBorrador
-              ? "Cuando las líneas estén listas, enviá la cotización. Si hay un descuento grande, pasa a preparación para que la apruebe un supervisor."
+              ? cotizacion.requiere_documento_alcance
+                ? "Cuando las líneas y el Documento de Alcance aprobado estén listos, enviá la cotización."
+                : "Cuando las líneas estén listas, enviá la cotización. Si hay un descuento grande, pasa a preparación para que la apruebe un supervisor."
               : cotizacion.estado === "preparacion"
                 ? "Un supervisor o admin aprueba o rechaza el descuento. Recién después se puede enviar al cliente."
                 : cotizacion.estado === "enviada"
@@ -216,6 +228,14 @@ export function CotizacionConstructor({
           />
         </div>
       ) : null}
+      <DocumentoAlcanceSection
+        cotizacionId={cotizacion.id}
+        perfil={perfil}
+        config={config}
+        requiereDocumento={cotizacion.requiere_documento_alcance === true}
+        documentoIdInicial={documentoIdInicial}
+        onListaChange={onDocumentosChange}
+      />
     </div>
   )
 }

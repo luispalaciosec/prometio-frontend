@@ -47,6 +47,17 @@ export type { Oportunidad, OportunidadKanban, PipelineScope } from "./oportunida
 export type { Cotizacion, CotizacionConLineas, CotizacionEstado } from "./cotizacion"
 export { COTIZACION_ESTADOS } from "./cotizacion"
 export type {
+  DocumentoAlcance,
+  DocumentoAlcanceEstado,
+  EntregableDocumento,
+  GeneracionIaEstado,
+  SeccionAlcanceFuncional,
+} from "./documento-alcance"
+export {
+  DOCUMENTO_ALCANCE_ESTADO_LABELS,
+  DOCUMENTO_ALCANCE_ESTADOS,
+} from "./documento-alcance"
+export type {
   CalculoLinea,
   LineaCotizacion,
   LineaCotizacionCalculada,

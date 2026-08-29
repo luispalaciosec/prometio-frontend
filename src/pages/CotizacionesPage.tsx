@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { FileText } from "lucide-react"
@@ -6,6 +6,8 @@ import { FileText } from "lucide-react"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
+import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
+import { DocumentoAlcancePendientes } from "@/components/pipeline/DocumentoAlcancePendientes"
 import { TableSkeleton } from "@/components/skeleton"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,6 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { listCotizaciones } from "@/lib/api/cotizacion"
+import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import {
   etiquetaContacto,
   etiquetaEmpresa,
@@ -32,6 +35,7 @@ import {
 } from "@/lib/api/oportunidad"
 import { formatMoney } from "@/lib/costo-interno"
 import { formatDateTime } from "@/lib/datetime-local"
+import { puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import {
   COTIZACION_ESTADO_LABELS,
@@ -39,6 +43,7 @@ import {
   type CotizacionConLineas,
   type CotizacionEstado,
 } from "@/types/cotizacion"
+import type { DocumentoAlcance } from "@/types/documento-alcance"
 
 type FilaCotizacion = CotizacionConLineas & {
   contactoNombre: string
@@ -52,6 +57,7 @@ export function CotizacionesPage() {
   const [busqueda, setBusqueda] = useState("")
   const [qDebounced, setQDebounced] = useState("")
   const [estado, setEstado] = useState<CotizacionEstado | null>(null)
+  const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
 
   useEffect(() => {
     const t = window.setTimeout(() => setQDebounced(busqueda), 300)
@@ -96,6 +102,44 @@ export function CotizacionesPage() {
     }
   }, [perfil, qDebounced, estado])
 
+  useEffect(() => {
+    if (!rows) {
+      return
+    }
+    let cancelled = false
+    void Promise.all(rows.map(async (row) => [row.id, await listDocumentosAlcance(row.id)] as const))
+      .then((pares) => {
+        if (!cancelled) {
+          setDocsPorCotizacion(Object.fromEntries(pares))
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : "No se pudieron cargar los documentos de alcance.")
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [rows])
+
+  const pendientes = useMemo(() => {
+    if (!rows || !perfil || !puedeVerEquipo(perfil)) {
+      return []
+    }
+    return rows.flatMap((row) =>
+      (docsPorCotizacion[row.id] ?? [])
+        .filter((doc) => doc.estado === "pendiente_aprobacion")
+        .map((documento) => ({
+          documento,
+          cotizacionNumero: row.numero,
+          oportunidadId: row.oportunidad_id,
+          contactoNombre: row.contactoNombre,
+          empresaNombre: row.empresaNombre,
+        })),
+    )
+  }, [rows, docsPorCotizacion, perfil])
+
   const hayFiltro = Boolean(qDebounced.trim() || estado)
 
   return (
@@ -104,6 +148,7 @@ export function CotizacionesPage() {
         title="Cotizaciones"
         description="Todas las cotizaciones, sin entrar oportunidad por oportunidad."
       />
+      {perfil && puedeVerEquipo(perfil) ? <DocumentoAlcancePendientes filas={pendientes} /> : null}
       <div className="filter-bar">
         <div className="filter-field sm:min-w-56 sm:flex-1">
           <Label htmlFor="cotizacion-global-busqueda">Buscar</Label>
@@ -155,6 +200,7 @@ export function CotizacionesPage() {
               <TableHead>Número</TableHead>
               <TableHead>Contacto / empresa</TableHead>
               <TableHead>Estado</TableHead>
+              <TableHead>Alcance</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead>Fecha</TableHead>
             </TableRow>
@@ -175,6 +221,9 @@ export function CotizacionesPage() {
                 </TableCell>
                 <TableCell>
                   <CotizacionEstadoBadge estado={row.estado} />
+                </TableCell>
+                <TableCell>
+                  <DocumentoAlcanceIndicador docs={docsPorCotizacion[row.id]} />
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-ui">
                   {formatMoney(row.total_cotizacion)}
