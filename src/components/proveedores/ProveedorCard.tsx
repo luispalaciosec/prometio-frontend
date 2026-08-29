@@ -2,6 +2,7 @@ import { EntityAvatar } from "@/components/entity-avatar"
 import { CalificacionEstrellas } from "@/components/proveedores/CalificacionEstrellas"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { formatDateTime } from "@/lib/datetime-local"
 import { cn } from "@/lib/utils"
 import type { Proveedor } from "@/types/proveedor"
 
@@ -57,6 +58,10 @@ export function ProveedorCard({
               value={proveedor.calificacion == null ? null : Math.round(proveedor.calificacion)}
             />
           </div>
+          <p className="mt-2 truncate text-kicker">
+            {proveedor.creado_por_nombre ?? "Sin responsable"}
+          </p>
+          <p className="truncate text-kicker">{formatDateTime(proveedor.created_at)}</p>
         </div>
       </button>
       {tags.length > 0 ? (

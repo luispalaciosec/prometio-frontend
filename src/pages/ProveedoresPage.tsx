@@ -47,6 +47,7 @@ import {
   reactivarProveedor,
   updateProveedor,
 } from "@/lib/api/proveedor"
+import { formatDateTime } from "@/lib/datetime-local"
 import { coincideTexto } from "@/lib/lista-filtros"
 import {
   guardarVistaLocal,
@@ -339,6 +340,8 @@ export function ProveedoresPage() {
               <TableHead>Email</TableHead>
               <TableHead>Calificación</TableHead>
               <TableHead>Servicios</TableHead>
+              <TableHead>Ingresado por</TableHead>
+              <TableHead>Fecha de ingreso</TableHead>
               <TableHead className="w-40" />
             </TableRow>
           </TableHeader>
@@ -375,6 +378,10 @@ export function ProveedoresPage() {
                       ))}
                     </div>
                   )}
+                </TableCell>
+                <TableCell className="text-ui">{row.creado_por_nombre ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDateTime(row.created_at)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" onClick={() => startEdit(row)}>

@@ -8,7 +8,10 @@ export type Proveedor = {
   email: string | null
   calificacion: number | null
   servicios: string[] | null
+  creado_por: string | null
+  creado_por_nombre: string | null
   activo: boolean
+  created_at: string | null
 }
 
 export type ProveedorWrite = {
