@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { listServicios } from "@/lib/config-api"
-import { MODELO_COBRO_LABELS, SERVICIO_ESTADO_LABELS, type Servicio } from "@/types/servicio"
+import { MODELO_COBRO_LABELS, PILAR_LABELS, SERVICIO_ESTADO_LABELS, type Servicio } from "@/types/servicio"
 
 export function ServiciosPage() {
   const [rows, setRows] = useState<Servicio[] | null>(null)
@@ -55,6 +55,7 @@ export function ServiciosPage() {
           <TableRow>
             <TableHead>Nombre</TableHead>
             <TableHead>Categoría</TableHead>
+            <TableHead>Pilar</TableHead>
             <TableHead>Modelo de cobro</TableHead>
             <TableHead>Estado</TableHead>
             <TableHead />
@@ -64,7 +65,10 @@ export function ServiciosPage() {
             {rows.map((row) => (
               <TableRow key={row.id}>
                 <TableCell className="text-ui-medium">{row.nombre || "Sin nombre"}</TableCell>
-                <TableCell>{row.categoria ?? "—"}</TableCell>
+                <TableCell>{row.categoria_nombre ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {row.pilar ? PILAR_LABELS[row.pilar] : "—"}
+                </TableCell>
                 <TableCell>{MODELO_COBRO_LABELS[row.modelo_cobro]}</TableCell>
                 <TableCell>
                   <Badge

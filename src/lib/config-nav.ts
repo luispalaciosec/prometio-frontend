@@ -32,7 +32,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/servicios",
         label: "Servicios",
-        body: "Catálogo y wizard de creación (borrador → activo).",
+        body: "Catálogo, categorías, pilares y wizard (borrador → activo).",
         icon: Package,
       },
       {

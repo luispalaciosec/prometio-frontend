@@ -1,5 +1,6 @@
-import type { ModeloCobro, Servicio, ServicioFase } from "@/types/servicio"
-import { MODELO_COBRO_LABELS } from "@/types/servicio"
+import type { ModeloCobro, Pilar, Servicio, ServicioFase } from "@/types/servicio"
+import { MODELO_COBRO_LABELS, PILAR_LABELS } from "@/types/servicio"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import {
   CANTIDAD_ESTIMACION_LABELS,
   type TarifaInterna,
@@ -29,6 +30,9 @@ import {
 } from "@/lib/costo-interno"
 
 const SIN_CATEGORIA = "__none__"
+const SIN_PILAR = "__none__"
+
+const PILARES: Pilar[] = ["marca", "crecimiento", "transformacion", "transversal"]
 
 function CampoAyuda({ children }: { children: string }) {
   return <p className="text-kicker">{children}</p>
@@ -67,17 +71,13 @@ export function PasoDatosBasicos({
   draft,
   setDraft,
   categorias,
+  esNuevo,
 }: {
   draft: Servicio
   setDraft: SetDraft
-  categorias: string[]
+  categorias: CategoriaServicio[]
+  esNuevo: boolean
 }) {
-  const opciones = [...categorias]
-  if (draft.categoria && !opciones.includes(draft.categoria)) {
-    opciones.push(draft.categoria)
-  }
-  opciones.sort((a, b) => a.localeCompare(b, "es"))
-
   return (
     <div className="grid max-w-lg gap-4">
       <div className="flex flex-col gap-2">
@@ -93,11 +93,15 @@ export function PasoDatosBasicos({
       <div className="flex flex-col gap-2">
         <Label htmlFor="categoria">Categoría</Label>
         <Select
-          value={draft.categoria ?? SIN_CATEGORIA}
+          value={draft.categoria_id ?? SIN_CATEGORIA}
           onValueChange={(value) =>
             setDraft((prev) => ({
               ...prev,
-              categoria: value === SIN_CATEGORIA ? null : value,
+              categoria_id: value === SIN_CATEGORIA ? null : value,
+              categoria_nombre:
+                value === SIN_CATEGORIA
+                  ? null
+                  : categorias.find((item) => item.id === value)?.nombre ?? null,
             }))
           }
         >
@@ -106,17 +110,46 @@ export function PasoDatosBasicos({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={SIN_CATEGORIA}>Sin categoría</SelectItem>
-            {opciones.map((item) => (
-              <SelectItem key={item} value={item}>
-                {item}
+            {categorias.map((item) => (
+              <SelectItem key={item.id} value={item.id}>
+                {item.nombre}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <CampoAyuda>
-          {opciones.length === 0
-            ? "Todavía no hay categorías en el catálogo. Este servicio queda sin categoría."
-            : "Solo las categorías que ya existen en servicios cargados. No se escribe una nueva."}
+          {categorias.length === 0
+            ? "Todavía no hay categorías. Creá el catálogo en Configuración → Servicios → Categorías."
+            : "Elegí una categoría del catálogo. Para agregar una nueva, usá la pestaña Categorías."}
+        </CampoAyuda>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="pilar">Pilar</Label>
+        <Select
+          value={draft.pilar ?? SIN_PILAR}
+          onValueChange={(value) =>
+            setDraft((prev) => ({
+              ...prev,
+              pilar: value === SIN_PILAR ? null : (value as Pilar),
+            }))
+          }
+        >
+          <SelectTrigger id="pilar">
+            <SelectValue placeholder={esNuevo ? "Elegí un pilar" : "Sin pilar"} />
+          </SelectTrigger>
+          <SelectContent>
+            {!esNuevo ? <SelectItem value={SIN_PILAR}>Sin pilar</SelectItem> : null}
+            {PILARES.map((item) => (
+              <SelectItem key={item} value={item}>
+                {PILAR_LABELS[item]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <CampoAyuda>
+          {esNuevo
+            ? "Obligatorio en servicios nuevos: Marca, Crecimiento, Transformación o Transversal."
+            : "Opcional al editar servicios existentes que todavía no tienen pilar asignado."}
         </CampoAyuda>
       </div>
       <div className="flex flex-col gap-2">
@@ -548,7 +581,11 @@ export function PasoRevision({
       </div>
       <div>
         <dt className="text-muted-foreground">Categoría</dt>
-        <dd>{draft.categoria || "—"}</dd>
+        <dd>{draft.categoria_nombre || "—"}</dd>
+      </div>
+      <div>
+        <dt className="text-muted-foreground">Pilar</dt>
+        <dd>{draft.pilar ? PILAR_LABELS[draft.pilar] : "—"}</dd>
       </div>
       <div>
         <dt className="text-muted-foreground">Descripción</dt>

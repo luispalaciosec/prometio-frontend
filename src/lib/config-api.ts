@@ -2,6 +2,7 @@
  * Fachada de catálogos y panel de Configuración. Apunta al backend real.
  */
 import { ApiError, apiFetch } from "@/lib/api-client"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { CausaPerdida } from "@/types/causa-perdida"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
@@ -54,12 +55,13 @@ export async function getServicio(id: string): Promise<Servicio | null> {
 
 function cuerpoServicio(
   input: Omit<Servicio, "id" | "created_at"> & { id?: string; created_at?: string },
+  mode: "create" | "update",
 ) {
   const estimacion = input.estimacion_interna_por_rol
-  return {
+  const body: Record<string, unknown> = {
     nombre: input.nombre,
     descripcion: input.descripcion ?? null,
-    categoria: input.categoria ?? null,
+    categoria_id: input.categoria_id ?? null,
     modelo_cobro: input.modelo_cobro,
     tiene_fases: input.tiene_fases,
     precio_base_cliente: input.precio_base_cliente ?? null,
@@ -72,21 +74,26 @@ function cuerpoServicio(
     comision_sugerida_max_pct: input.comision_sugerida_max_pct ?? null,
     tipos_documento_requeridos: input.tipos_documento_requeridos ?? null,
   }
+  if (mode === "create") {
+    body.pilar = input.pilar
+  } else {
+    body.pilar = input.pilar ?? null
+  }
+  return body
 }
 
 export function upsertServicio(
   input: Omit<Servicio, "id" | "created_at"> & { id?: string; created_at?: string },
 ): Promise<Servicio> {
-  const body = cuerpoServicio(input)
   if (input.id) {
     return apiFetch(`/servicios/${input.id}`, {
       method: "PATCH",
-      body: JSON.stringify(body),
+      body: JSON.stringify(cuerpoServicio(input, "update")),
     })
   }
   return apiFetch("/servicios", {
     method: "POST",
-    body: JSON.stringify(body),
+    body: JSON.stringify(cuerpoServicio(input, "create")),
   })
 }
 
@@ -129,6 +136,29 @@ export function upsertCausaPerdida(
 
 export function deleteCausaPerdida(id: string): Promise<void> {
   return apiFetch(`/config/causas-perdida/${id}`, { method: "DELETE" })
+}
+
+export function listCategoriasServicio(): Promise<CategoriaServicio[]> {
+  return apiFetch("/config/categorias-servicio")
+}
+
+export function upsertCategoriaServicio(
+  input: Omit<CategoriaServicio, "id"> & { id?: string },
+): Promise<CategoriaServicio> {
+  if (input.id) {
+    return apiFetch(`/config/categorias-servicio/${input.id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ nombre: input.nombre }),
+    })
+  }
+  return apiFetch("/config/categorias-servicio", {
+    method: "POST",
+    body: JSON.stringify({ nombre: input.nombre }),
+  })
+}
+
+export function deleteCategoriaServicio(id: string): Promise<void> {
+  return apiFetch(`/config/categorias-servicio/${id}`, { method: "DELETE" })
 }
 
 export function listTarifasInternas(): Promise<TarifaInterna[]> {

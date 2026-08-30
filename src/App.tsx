@@ -4,6 +4,7 @@ import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
 import { AdminRoute, GuestRoute, MarketingRoute, ProtectedRoute, VentasRoute } from "@/components/auth-routes"
 import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardPage"
+import { ServiciosConfigLayout } from "@/components/servicios-config-layout"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
@@ -14,6 +15,7 @@ import { ResumenPage } from "@/pages/ResumenPage"
 import { AuditoriaPage } from "@/pages/AuditoriaPage"
 import { CumpleanosPage } from "@/pages/CumpleanosPage"
 import { BandejaPage } from "@/pages/BandejaPage"
+import { CategoriasServicioPage } from "@/pages/CategoriasServicioPage"
 import { CausasPerdidaPage } from "@/pages/CausasPerdidaPage"
 import { CalendarioPage } from "@/pages/CalendarioPage"
 import { ConfiguracionPage } from "@/pages/ConfiguracionPage"
@@ -240,10 +242,13 @@ export default function App() {
                 path="/configuracion/servicios"
                 element={
                   <AdminRoute>
-                    <ServiciosPage />
+                    <ServiciosConfigLayout />
                   </AdminRoute>
                 }
-              />
+              >
+                <Route index element={<ServiciosPage />} />
+                <Route path="categorias" element={<CategoriasServicioPage />} />
+              </Route>
               <Route
                 path="/configuracion/servicios/nuevo"
                 element={

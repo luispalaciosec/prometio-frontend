@@ -1,3 +1,12 @@
+export type Pilar = "marca" | "crecimiento" | "transformacion" | "transversal"
+
+export const PILAR_LABELS: Record<Pilar, string> = {
+  marca: "Marca",
+  crecimiento: "Crecimiento",
+  transformacion: "Transformación",
+  transversal: "Transversal",
+}
+
 export type ModeloCobro = "por_hora" | "fee_fijo" | "fee_recurrente"
 
 export const MODELO_COBRO_LABELS: Record<ModeloCobro, string> = {
@@ -38,7 +47,9 @@ export type Servicio = {
   organizacion_id: string
   nombre: string
   descripcion: string | null
-  categoria: string | null
+  categoria_id: string | null
+  categoria_nombre?: string | null
+  pilar: Pilar | null
   modelo_cobro: ModeloCobro
   tiene_fases: boolean
   precio_base_cliente: number | null

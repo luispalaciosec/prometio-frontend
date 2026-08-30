@@ -1,3 +1,4 @@
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { CausaPerdida } from "@/types/causa-perdida"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
@@ -12,6 +13,7 @@ export const MOCK_ORGANIZACION_ID = "00000000-0000-4000-a000-000000000001"
 type MockDb = {
   tarifas_internas: TarifaInterna[]
   causas_perdida: CausaPerdida[]
+  categorias_servicio: CategoriaServicio[]
   tipos_documento: TipoDocumento[]
   etapa_pipeline: EtapaPipeline[]
   configuracion_general: ConfiguracionGeneral | null
@@ -83,6 +85,18 @@ function seed(): MockDb {
         id: "cp-contacto",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre: "Pérdida de contacto",
+      },
+    ],
+    categorias_servicio: [
+      {
+        id: "cat-creatividad",
+        organizacion_id: MOCK_ORGANIZACION_ID,
+        nombre: "Creatividad",
+      },
+      {
+        id: "cat-media",
+        organizacion_id: MOCK_ORGANIZACION_ID,
+        nombre: "Media",
       },
     ],
     tipos_documento: [
@@ -210,7 +224,9 @@ function seedServiciosDemo(): Servicio[] {
       organizacion_id: MOCK_ORGANIZACION_ID,
       nombre: "Branding",
       descripcion: "Identidad y sistema visual.",
-      categoria: "Creatividad",
+      categoria_id: "cat-creatividad",
+      categoria_nombre: "Creatividad",
+      pilar: "marca",
       modelo_cobro: "fee_fijo",
       tiene_fases: false,
       precio_base_cliente: 8000,
@@ -231,7 +247,9 @@ function seedServiciosDemo(): Servicio[] {
       organizacion_id: MOCK_ORGANIZACION_ID,
       nombre: "Performance Ads",
       descripcion: "Pauta paga y optimización.",
-      categoria: "Media",
+      categoria_id: "cat-media",
+      categoria_nombre: "Media",
+      pilar: "crecimiento",
       modelo_cobro: "fee_recurrente",
       tiene_fases: false,
       precio_base_cliente: 2500,

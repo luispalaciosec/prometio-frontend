@@ -24,7 +24,7 @@ import {
   archivarServicio,
   getConfiguracionGeneral,
   getServicio,
-  listServicios,
+  listCategoriasServicio,
   listTarifasInternas,
   listTiposDocumento,
   upsertServicio,
@@ -32,6 +32,7 @@ import {
 } from "@/lib/config-api"
 import { HORAS_LABORALES_MES_DEFAULT } from "@/lib/costo-interno"
 import { useAuthStore } from "@/store/auth-store"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { Servicio } from "@/types/servicio"
 import type { TarifaInterna } from "@/types/tarifa-interna"
@@ -47,7 +48,9 @@ function blankServicio(
     organizacion_id,
     nombre: "",
     descripcion: null,
-    categoria: null,
+    categoria_id: null,
+    categoria_nombre: null,
+    pilar: null,
     modelo_cobro: "por_hora",
     tiene_fases: false,
     precio_base_cliente: null,
@@ -76,7 +79,7 @@ export function ServicioWizardPage() {
   const [tarifas, setTarifas] = useState<TarifaInterna[]>([])
   const [tipos, setTipos] = useState<TipoDocumento[]>([])
   const [defaults, setDefaults] = useState<ConfiguracionGeneral | null>(null)
-  const [categorias, setCategorias] = useState<string[]>([])
+  const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -87,17 +90,13 @@ export function ServicioWizardPage() {
       listTarifasInternas(),
       listTiposDocumento(),
       getConfiguracionGeneral(),
-      listServicios(),
+      listCategoriasServicio(),
       id ? getServicio(id) : Promise.resolve(null),
-    ]).then(([tarifasRows, tiposRows, general, catalogo, existing]) => {
+    ]).then(([tarifasRows, tiposRows, general, categoriasRows, existing]) => {
       setTarifas(tarifasRows)
       setTipos(tiposRows)
       setDefaults(general)
-      setCategorias(
-        [...new Set(catalogo.map((row) => row.categoria).filter((item): item is string => Boolean(item)))].sort(
-          (a, b) => a.localeCompare(b, "es"),
-        ),
-      )
+      setCategorias(categoriasRows)
       setDraft(existing ?? blankServicio(organizacion_id, created_by, general))
     })
   }, [id, perfil])
@@ -135,7 +134,8 @@ export function ServicioWizardPage() {
       organizacion_id: current.organizacion_id,
       nombre: current.nombre,
       descripcion: current.descripcion,
-      categoria: current.categoria,
+      categoria_id: current.categoria_id,
+      pilar: current.pilar,
       modelo_cobro: current.modelo_cobro,
       tiene_fases: current.tiene_fases,
       precio_base_cliente: current.precio_base_cliente,
@@ -159,6 +159,10 @@ export function ServicioWizardPage() {
     }
     if (!current.nombre.trim()) {
       toast.error("El nombre es obligatorio para guardar el borrador.")
+      return null
+    }
+    if (!current.id && !current.pilar) {
+      toast.error("El pilar es obligatorio en servicios nuevos.")
       return null
     }
     setSaving(true)
@@ -280,7 +284,12 @@ export function ServicioWizardPage() {
       </ol>
 
       {paso === 1 ? (
-        <PasoDatosBasicos draft={draft} setDraft={update} categorias={categorias} />
+        <PasoDatosBasicos
+          draft={draft}
+          setDraft={update}
+          categorias={categorias}
+          esNuevo={!draft.id}
+        />
       ) : null}
       {paso === 2 ? <PasoModeloCobro draft={draft} setDraft={update} /> : null}
       {paso === 3 ? (
