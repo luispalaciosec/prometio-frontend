@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { PrometioLogo } from "@/components/prometio-logo"
 import { PageHeader } from "@/components/page-header"
+import { DetailSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,6 +28,7 @@ function vacio(value: string): string | null {
 export function MarcaPage() {
   const setOrganizacion = useOrgStore((state) => state.setOrganizacion)
   const [org, setOrg] = useState<Organizacion | null>(null)
+  const [cargando, setCargando] = useState(true)
   const [sitio, setSitio] = useState("")
   const [email, setEmail] = useState("")
   const [telefono, setTelefono] = useState("")
@@ -61,6 +63,7 @@ export function MarcaPage() {
       .catch((error: unknown) => {
         toast.error(error instanceof Error ? error.message : "No se pudo cargar la marca.")
       })
+      .finally(() => setCargando(false))
   }, [])
 
   async function guardar() {
@@ -123,6 +126,9 @@ export function MarcaPage() {
         title="Marca"
         description="Logo, colores y contacto de la organización. Se aplican en toda la app."
       />
+      {cargando && !org ? (
+        <DetailSkeleton />
+      ) : (
       <div className="space-y-8">
         <section className="space-y-3">
           <h2 className="text-section">Logo</h2>
@@ -233,6 +239,7 @@ export function MarcaPage() {
           </Button>
         </section>
       </div>
+      )}
     </>
   )
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -23,7 +24,7 @@ import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
 
 export function EtapasConfigPage() {
-  const [etapas, setEtapas] = useState<EtapaPipeline[]>([])
+  const [etapas, setEtapas] = useState<EtapaPipeline[] | null>(null)
   const [general, setGeneral] = useState<ConfiguracionGeneral | null>(null)
   const [multiplicador, setMultiplicador] = useState("2")
 
@@ -61,6 +62,9 @@ export function EtapasConfigPage() {
   }
 
   async function save() {
+    if (!etapas) {
+      return
+    }
     await Promise.all(
       etapas.map((row) =>
         updateEtapaPipeline(row.id, {
@@ -126,6 +130,15 @@ export function EtapasConfigPage() {
             <TableHead>Umbral de alerta (horas)</TableHead>
           </TableRow>
         </TableHeader>
+        {etapas == null ? (
+          <TableBody>
+            <TableRow>
+              <TableCell colSpan={5} className="p-0">
+                <TableSkeleton rows={9} />
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        ) : (
         <TableBody>
           {etapas.map((row) => (
             <TableRow key={row.id}>
@@ -164,6 +177,7 @@ export function EtapasConfigPage() {
             </TableRow>
           ))}
         </TableBody>
+        )}
       </Table>
     </>
   )

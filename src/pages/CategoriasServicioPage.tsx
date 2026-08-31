@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
 import { ApiError } from "@/lib/api-client"
 import { FolderTree } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -36,7 +37,7 @@ type Draft = { id?: string; nombre: string }
 
 export function CategoriasServicioPage() {
   const perfil = useAuthStore((state) => state.perfil)
-  const [rows, setRows] = useState<CategoriaServicio[]>([])
+  const [rows, setRows] = useState<CategoriaServicio[] | null>(null)
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Draft>({ nombre: "" })
 
@@ -93,7 +94,9 @@ export function CategoriasServicioPage() {
           </Button>
         }
       />
-      {rows.length === 0 ? (
+      {rows == null ? (
+        <TableSkeleton />
+      ) : rows.length === 0 ? (
         <EmptyState
           icon={FolderTree}
           title="Sin categorías"

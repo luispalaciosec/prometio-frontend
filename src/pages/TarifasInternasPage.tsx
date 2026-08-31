@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
 import { TarifaModeloMark } from "@/components/tarifas/TarifaModeloMark"
 import { Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -70,7 +71,7 @@ function costoDeFila(row: TarifaInterna): string {
 
 export function TarifasInternasPage() {
   const perfil = useAuthStore((state) => state.perfil)
-  const [rows, setRows] = useState<TarifaInterna[]>([])
+  const [rows, setRows] = useState<TarifaInterna[] | null>(null)
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Draft>(emptyDraft)
 
@@ -131,7 +132,9 @@ export function TarifasInternasPage() {
         description="Costo interno por rol: por hora, por sueldo o por evento. Nunca se costea por persona nombrada."
         action={<Button onClick={startCreate}>Nueva tarifa</Button>}
       />
-      {rows.length === 0 ? (
+      {rows == null ? (
+        <TableSkeleton />
+      ) : rows.length === 0 ? (
         <EmptyState
           icon={Clock}
           title="Sin tarifas"

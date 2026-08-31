@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { PageHeader } from "@/components/page-header"
+import { DetailSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -79,24 +80,27 @@ function formFromRow(row: ConfiguracionGeneral): Form {
 export function MargenesConfigPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const [exists, setExists] = useState(false)
+  const [cargando, setCargando] = useState(true)
   const [form, setForm] = useState<Form>(empty)
   const [tasaRaw, setTasaRaw] = useState("")
   const [horasRaw, setHorasRaw] = useState("")
 
   useEffect(() => {
-    void getConfiguracionGeneral().then((row) => {
-      if (!row) {
-        setExists(false)
-        setForm(empty)
-        setTasaRaw("")
-        setHorasRaw("")
-        return
-      }
-      setExists(true)
-      setForm(formFromRow(row))
-      setTasaRaw(String(row.tasa_impuesto_pct))
-      setHorasRaw(String(row.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT))
-    })
+    void getConfiguracionGeneral()
+      .then((row) => {
+        if (!row) {
+          setExists(false)
+          setForm(empty)
+          setTasaRaw("")
+          setHorasRaw("")
+          return
+        }
+        setExists(true)
+        setForm(formFromRow(row))
+        setTasaRaw(String(row.tasa_impuesto_pct))
+        setHorasRaw(String(row.horas_laborales_mes ?? HORAS_LABORALES_MES_DEFAULT))
+      })
+      .finally(() => setCargando(false))
   }, [])
 
   function setField(field: DefaultField, value: string) {
@@ -200,10 +204,16 @@ export function MargenesConfigPage() {
               : "Todavía no hay configuración. La tasa de impuesto es obligatoria; el resto, si queda en blanco, usa el default del sistema."
           }
           action={
-            <Button type="submit">{exists ? "Guardar" : "Crear"}</Button>
+            <Button type="submit" disabled={cargando}>
+              {exists ? "Guardar" : "Crear"}
+            </Button>
           }
         />
       </div>
+      {cargando ? (
+        <DetailSkeleton />
+      ) : (
+        <>
       {fields.map((field) => (
         <div key={field.key} className="flex flex-col gap-2">
           <Label htmlFor={field.key}>{field.label}</Label>
@@ -250,6 +260,8 @@ export function MargenesConfigPage() {
           Base para costear tarifas por sueldo (% del mes). Default {HORAS_LABORALES_MES_DEFAULT}.
         </p>
       </div>
+        </>
+      )}
     </form>
   )
 }

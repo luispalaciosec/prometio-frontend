@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
 import { CircleOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,7 +36,7 @@ type Draft = { id?: string; nombre: string }
 
 export function CausasPerdidaPage() {
   const perfil = useAuthStore((state) => state.perfil)
-  const [rows, setRows] = useState<CausaPerdida[]>([])
+  const [rows, setRows] = useState<CausaPerdida[] | null>(null)
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Draft>({ nombre: "" })
 
@@ -78,7 +79,9 @@ export function CausasPerdidaPage() {
           </Button>
         }
       />
-      {rows.length === 0 ? (
+      {rows == null ? (
+        <TableSkeleton />
+      ) : rows.length === 0 ? (
         <EmptyState
           icon={CircleOff}
           title="Sin causas"

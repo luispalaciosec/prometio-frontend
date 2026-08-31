@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
+import { ListSkeleton } from "@/components/skeleton"
 import { BandejaHilo } from "@/components/bandeja/BandejaHilo"
 import { BandejaLista } from "@/components/bandeja/BandejaLista"
 import { ConvertirContactoDialog } from "@/components/bandeja/ConvertirContactoDialog"
@@ -44,6 +45,7 @@ export function BandejaPage() {
   const [scope, setScope] = useState<BandejaScope>("mias")
   const [todas, setTodas] = useState<Conversacion[]>([])
   const [perfiles, setPerfiles] = useState<Perfil[]>([])
+  const [cargando, setCargando] = useState(true)
   const [convertirOpen, setConvertirOpen] = useState(false)
   const [reasignarOpen, setReasignarOpen] = useState(false)
   const [convertirError, setConvertirError] = useState<string | null>(null)
@@ -51,12 +53,15 @@ export function BandejaPage() {
   const [convirtiendo, setConvirtiendo] = useState(false)
 
   const reload = useCallback(async () => {
+    setCargando(true)
     try {
       const [rows, catalogo] = await Promise.all([listConversaciones(), listPerfiles()])
       setTodas(rows)
       setPerfiles(catalogo)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo cargar la bandeja.")
+    } finally {
+      setCargando(false)
     }
   }, [])
 
@@ -233,15 +238,21 @@ export function BandejaPage() {
             id ? "hidden md:block" : "w-full",
           )}
         >
-          <BandejaLista
-            conversaciones={visibles}
-            seleccionId={id ?? null}
-            nombresAsignados={nombresAsignados}
-            onSelect={(next) => navigate(`/bandeja/${next}`)}
-          />
+          {cargando ? (
+            <ListSkeleton />
+          ) : (
+            <BandejaLista
+              conversaciones={visibles}
+              seleccionId={id ?? null}
+              nombresAsignados={nombresAsignados}
+              onSelect={(next) => navigate(`/bandeja/${next}`)}
+            />
+          )}
         </aside>
         <section className={cn("min-w-0 flex-1", id ? "flex" : "hidden md:flex")}>
-          {seleccionada ? (
+          {cargando && id ? (
+            <ListSkeleton rows={4} />
+          ) : seleccionada ? (
             <BandejaHilo
               conversacion={seleccionada}
               nombreAsignado={

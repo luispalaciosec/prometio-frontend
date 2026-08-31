@@ -97,6 +97,19 @@ export function TilesSkeleton({ count = 4, className }: { count?: number; classN
   )
 }
 
+export function ListSkeleton({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="flex flex-col px-3" aria-hidden>
+      {Array.from({ length: rows }, (_, row) => (
+        <div key={row} className="space-y-2 border-b border-border py-3">
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-3 w-full" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export function TimelineSkeleton() {
   return (
     <div className="space-y-6" aria-hidden>

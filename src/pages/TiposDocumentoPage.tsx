@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
+import { TableSkeleton } from "@/components/skeleton"
 import { FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -36,7 +37,7 @@ type Draft = { id?: string; nombre: string; plantilla_base: string }
 
 export function TiposDocumentoPage() {
   const perfil = useAuthStore((state) => state.perfil)
-  const [rows, setRows] = useState<TipoDocumento[]>([])
+  const [rows, setRows] = useState<TipoDocumento[] | null>(null)
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Draft>({ nombre: "", plantilla_base: "" })
 
@@ -80,7 +81,9 @@ export function TiposDocumentoPage() {
           </Button>
         }
       />
-      {rows.length === 0 ? (
+      {rows == null ? (
+        <TableSkeleton />
+      ) : rows.length === 0 ? (
         <EmptyState
           icon={FileText}
           title="Sin tipos"
