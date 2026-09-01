@@ -1,3 +1,7 @@
+import type { Session } from "@supabase/supabase-js"
+
+import { supabase } from "@/lib/supabase"
+
 const RUTA_INVITACION = "/auth/invitacion"
 
 export function hashAuthParams(): URLSearchParams {
@@ -27,6 +31,40 @@ export function canonicalizarRutaInvitacion(): void {
     return
   }
   window.location.replace(`${RUTA_INVITACION}${window.location.hash}`)
+}
+
+/**
+ * Invites de Supabase llegan en implicit grant (#access_token), pero el cliente
+ * usa PKCE para Google OAuth y supabase-js rechaza ese hash en _initialize().
+ * Canjeamos manualmente con setSession().
+ */
+export async function establecerSesionDesdeHashInvitacion(): Promise<Session | null> {
+  const params = hashAuthParams()
+  if (!esHashInvitacion(params)) {
+    return null
+  }
+
+  const access_token = params.get("access_token")
+  const refresh_token = params.get("refresh_token")
+  if (!access_token || !refresh_token) {
+    return null
+  }
+
+  const { data, error } = await supabase.auth.setSession({
+    access_token,
+    refresh_token,
+  })
+  if (error || !data.session) {
+    return null
+  }
+
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${window.location.pathname}${window.location.search}`,
+  )
+
+  return data.session
 }
 
 export function debeEsperarProcesamientoAuth(): boolean {

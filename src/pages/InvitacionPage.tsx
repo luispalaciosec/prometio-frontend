@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { hashAuthParams } from "@/lib/auth-invite"
+import {
+  establecerSesionDesdeHashInvitacion,
+  esHashInvitacion,
+  hashAuthParams,
+} from "@/lib/auth-invite"
 import { isSupabaseConfigured, supabase } from "@/lib/supabase"
 import { useAuthStore } from "@/store/auth-store"
 
@@ -63,9 +67,18 @@ export function InvitacionPage() {
       setEsperandoSesion(false)
     }
 
-    void supabase.auth.getSession().then(({ data: { session: current } }) => {
+    void (async () => {
+      if (esHashInvitacion(hash)) {
+        const fromHash = await establecerSesionDesdeHashInvitacion()
+        if (fromHash) {
+          listo(fromHash)
+          return
+        }
+      }
+
+      const { data: { session: current } } = await supabase.auth.getSession()
       listo(current)
-    })
+    })()
 
     const {
       data: { subscription },
