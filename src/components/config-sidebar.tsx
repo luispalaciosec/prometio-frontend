@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils"
 
 export function ConfigSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation()
-  const inConfig =
-    location.pathname.startsWith("/configuracion") || location.pathname.startsWith("/seo")
+  const inConfig = location.pathname.startsWith("/configuracion") || location.pathname.startsWith("/usuarios")
   const [open, setOpen] = useState(inConfig)
 
   useEffect(() => {

@@ -8,6 +8,7 @@ import { ServiciosConfigLayout } from "@/components/servicios-config-layout"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
+import { InvitacionPage } from "@/pages/InvitacionPage"
 import { BasecampCallbackPage } from "@/pages/BasecampCallbackPage"
 import { AlertasPage } from "@/pages/AlertasPage"
 import { ActividadesPage } from "@/pages/ActividadesPage"
@@ -27,7 +28,7 @@ import { DashboardPage } from "@/pages/DashboardPage"
 import { EmpresaPage } from "@/pages/EmpresaPage"
 import { EmpresasPage } from "@/pages/EmpresasPage"
 import { EtapasConfigPage } from "@/pages/EtapasConfigPage"
-import { FormularioWebPage } from "@/pages/FormularioWebPage"
+import { FacturasPage } from "@/pages/FacturasPage"
 import { HomePage } from "@/pages/HomePage"
 import { LoginPage } from "@/pages/LoginPage"
 import { MarcaPage } from "@/pages/MarcaPage"
@@ -42,6 +43,8 @@ import { ServiciosPage } from "@/pages/ServiciosPage"
 import { TarifasInternasPage } from "@/pages/TarifasInternasPage"
 import { TimelinePage } from "@/pages/TimelinePage"
 import { CuentaPage } from "@/pages/CuentaPage"
+import { UsuariosPage } from "@/pages/UsuariosPage"
+import { FormularioWebPage } from "@/pages/FormularioWebPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
 
 export default function App() {
@@ -51,6 +54,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/auth/invitacion" element={<InvitacionPage />} />
             <Route path="/auth/basecamp/callback" element={<BasecampCallbackPage />} />
             <Route
               path="/login"
@@ -150,6 +154,14 @@ export default function App() {
                 }
               />
               <Route
+                path="/facturas"
+                element={
+                  <VentasRoute>
+                    <FacturasPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
                 path="/proveedores"
                 element={
                   <AdminRoute>
@@ -227,6 +239,14 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <AuditoriaPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/usuarios"
+                element={
+                  <AdminRoute>
+                    <UsuariosPage />
                   </AdminRoute>
                 }
               />

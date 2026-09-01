@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react"
 
 import { getOrganizacion } from "@/lib/api/organizacion"
+import { debeEsperarProcesamientoAuth } from "@/lib/auth-invite"
 import { fetchPerfil } from "@/lib/perfil-api"
 import { supabase } from "@/lib/supabase"
 import { applyOrganizationTheme, clearOrganizationTheme } from "@/lib/theme"
@@ -8,8 +9,7 @@ import { useAuthStore } from "@/store/auth-store"
 import { useOrgStore } from "@/store/org-store"
 
 function esPkceSupabasePendiente(): boolean {
-  const path = window.location.pathname.replace(/\/$/, "") || "/"
-  return path === "/auth/callback" && new URLSearchParams(window.location.search).has("code")
+  return debeEsperarProcesamientoAuth()
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -25,8 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
       if (!userId) {
-        // Solo el PKCE de Google/Supabase vive en /auth/callback.
-        // Un ?code= de Basecamp en /auth/basecamp/callback no es PKCE: no hay que esperar.
+        // PKCE de Google/Supabase y hash de invitación: no marcar loading=false
+        // hasta que supabase-js procese la URL (evita redirect prematuro a /login).
         if (esPkceSupabasePendiente()) {
           return
         }

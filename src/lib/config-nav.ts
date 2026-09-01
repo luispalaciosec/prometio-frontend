@@ -9,8 +9,8 @@ import {
   Palette,
   Percent,
   Plug,
-  Search,
   Target,
+  Users,
 } from "lucide-react"
 
 export type ConfigNavItem = {
@@ -102,13 +102,13 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
     ],
   },
   {
-    title: "Sitio",
+    title: "Organización",
     items: [
       {
-        to: "/seo",
-        label: "SEO",
-        body: "Crawl técnico y Core Web Vitals. Campo y laboratorio se muestran aparte.",
-        icon: Search,
+        to: "/usuarios",
+        label: "Usuarios",
+        body: "Invitar, editar roles y activar o desactivar perfiles.",
+        icon: Users,
       },
     ],
   },

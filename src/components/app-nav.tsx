@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   LayoutList,
   FileText,
+  Receipt,
   ScrollText,
   Search,
   Truck,
@@ -43,10 +44,13 @@ const crmNav: NavItem[] = [
 const negociosNav: NavItem[] = [
   { to: "/pipeline", label: "Pipeline", icon: Columns3 },
   { to: "/cotizaciones", label: "Cotizaciones", icon: FileText },
+  { to: "/facturas", label: "Facturas", icon: Receipt },
   { to: "/alertas", label: "Alertas", icon: Bell },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/proveedores", label: "Proveedores", icon: Truck, adminOnly: true },
 ]
+
+const herramientasNav: NavItem[] = [{ to: "/seo", label: "SEO", icon: Search }]
 
 function itemActive(pathname: string, item: NavItem) {
   if (item.end) {
@@ -69,7 +73,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const agendaActivo = location.pathname.startsWith("/agenda")
   const saludActivo =
     location.pathname.startsWith("/salud") || location.pathname.startsWith("/auditoria")
-  const sitioActivo = location.pathname.startsWith("/seo")
+  const herramientasActivo = herramientasNav.some((item) => itemActive(location.pathname, item))
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -143,16 +147,20 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
             </SidebarSection>
           </>
         ) : null}
-        {isMarketing && !isAdmin ? (
-          <SidebarSection title="Sitio" active={sitioActivo}>
-            <NavLink
-              to="/seo"
-              onClick={onNavigate}
-              className={({ isActive }) => sidebarNavClass(isActive)}
-            >
-              <Search className="size-[18px] shrink-0 opacity-80" aria-hidden />
-              SEO
-            </NavLink>
+        {isMarketing ? (
+          <SidebarSection title="Herramientas" active={herramientasActivo}>
+            {herramientasNav.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                onClick={onNavigate}
+                className={({ isActive }) => sidebarNavClass(isActive)}
+              >
+                <item.icon className="size-[18px] shrink-0 opacity-80" aria-hidden />
+                {item.label}
+              </NavLink>
+            ))}
           </SidebarSection>
         ) : null}
         {isAdmin ? (
