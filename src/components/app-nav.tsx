@@ -17,6 +17,7 @@ import {
   Receipt,
   ScrollText,
   Search,
+  Tv,
   Truck,
   Users,
   type LucideIcon,
@@ -50,7 +51,10 @@ const negociosNav: NavItem[] = [
   { to: "/proveedores", label: "Proveedores", icon: Truck },
 ]
 
-const herramientasNav: NavItem[] = [{ to: "/seo", label: "SEO", icon: Search }]
+const herramientasNav: NavItem[] = [
+  { to: "/seo", label: "SEO", icon: Search },
+  { to: "/tv", label: "Modo TV", icon: Tv },
+]
 
 function itemActive(pathname: string, item: NavItem) {
   if (item.end) {
@@ -225,7 +229,10 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
           >
             Cerrar sesión
           </Button>
-          <ModeToggle className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground" />
+          <ModeToggle
+            menuSide="top"
+            className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          />
         </div>
       </div>
     </div>
