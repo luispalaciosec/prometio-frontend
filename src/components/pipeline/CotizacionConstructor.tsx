@@ -5,6 +5,7 @@ import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBad
 import { CotizacionPdfAcciones } from "@/components/pipeline/CotizacionPdfAcciones"
 import { CotizacionTransiciones } from "@/components/pipeline/CotizacionTransiciones"
 import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
+import { DocumentoAlcanceRequisitoAviso } from "@/components/pipeline/DocumentoAlcanceRequisitoAviso"
 import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
 import { LineaCotizacionForm, type LineaCotizacionFormInput } from "@/components/pipeline/LineaCotizacionForm"
 import { Button } from "@/components/ui/button"
@@ -129,6 +130,10 @@ export function CotizacionConstructor({
         <CotizacionEstadoBadge estado={cotizacion.estado} />
         <DocumentoAlcanceIndicador docs={documentos} />
       </div>
+      <DocumentoAlcanceRequisitoAviso
+        requiereDocumento={cotizacion.requiere_documento_alcance === true}
+        documentos={documentos}
+      />
       <div className="space-y-3 rounded-xl p-4 ring-1 ring-border">
         <div>
           <p className="text-ui-medium">Cambiar estado</p>

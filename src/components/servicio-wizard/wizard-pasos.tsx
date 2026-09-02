@@ -531,34 +531,55 @@ export function PasoDocumentos({
 
   return (
     <div className="space-y-4">
-      {tipos.map((tipo) => (
-        <label key={tipo.id} className="flex items-center gap-2 text-sm">
-          <Checkbox
-            checked={seleccionados.has(tipo.id)}
-            onCheckedChange={(checked) => toggle(tipo.id, checked === true)}
-          />
-          {tipo.nombre}
-        </label>
-      ))}
-      <form
-        className="flex max-w-md gap-2"
-        onSubmit={(event) => {
-          event.preventDefault()
-          const form = event.currentTarget
-          const input = form.elements.namedItem("nuevo_tipo") as HTMLInputElement
-          const nombre = input.value.trim()
-          if (nombre) {
-            void onCreateTipo(nombre).then(() => {
-              input.value = ""
-            })
+      <label className="flex items-start gap-2 text-ui">
+        <Checkbox
+          checked={draft.requiere_documento_alcance === true}
+          onCheckedChange={(checked) =>
+            setDraft((prev) => ({
+              ...prev,
+              requiere_documento_alcance: checked === true,
+            }))
           }
-        }}
-      >
-        <Input name="nuevo_tipo" placeholder="Nuevo tipo de documento" />
-        <Button type="submit" variant="outline">
-          Crear
-        </Button>
-      </form>
+        />
+        <span>
+          Requiere Documento de Alcance
+          <span className="mt-1 block text-kicker">
+            Marcá los servicios donde una cotización debe tener alcance aprobado antes de
+            enviarse, cuando el gate esté activo en la organización.
+          </span>
+        </span>
+      </label>
+      <div className="space-y-4 border-t border-border pt-4">
+        <p className="text-ui-medium">Tipos de documento requeridos</p>
+        {tipos.map((tipo) => (
+          <label key={tipo.id} className="flex items-center gap-2 text-sm">
+            <Checkbox
+              checked={seleccionados.has(tipo.id)}
+              onCheckedChange={(checked) => toggle(tipo.id, checked === true)}
+            />
+            {tipo.nombre}
+          </label>
+        ))}
+        <form
+          className="flex max-w-md gap-2"
+          onSubmit={(event) => {
+            event.preventDefault()
+            const form = event.currentTarget
+            const input = form.elements.namedItem("nuevo_tipo") as HTMLInputElement
+            const nombre = input.value.trim()
+            if (nombre) {
+              void onCreateTipo(nombre).then(() => {
+                input.value = ""
+              })
+            }
+          }}
+        >
+          <Input name="nuevo_tipo" placeholder="Nuevo tipo de documento" />
+          <Button type="submit" variant="outline">
+            Crear
+          </Button>
+        </form>
+      </div>
     </div>
   )
 }
@@ -621,6 +642,10 @@ export function PasoRevision({
         <dd>
           {draft.comision_sugerida_min_pct ?? "—"} – {draft.comision_sugerida_max_pct ?? "—"}
         </dd>
+      </div>
+      <div>
+        <dt className="text-muted-foreground">Requiere Documento de Alcance</dt>
+        <dd>{draft.requiere_documento_alcance ? "Sí" : "No"}</dd>
       </div>
       <div>
         <dt className="text-muted-foreground">Estado</dt>

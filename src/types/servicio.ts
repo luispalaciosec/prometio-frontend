@@ -60,6 +60,7 @@ export type Servicio = {
   comision_sugerida_min_pct: number | null
   comision_sugerida_max_pct: number | null
   tipos_documento_requeridos: string[] | null
+  requiere_documento_alcance: boolean
   estado: ServicioEstado
   created_by: string
   created_at: string

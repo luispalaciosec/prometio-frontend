@@ -73,6 +73,7 @@ function cuerpoServicio(
     comision_sugerida_min_pct: input.comision_sugerida_min_pct ?? null,
     comision_sugerida_max_pct: input.comision_sugerida_max_pct ?? null,
     tipos_documento_requeridos: input.tipos_documento_requeridos ?? null,
+    requiere_documento_alcance: input.requiere_documento_alcance === true,
   }
   if (mode === "create") {
     body.pilar = input.pilar

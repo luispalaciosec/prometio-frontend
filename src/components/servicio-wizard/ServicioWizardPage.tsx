@@ -61,6 +61,7 @@ function blankServicio(
     comision_sugerida_min_pct: defaults?.comision_agencia_default_min_pct ?? null,
     comision_sugerida_max_pct: defaults?.comision_agencia_default_max_pct ?? null,
     tipos_documento_requeridos: [],
+    requiere_documento_alcance: false,
     estado: "borrador",
     created_by,
     created_at: new Date().toISOString(),
@@ -97,7 +98,14 @@ export function ServicioWizardPage() {
       setTipos(tiposRows)
       setDefaults(general)
       setCategorias(categoriasRows)
-      setDraft(existing ?? blankServicio(organizacion_id, created_by, general))
+      setDraft(
+        existing
+          ? {
+              ...existing,
+              requiere_documento_alcance: existing.requiere_documento_alcance === true,
+            }
+          : blankServicio(organizacion_id, created_by, general),
+      )
     })
   }, [id, perfil])
 
@@ -146,6 +154,7 @@ export function ServicioWizardPage() {
       comision_sugerida_min_pct: current.comision_sugerida_min_pct,
       comision_sugerida_max_pct: current.comision_sugerida_max_pct,
       tipos_documento_requeridos: current.tipos_documento_requeridos,
+      requiere_documento_alcance: current.requiere_documento_alcance === true,
       estado: "borrador",
       created_by: current.created_by,
       created_at: current.created_at,
