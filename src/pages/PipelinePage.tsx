@@ -275,7 +275,7 @@ export function PipelinePage() {
           onVista={cambiarVista}
         />
       </div>
-      {!catalogoListo || (cargandoLista && items.length === 0) ? (
+      {!catalogoListo || cargandoLista ? (
         <PipelineSkeleton />
       ) : items.length === 0 ? (
         <EmptyState

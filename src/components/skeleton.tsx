@@ -130,3 +130,33 @@ export function TimelineSkeleton() {
     </div>
   )
 }
+
+export function DocumentoAlcanceSectionSkeleton() {
+  return (
+    <div className="space-y-4" aria-hidden>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-44" />
+          <Skeleton className="h-3 w-72 max-w-full" />
+        </div>
+        <Skeleton className="h-8 w-52 rounded-md" />
+      </div>
+      <div className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border">
+        <Skeleton className="size-11 shrink-0 rounded-xl" />
+        <div className="min-w-0 flex-1 space-y-2 pt-1">
+          <Skeleton className="h-4 w-36" />
+          <Skeleton className="h-3 w-full max-w-sm" />
+        </div>
+      </div>
+      <div className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+        <div className="flex flex-wrap gap-2">
+          <Skeleton className="h-5 w-20 rounded-full" />
+          <Skeleton className="h-3 w-40" />
+        </div>
+        <Skeleton className="h-9 w-full" />
+        <Skeleton className="h-24 w-full rounded-lg" />
+        <Skeleton className="h-24 w-full rounded-lg" />
+      </div>
+    </div>
+  )
+}

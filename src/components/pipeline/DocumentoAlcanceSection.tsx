@@ -3,6 +3,7 @@ import { Loader2, ScrollText } from "lucide-react"
 import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
+import { DocumentoAlcanceSectionSkeleton } from "@/components/skeleton"
 import { DocumentoAlcanceEditor, draftDesdeDocumento, type DocumentoAlcanceDraft } from "@/components/pipeline/DocumentoAlcanceEditor"
 import { DocumentoAlcanceEstadoBadge } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
 import { Button } from "@/components/ui/button"
@@ -293,7 +294,7 @@ export function DocumentoAlcanceSection({
       </div>
 
       {docs == null ? (
-        <p className="text-kicker">Cargando documentos…</p>
+        <DocumentoAlcanceSectionSkeleton />
       ) : sinDocs ? (
         <EmptyState
           icon={ScrollText}

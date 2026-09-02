@@ -69,6 +69,8 @@ export function CotizacionesPage() {
       return
     }
     let cancelled = false
+    setRows(null)
+    setDocsPorCotizacion({})
     void (async () => {
       try {
         const [cotizaciones, oportunidades] = await Promise.all([
