@@ -1,5 +1,4 @@
 import { useState } from "react"
-import { toast } from "sonner"
 
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
@@ -33,9 +32,11 @@ export function HistorialPreciosDialog({
   const [open, setOpen] = useState(false)
   const [cargando, setCargando] = useState(false)
   const [data, setData] = useState<HistorialPreciosResponse | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   async function abrir() {
     setOpen(true)
+    setError(null)
     if (!mapeado) {
       setCargando(false)
       setData(null)
@@ -45,15 +46,14 @@ export function HistorialPreciosDialog({
     setData(null)
     try {
       setData(await listHistorialPrecios(servicioId))
-    } catch (error) {
+    } catch (err) {
       const mensaje =
-        error instanceof ApiError
-          ? error.detail
-          : error instanceof Error
-            ? error.message
+        err instanceof ApiError
+          ? err.detail
+          : err instanceof Error
+            ? err.message
             : "No se pudo cargar el histórico."
-      toast.error(mensaje)
-      setOpen(false)
+      setError(mensaje)
     } finally {
       setCargando(false)
     }
@@ -82,6 +82,11 @@ export function HistorialPreciosDialog({
           ) : null}
           {!mapeado ? null : cargando ? (
             <TableSkeleton rows={4} />
+          ) : error ? (
+            <div className="rounded-xl bg-destructive/10 px-4 py-3 ring-1 ring-destructive/20">
+              <p className="text-ui-medium text-destructive">No se pudo consultar Contífico</p>
+              <p className="mt-1 text-kicker text-destructive/90">{error}</p>
+            </div>
           ) : data == null ? null : data.resultados.length === 0 ? (
             <p className="text-kicker">No hay documentos recientes para este producto.</p>
           ) : (

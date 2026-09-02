@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { Receipt } from "lucide-react"
+import { Receipt, TriangleAlert } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
+import { ApiError } from "@/lib/api-client"
 import { listFacturas } from "@/lib/api/factura"
 import { formatMoney } from "@/lib/costo-interno"
 import type { FacturaContifico } from "@/types/factura"
@@ -33,17 +33,24 @@ export function FacturasPage() {
   const [meses, setMeses] = useState<number>(6)
   const [rows, setRows] = useState<FacturaContifico[] | null>(null)
   const [cuentaVerificada, setCuentaVerificada] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     setRows(null)
+    setError(null)
     void listFacturas(meses)
       .then((data) => {
         setCuentaVerificada(data.cuenta_verificada)
         setRows(data.resultados)
       })
-      .catch((error: unknown) => {
-        toast.error(error instanceof Error ? error.message : "No se pudieron cargar las facturas.")
-        setRows([])
+      .catch((err: unknown) => {
+        const mensaje =
+          err instanceof ApiError
+            ? err.detail
+            : err instanceof Error
+              ? err.message
+              : "No se pudieron cargar las facturas."
+        setError(mensaje)
       })
   }, [meses])
 
@@ -77,9 +84,17 @@ export function FacturasPage() {
         ) : null}
       </div>
 
-      {rows == null ? (
+      {rows == null && !error ? (
         <TableSkeleton />
-      ) : rows.length === 0 ? (
+      ) : error ? (
+        <div className="flex flex-col items-center px-4 py-10 text-center">
+          <span className="inline-flex size-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+            <TriangleAlert className="size-5" strokeWidth={1.75} aria-hidden />
+          </span>
+          <p className="mt-4 text-section">No se pudo consultar Contífico</p>
+          <p className="mt-1 max-w-lg text-kicker">{error}</p>
+        </div>
+      ) : rows!.length === 0 ? (
         <EmptyState
           icon={Receipt}
           title="Sin facturas"
