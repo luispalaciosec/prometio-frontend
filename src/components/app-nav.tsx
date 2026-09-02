@@ -47,7 +47,7 @@ const negociosNav: NavItem[] = [
   { to: "/facturas", label: "Facturas", icon: Receipt },
   { to: "/alertas", label: "Alertas", icon: Bell },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/proveedores", label: "Proveedores", icon: Truck, adminOnly: true },
+  { to: "/proveedores", label: "Proveedores", icon: Truck },
 ]
 
 const herramientasNav: NavItem[] = [{ to: "/seo", label: "SEO", icon: Search }]
@@ -67,8 +67,14 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const isAdmin = perfil?.equipo === "administrativo"
   const isVentas = perfil ? puedeVerModuloVentas(perfil) : false
   const isMarketing = perfil ? puedeVerModuloMarketing(perfil) : false
+  const isProveedores = perfil ? perfil.equipo === "proveedores" : false
   const crmActivo = crmNav.some((item) => itemActive(location.pathname, item))
-  const negociosVisible = negociosNav.filter((item) => !item.adminOnly || isAdmin)
+  const negociosVisible = negociosNav.filter((item) => {
+    if (item.to === "/proveedores") {
+      return isAdmin
+    }
+    return true
+  })
   const negociosActivo = negociosNav.some((item) => itemActive(location.pathname, item))
   const agendaActivo = location.pathname.startsWith("/agenda")
   const saludActivo =
@@ -147,6 +153,16 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
             </SidebarSection>
           </>
         ) : null}
+        {isProveedores ? (
+          <NavLink
+            to="/proveedores"
+            onClick={onNavigate}
+            className={({ isActive }) => sidebarNavClass(isActive)}
+          >
+            <Truck className="size-[18px] shrink-0 opacity-80" aria-hidden />
+            Proveedores
+          </NavLink>
+        ) : null}
         {isMarketing ? (
           <SidebarSection title="Herramientas" active={herramientasActivo}>
             {herramientasNav.map((item) => (
@@ -186,7 +202,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
             <ConfigSidebar onNavigate={onNavigate} />
           </>
         ) : null}
-        {!isVentas && !isAdmin && !isMarketing ? (
+        {!isVentas && !isAdmin && !isMarketing && !isProveedores ? (
           <p className="px-2 text-kicker text-sidebar-foreground/60">
             Este perfil no tiene módulos asignados.
           </p>

@@ -11,6 +11,11 @@ export function puedeVerModuloMarketing(perfil: Perfil): boolean {
   return perfil.equipo === "administrativo" || perfil.equipo === "marketing"
 }
 
+/** Espejo de `require_admin_o_proveedores`: admin o analista de proveedores. */
+export function puedeVerModuloProveedores(perfil: Perfil): boolean {
+  return perfil.equipo === "administrativo" || perfil.equipo === "proveedores"
+}
+
 /** Destino válido de reasignación: activo y del módulo de ventas (admin o ventas). */
 export function esPerfilElegibleEjecutivo(perfil: Perfil): boolean {
   return perfil.activo && puedeVerModuloVentas(perfil)

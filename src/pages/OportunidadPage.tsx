@@ -5,6 +5,7 @@ import { toast } from "sonner"
 import { OportunidadSkeleton } from "@/components/skeleton"
 import { ActividadesSection } from "@/components/pipeline/ActividadesSection"
 import { CotizacionesSection } from "@/components/pipeline/CotizacionesSection"
+import { LeadScoreDesglosePanel } from "@/components/pipeline/LeadScoreDesglosePanel"
 import { OportunidadDetalle } from "@/components/pipeline/OportunidadDetalle"
 import { OportunidadEditarDialog } from "@/components/pipeline/OportunidadEditarDialog"
 import { PageHeader } from "@/components/page-header"
@@ -233,6 +234,12 @@ export function OportunidadPage() {
         causaPrincipal={state.causaPrincipal}
         causaSecundaria={state.causaSecundaria}
       />
+      <div className="mt-6">
+        <LeadScoreDesglosePanel
+          score={state.oportunidad.lead_score}
+          desglose={state.oportunidad.lead_score_desglose}
+        />
+      </div>
       <OportunidadEditarDialog
         open={editarOpen}
         enviando={guardando}

@@ -16,13 +16,8 @@ import { isSupabaseConfigured } from "@/lib/supabase"
 import { useAuthStore } from "@/store/auth-store"
 import type { EstadoBasecamp } from "@/types/basecamp"
 import type { EstadoCalendar } from "@/types/google-calendar"
-import type { Equipo, RolVentas } from "@/types/perfil"
-
-const EQUIPO_LABEL: Record<Equipo, string> = {
-  administrativo: "Administrativo",
-  ventas: "Ventas",
-  marketing: "Marketing",
-}
+import type { RolVentas } from "@/types/perfil"
+import { EQUIPO_LABELS } from "@/types/perfil"
 
 const ROL_LABEL: Record<RolVentas, string> = {
   vendedor: "Vendedor",
@@ -125,7 +120,7 @@ export function CuentaPage() {
     }
   }
 
-  const equipo = perfil ? EQUIPO_LABEL[perfil.equipo] : "—"
+  const equipo = perfil ? EQUIPO_LABELS[perfil.equipo] : "—"
   const rol = perfil?.rol_ventas ? ROL_LABEL[perfil.rol_ventas] : null
 
   return (

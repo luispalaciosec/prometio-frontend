@@ -242,6 +242,7 @@ export function UsuariosPage() {
               <SelectItem value="administrativo">Administrativo</SelectItem>
               <SelectItem value="ventas">Ventas</SelectItem>
               <SelectItem value="marketing">Marketing</SelectItem>
+              <SelectItem value="proveedores">Analista de proveedores</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -362,6 +363,7 @@ export function UsuariosPage() {
                   <SelectItem value="administrativo">Administrativo</SelectItem>
                   <SelectItem value="ventas">Ventas</SelectItem>
                   <SelectItem value="marketing">Marketing</SelectItem>
+              <SelectItem value="proveedores">Analista de proveedores</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -446,6 +448,7 @@ export function UsuariosPage() {
                     <SelectItem value="administrativo">Administrativo</SelectItem>
                     <SelectItem value="ventas">Ventas</SelectItem>
                     <SelectItem value="marketing">Marketing</SelectItem>
+              <SelectItem value="proveedores">Analista de proveedores</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

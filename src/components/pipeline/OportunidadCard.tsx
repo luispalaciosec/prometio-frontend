@@ -2,6 +2,7 @@ import { useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 
 import { AlertaEstadoBadge } from "@/components/alertas/AlertaEstadoBadge"
+import { LeadScoreBadge } from "@/components/pipeline/LeadScoreBadge"
 import { OportunidadValor } from "@/components/pipeline/OportunidadValor"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -42,7 +43,10 @@ export function OportunidadCard({
       >
         <div className="flex items-start justify-between gap-2">
           <p className="text-ui-medium">{oportunidad.contacto.nombre_completo}</p>
-          {estadoAlerta ? <AlertaEstadoBadge estado={estadoAlerta} /> : null}
+          <div className="flex shrink-0 items-center gap-1">
+            <LeadScoreBadge score={oportunidad.lead_score} />
+            {estadoAlerta ? <AlertaEstadoBadge estado={estadoAlerta} /> : null}
+          </div>
         </div>
         <p className="text-kicker">{oportunidad.empresa.nombre}</p>
         <p className="mt-2 text-kicker">{oportunidad.ejecutivo.nombre_completo}</p>

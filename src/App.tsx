@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
-import { AdminRoute, GuestRoute, MarketingRoute, ProtectedRoute, VentasRoute } from "@/components/auth-routes"
+import { AdminRoute, GuestRoute, MarketingRoute, ProtectedRoute, ProveedoresRoute, VentasRoute } from "@/components/auth-routes"
 import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardPage"
 import { ServiciosConfigLayout } from "@/components/servicios-config-layout"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -164,9 +164,9 @@ export default function App() {
               <Route
                 path="/proveedores"
                 element={
-                  <AdminRoute>
+                  <ProveedoresRoute>
                     <ProveedoresPage />
-                  </AdminRoute>
+                  </ProveedoresRoute>
                 }
               />
               <Route path="/configuracion/proveedores" element={<Navigate to="/proveedores" replace />} />

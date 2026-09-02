@@ -1,5 +1,13 @@
 import type { EtapaPipelineCodigo } from "./etapa-pipeline"
 
+export type LeadScoreDesglose = {
+  frescura: number
+  seguimiento: number
+  primera_respuesta: number | null
+  tamano_deal: number
+  fit_empresa: number
+}
+
 export type Oportunidad = {
   id: string
   organizacion_id: string
@@ -17,6 +25,8 @@ export type Oportunidad = {
   fecha_ultima_actividad: string | null
   activo: boolean
   created_at: string
+  lead_score: number
+  lead_score_desglose: LeadScoreDesglose
 }
 
 /** Fila de tablero: mismos campos de `oportunidad` más nombres ya resueltos. */

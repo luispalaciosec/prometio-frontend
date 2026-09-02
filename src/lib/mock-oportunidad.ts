@@ -17,6 +17,7 @@ import {
 import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
 import type {
+  LeadScoreDesglose,
   Oportunidad,
   OportunidadKanban,
   PipelineScope,
@@ -140,6 +141,14 @@ function seed(): MockDb {
   return { contactos, empresas, ejecutivos, oportunidades }
 }
 
+const DESGLOSE_VACIO: LeadScoreDesglose = {
+  frescura: 0,
+  seguimiento: 0,
+  primera_respuesta: null,
+  tamano_deal: 0,
+  fit_empresa: 0,
+}
+
 function row(
   id: string,
   contacto_id: string,
@@ -166,6 +175,13 @@ function row(
     competidor_mencionado: extra?.competidor_mencionado ?? null,
     fecha_ultima_actividad: extra?.fecha_ultima_actividad ?? null,
     activo: extra?.activo ?? true,
+    lead_score: extra?.lead_score ?? 55,
+    lead_score_desglose: extra?.lead_score_desglose ?? {
+      ...DESGLOSE_VACIO,
+      frescura: 25,
+      seguimiento: 10,
+      tamano_deal: 10,
+    },
   }
 }
 

@@ -8,6 +8,7 @@ import { ApiError, apiFetch } from "@/lib/api-client"
 import { puedeVerEquipo, scopeEfectivo } from "@/lib/pipeline-acceso"
 import type { EtapaPipelineCodigo } from "@/types/etapa-pipeline"
 import type {
+  LeadScoreDesglose,
   Oportunidad,
   OportunidadCreate,
   OportunidadKanban,
@@ -43,11 +44,21 @@ const nombresContacto = new Map<string, string>()
 const nombresEmpresa = new Map<string, string>()
 const nombresEjecutivo = new Map<string, string>()
 
+const DESGLOSE_VACIO: LeadScoreDesglose = {
+  frescura: 0,
+  seguimiento: 0,
+  primera_respuesta: null,
+  tamano_deal: 0,
+  fit_empresa: 0,
+}
+
 function normalizar(row: Oportunidad): Oportunidad {
   return {
     ...row,
     servicios_ids: row.servicios_ids ?? [],
     activo: row.activo !== false,
+    lead_score: row.lead_score ?? 0,
+    lead_score_desglose: row.lead_score_desglose ?? DESGLOSE_VACIO,
   }
 }
 

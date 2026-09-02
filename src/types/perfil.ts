@@ -1,4 +1,4 @@
-export type Equipo = "administrativo" | "ventas" | "marketing"
+export type Equipo = "administrativo" | "ventas" | "marketing" | "proveedores"
 
 export type RolVentas = "vendedor" | "supervisor"
 
@@ -6,6 +6,7 @@ export const EQUIPO_LABELS: Record<Equipo, string> = {
   administrativo: "Administrativo",
   ventas: "Ventas",
   marketing: "Marketing",
+  proveedores: "Analista de proveedores",
 }
 
 export const ROL_VENTAS_LABELS: Record<RolVentas, string> = {

@@ -1,4 +1,5 @@
 import { AlertaEstadoBadge } from "@/components/alertas/AlertaEstadoBadge"
+import { LeadScoreBadge } from "@/components/pipeline/LeadScoreBadge"
 import { OportunidadValor } from "@/components/pipeline/OportunidadValor"
 import { Button } from "@/components/ui/button"
 import {
@@ -58,6 +59,7 @@ export function PipelineLista({
               <TableCell className="text-ui-medium">
                 <span className="inline-flex items-center gap-2">
                   {row.contacto.nombre_completo}
+                  <LeadScoreBadge score={row.lead_score} />
                   {alerta ? <AlertaEstadoBadge estado={alerta} /> : null}
                 </span>
               </TableCell>
