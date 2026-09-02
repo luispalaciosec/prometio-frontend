@@ -4,7 +4,11 @@ import type { ReactNode } from "react"
 
 import { useAuthStore } from "@/store/auth-store"
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+/**
+ * Solo exige sesión Supabase persistida (localStorage + refresh en background).
+ * No valida perfil ni equipo — pensado para kiosco /tv con cuenta dedicada logueada una vez.
+ */
+function SessionRoute({ children }: { children: ReactNode }) {
   const session = useAuthStore((state) => state.session)
   const loading = useAuthStore((state) => state.loading)
 
@@ -21,6 +25,15 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   return children
+}
+
+export function ProtectedRoute({ children }: { children: ReactNode }) {
+  return <SessionRoute>{children}</SessionRoute>
+}
+
+/** Alias explícito para /tv — misma regla que ProtectedRoute, sin AppShell ni guards de equipo. */
+export function KioskRoute({ children }: { children: ReactNode }) {
+  return <SessionRoute>{children}</SessionRoute>
 }
 
 export function GuestRoute({ children }: { children: ReactNode }) {

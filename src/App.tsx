@@ -2,7 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
-import { AdminRoute, GuestRoute, MarketingRoute, ProtectedRoute, ProveedoresRoute, VentasRoute } from "@/components/auth-routes"
+import { AdminRoute, GuestRoute, KioskRoute, MarketingRoute, ProtectedRoute, ProveedoresRoute, VentasRoute } from "@/components/auth-routes"
 import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardPage"
 import { ServiciosConfigLayout } from "@/components/servicios-config-layout"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -46,6 +46,7 @@ import { CuentaPage } from "@/pages/CuentaPage"
 import { UsuariosPage } from "@/pages/UsuariosPage"
 import { FormularioWebPage } from "@/pages/FormularioWebPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
+import { TvPanelPage } from "@/pages/TvPanelPage"
 
 export default function App() {
   return (
@@ -358,6 +359,14 @@ export default function App() {
                 }
               />
             </Route>
+            <Route
+              path="/tv"
+              element={
+                <KioskRoute>
+                  <TvPanelPage />
+                </KioskRoute>
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
