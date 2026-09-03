@@ -4,6 +4,7 @@ export const TIPOS_TIMELINE = [
   "oportunidad_cierre_perdido",
   "cotizacion_aprobada",
   "lead_convertido",
+  "oportunidad_asignada_automatica",
 ] as const
 
 export type TipoTimeline = (typeof TIPOS_TIMELINE)[number]
@@ -14,6 +15,7 @@ export const TIPO_TIMELINE_LABELS: Record<TipoTimeline, string> = {
   oportunidad_cierre_perdido: "Cierre perdido",
   cotizacion_aprobada: "Cotización aprobada",
   lead_convertido: "Lead convertido",
+  oportunidad_asignada_automatica: "Asignación automática",
 }
 
 export type TimelineEvento = {
@@ -29,4 +31,16 @@ export type TimelineEvento = {
 
 export function esTipoTimeline(value: string): value is TipoTimeline {
   return (TIPOS_TIMELINE as readonly string[]).includes(value)
+}
+
+/** Etiqueta legible; fallback humaniza snake_case desconocido. */
+export function labelTipoTimeline(value: string): string {
+  if (esTipoTimeline(value)) {
+    return TIPO_TIMELINE_LABELS[value]
+  }
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ")
 }

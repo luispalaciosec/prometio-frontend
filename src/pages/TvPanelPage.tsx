@@ -3,10 +3,10 @@ import { CircleDollarSign, Columns3, Percent, Target } from "lucide-react"
 
 import { KpiCard } from "@/components/kpi-card"
 import { PrometioLogo } from "@/components/prometio-logo"
+import { TvActividadReciente } from "@/components/tv/TvActividadReciente"
 import { TvFinancieroFila } from "@/components/tv/TvFinancieroFila"
 import { TvMetasLista } from "@/components/tv/TvMetasLista"
 import { TvPipelineBarras } from "@/components/tv/TvPipelineBarras"
-import { TvTimelineFila } from "@/components/tv/TvTimelineFila"
 import { getDashboardKpis, getTvFinanciero } from "@/lib/api/dashboard"
 import { listTimeline } from "@/lib/api/timeline"
 import { ApiError } from "@/lib/api-client"
@@ -137,7 +137,7 @@ export function TvPanelPage() {
 
   const logoUrl = organizacion?.logo_url_oscuro ?? organizacion?.logo_url
 
-  const timelineVisible = useMemo(() => timeline.slice(0, 12), [timeline])
+  const timelineVisible = useMemo(() => timeline, [timeline])
 
   return (
     <div
@@ -242,16 +242,7 @@ export function TvPanelPage() {
           </section>
         </div>
 
-        <aside className="flex w-full shrink-0 flex-col lg:w-[min(17rem,19vw)]">
-          <h2 className="mb-2 text-kicker font-medium text-foreground">Actividad reciente</h2>
-          <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain">
-            {timelineVisible.length === 0 ? (
-              <p className="text-micro text-muted-foreground">Sin eventos recientes.</p>
-            ) : (
-              timelineVisible.map((row) => <TvTimelineFila key={row.id} row={row} compact />)
-            )}
-          </div>
-        </aside>
+        <TvActividadReciente eventos={timelineVisible} />
       </div>
     </div>
   )

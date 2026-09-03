@@ -9,7 +9,7 @@ export type { Contacto, ContactoCreate, ContactoUpdate, EtapaCicloVida } from ".
 export { ETAPAS_CICLO_VIDA, ETAPA_CICLO_LABELS } from "./contacto"
 export type { DashboardKPIs, MetasComerciales, MetaVendedor } from "./dashboard"
 export type { TimelineEvento, TipoTimeline } from "./timeline"
-export { TIPOS_TIMELINE, TIPO_TIMELINE_LABELS, esTipoTimeline } from "./timeline"
+export { TIPOS_TIMELINE, TIPO_TIMELINE_LABELS, esTipoTimeline, labelTipoTimeline } from "./timeline"
 export type {
   CalendarioResponse,
   EventoCalendario,
