@@ -172,6 +172,10 @@
             <a id="link-meta" href="#">Probar ?utm_source=meta&amp;utm_medium=paid&amp;utm_campaign=abril&amp;gclid=demo-123</a>
           </div>
           <p class="footnote">
+            Fase 1: campos dinámicos desde <code class="inline">GET /formulario/campos</code>. hCaptcha
+            llega en fase 3 — el envío puede responder 422 hasta entonces.
+          </p>
+          <p class="footnote">
             Ejemplo completo:
             <code class="inline">/formulario-demo?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=prueba</code>
           </p>
@@ -179,7 +183,15 @@
       </div>
     </main>
     <script>
-      const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "fclid", "gclid"]
+      const UTM_KEYS = [
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_content",
+        "utm_term",
+        "fclid",
+        "gclid",
+      ]
 
       function renderUtmPanel() {
         const params = new URLSearchParams(window.location.search)
