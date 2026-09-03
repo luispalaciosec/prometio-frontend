@@ -96,7 +96,7 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/formulario-web",
         label: "Formulario web",
-        body: "Snippet para landings, campos fijos y URL de conexión.",
+        body: "Campos, apariencia, webhooks y snippet del embed público.",
         icon: Code2,
       },
     ],
