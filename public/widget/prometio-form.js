@@ -3,8 +3,9 @@
     return;
   }
 
-  /** Fase 3 — site key hCaptcha (aún no se renderiza en fase 1). */
+  /** Site key hCaptcha (pública, hardcodeada). */
   const HCAPTCHA_SITE_KEY = "0f7cabfa-c2ba-414e-ade0-2b2472222c96";
+  const HCAPTCHA_SCRIPT = "https://js.hcaptcha.com/1/api.js";
 
   const UTM_KEYS = [
     "utm_source",
@@ -120,6 +121,10 @@
       width: 1px;
       height: 1px;
       overflow: hidden;
+    }
+    ::slotted(.hcaptcha-wrap) {
+      display: block;
+      margin: 0.15rem 0 0.85rem;
     }
     button[type="submit"] {
       width: 100%;
@@ -326,9 +331,10 @@
       </div>`;
   }
 
-  function armarPayload(form, campos) {
+  function armarPayload(form, campos, hcaptchaToken) {
     const body = {
       honeypot: vacioANull(form.elements.namedItem("honeypot")?.value),
+      hcaptcha_token: hcaptchaToken,
       ...leerUtms(),
     };
     const camposCustom = {};
@@ -365,6 +371,58 @@
     return null;
   }
 
+  let hcaptchaScriptPromise = null;
+
+  function cargarHcaptchaScript() {
+    if (window.hcaptcha) {
+      return Promise.resolve();
+    }
+    if (hcaptchaScriptPromise) {
+      return hcaptchaScriptPromise;
+    }
+    hcaptchaScriptPromise = new Promise((resolve, reject) => {
+      const existente = document.querySelector(`script[src="${HCAPTCHA_SCRIPT}"]`);
+      if (existente) {
+        existente.addEventListener("load", () => resolve(), { once: true });
+        existente.addEventListener("error", () => reject(new Error("hcaptcha")), { once: true });
+        if (window.hcaptcha) {
+          resolve();
+        }
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = HCAPTCHA_SCRIPT;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("hcaptcha"));
+      document.head.appendChild(script);
+    });
+    return hcaptchaScriptPromise;
+  }
+
+  function tokenHcaptcha(widgetId) {
+    if (widgetId === null || widgetId === undefined || !window.hcaptcha) {
+      return "";
+    }
+    try {
+      return String(window.hcaptcha.getResponse(widgetId) ?? "").trim();
+    } catch {
+      return "";
+    }
+  }
+
+  function resetHcaptcha(widgetId) {
+    if (widgetId === null || widgetId === undefined || !window.hcaptcha) {
+      return;
+    }
+    try {
+      window.hcaptcha.reset(widgetId);
+    } catch {
+      /* widget ya removido */
+    }
+  }
+
   class PrometioFormulario extends HTMLElement {
     static get observedAttributes() {
       return ["api"];
@@ -375,6 +433,7 @@
       this.enviando = false;
       this.campos = [];
       this.marca = {};
+      this.captchaWidgetId = null;
       this.attachShadow({ mode: "open" });
     }
 
@@ -389,11 +448,66 @@
     }
 
     renderLoading() {
+      this.destruirCaptcha();
       this.shadowRoot.innerHTML = `<style>${CSS}</style><p class="loading">Cargando formulario…</p>`;
     }
 
     renderFatal(message) {
+      this.destruirCaptcha();
       this.shadowRoot.innerHTML = `<style>${CSS}</style><p class="fatal">${escapeHtml(message)}</p>`;
+    }
+
+    destruirCaptcha() {
+      const wrap = this.querySelector(".hcaptcha-wrap");
+      if (wrap) {
+        wrap.remove();
+      }
+      if (this.captchaWidgetId !== null) {
+        resetHcaptcha(this.captchaWidgetId);
+        if (window.hcaptcha) {
+          try {
+            window.hcaptcha.remove(this.captchaWidgetId);
+          } catch {
+            /* ya removido */
+          }
+        }
+      }
+      this.captchaWidgetId = null;
+    }
+
+    asegurarContenedorCaptcha() {
+      let wrap = this.querySelector(".hcaptcha-wrap");
+      if (!wrap) {
+        wrap = document.createElement("div");
+        wrap.className = "hcaptcha-wrap";
+        wrap.setAttribute("slot", "hcaptcha");
+        this.appendChild(wrap);
+      }
+      return wrap;
+    }
+
+    async montarCaptcha() {
+      const wrap = this.asegurarContenedorCaptcha();
+      wrap.replaceChildren();
+      if (this.captchaWidgetId !== null) {
+        if (window.hcaptcha) {
+          try {
+            window.hcaptcha.remove(this.captchaWidgetId);
+          } catch {
+            /* noop */
+          }
+        }
+        this.captchaWidgetId = null;
+      }
+
+      await cargarHcaptchaScript();
+      if (!window.hcaptcha) {
+        throw new Error("hcaptcha");
+      }
+
+      this.captchaWidgetId = window.hcaptcha.render(wrap, {
+        sitekey: HCAPTCHA_SITE_KEY,
+      });
     }
 
     async bootstrap() {
@@ -408,9 +522,10 @@
       const marcaUrl = urlMarca(api);
       const camposUrl = urlCampos(api);
 
-      const [marcaResult, camposResult] = await Promise.allSettled([
+      const [marcaResult, camposResult, hcaptchaResult] = await Promise.allSettled([
         marcaUrl ? fetch(marcaUrl, { headers: { Accept: "application/json" } }) : Promise.reject(),
         camposUrl ? fetch(camposUrl, { headers: { Accept: "application/json" } }) : Promise.reject(),
+        cargarHcaptchaScript(),
       ]);
 
       if (camposResult.status !== "fulfilled" || !camposResult.value.ok) {
@@ -444,6 +559,25 @@
 
       this.renderForm();
       this.pintarMarca(this.marca);
+
+      if (hcaptchaResult.status === "rejected") {
+        const err = this.shadowRoot.querySelector(".err");
+        if (err) {
+          err.textContent = "No se pudo cargar el captcha. Recargá la página.";
+          err.hidden = false;
+        }
+        return;
+      }
+
+      try {
+        await this.montarCaptcha();
+      } catch {
+        const err = this.shadowRoot.querySelector(".err");
+        if (err) {
+          err.textContent = "No se pudo cargar el captcha. Recargá la página.";
+          err.hidden = false;
+        }
+      }
     }
 
     renderForm() {
@@ -470,6 +604,7 @@
             <label for="prometio-hp">Sitio web</label>
             <input id="prometio-hp" name="honeypot" type="text" tabindex="-1" autocomplete="off" />
           </div>
+          <slot name="hcaptcha"></slot>
           <button type="submit">${textoBoton}</button>
         </form>
       `;
@@ -477,6 +612,8 @@
       this.shadowRoot.querySelector("form").addEventListener("submit", (event) => {
         void this.onSubmit(event);
       });
+
+      this.asegurarContenedorCaptcha();
     }
 
     pintarMarca(marca) {
@@ -553,8 +690,14 @@
         return;
       }
 
-      /** Fase 3 — hcaptcha_token obligatorio; en fase 1 el backend puede responder 422. */
-      const payload = armarPayload(form, this.campos);
+      const captchaToken = tokenHcaptcha(this.captchaWidgetId);
+      if (!captchaToken) {
+        err.textContent = "Completá el captcha.";
+        err.hidden = false;
+        return;
+      }
+
+      const payload = armarPayload(form, this.campos, captchaToken);
 
       this.enviando = true;
       btn.disabled = true;
@@ -570,6 +713,7 @@
           const detail = await leerDetail(res);
           err.textContent = detail ?? "Revisá los datos e intentá de nuevo.";
           err.hidden = false;
+          resetHcaptcha(this.captchaWidgetId);
           this.enviando = false;
           btn.disabled = false;
           return;
@@ -579,6 +723,7 @@
           throw new Error("http");
         }
 
+        this.destruirCaptcha();
         const exito =
           typeof this.marca.formulario_texto_exito === "string" && this.marca.formulario_texto_exito.trim()
             ? escapeHtml(this.marca.formulario_texto_exito.trim())
