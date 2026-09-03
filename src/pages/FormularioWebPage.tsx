@@ -1,6 +1,7 @@
 import { ExternalLink } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 
+import { CamposTab } from "@/components/formulario-web/CamposTab"
 import { EmbedTab } from "@/components/formulario-web/EmbedTab"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
@@ -62,7 +63,7 @@ export function FormularioWebPage() {
           <EmbedTab />
         </TabsContent>
         <TabsContent value="campos">
-          <PlaceholderTab fase="Fase B" titulo="Campos configurables" />
+          <CamposTab />
         </TabsContent>
         <TabsContent value="apariencia">
           <PlaceholderTab fase="Fase C" titulo="Apariencia del formulario" />
