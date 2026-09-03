@@ -3,16 +3,19 @@ import { CircleDollarSign, Columns3, Percent, Target } from "lucide-react"
 
 import { KpiCard } from "@/components/kpi-card"
 import { PrometioLogo } from "@/components/prometio-logo"
+import { TvFinancieroFila } from "@/components/tv/TvFinancieroFila"
 import { TvMetasLista } from "@/components/tv/TvMetasLista"
 import { TvPipelineBarras } from "@/components/tv/TvPipelineBarras"
 import { TvTimelineFila } from "@/components/tv/TvTimelineFila"
-import { getDashboardKpis } from "@/lib/api/dashboard"
+import { getDashboardKpis, getTvFinanciero } from "@/lib/api/dashboard"
 import { listTimeline } from "@/lib/api/timeline"
+import { ApiError } from "@/lib/api-client"
 import { formatMoney } from "@/lib/costo-interno"
 import { cn } from "@/lib/utils"
 import { useOrgStore } from "@/store/org-store"
 import type { DashboardKPIs } from "@/types/dashboard"
 import type { TimelineEvento } from "@/types/timeline"
+import type { TvFinanciero } from "@/types/tv-financiero"
 
 const POLL_MS = 90_000
 const ROTACION_MS = 30_000
@@ -36,6 +39,8 @@ function formatHora(date: Date): string {
 export function TvPanelPage() {
   const organizacion = useOrgStore((state) => state.organizacion)
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
+  const [financiero, setFinanciero] = useState<TvFinanciero | null>(null)
+  const [contificoDisponible, setContificoDisponible] = useState(true)
   const [timeline, setTimeline] = useState<TimelineEvento[]>([])
   const [ultimaActualizacion, setUltimaActualizacion] = useState<Date | null>(null)
   const [segundosDesdeSync, setSegundosDesdeSync] = useState(0)
@@ -44,12 +49,28 @@ export function TvPanelPage() {
   const [cursorOculto, setCursorOculto] = useState(false)
 
   const cargar = useCallback(async () => {
-    const [kpiData, timelineData] = await Promise.all([
+    const [kpiResult, timelineResult, financieroResult] = await Promise.allSettled([
       getDashboardKpis(),
       listTimeline({ limit: 20 }),
+      getTvFinanciero(),
     ])
-    setKpis(kpiData)
-    setTimeline(timelineData)
+
+    if (kpiResult.status === "fulfilled") {
+      setKpis(kpiResult.value)
+    }
+    if (timelineResult.status === "fulfilled") {
+      setTimeline(timelineResult.value)
+    }
+    if (financieroResult.status === "fulfilled") {
+      setFinanciero(financieroResult.value)
+      setContificoDisponible(true)
+    } else {
+      const err = financieroResult.reason
+      if (err instanceof ApiError && err.status === 502) {
+        setContificoDisponible(false)
+      }
+    }
+
     setUltimaActualizacion(new Date())
   }, [])
 
@@ -195,6 +216,8 @@ export function TvPanelPage() {
               tone="bg-warning/15 text-warning"
             />
           </div>
+
+          <TvFinancieroFila datos={financiero} contificoDisponible={contificoDisponible} />
 
           <section className="min-h-0 flex-1 rounded-xl p-5 ring-1 ring-border">
             <div className="mb-4 flex items-baseline justify-between gap-2">
