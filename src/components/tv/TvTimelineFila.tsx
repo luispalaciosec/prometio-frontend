@@ -1,6 +1,7 @@
 import { TimelineEventoMark } from "@/components/timeline/TimelineEventoMark"
 import { formatMoney } from "@/lib/costo-interno"
 import { formatTimeOnly } from "@/lib/datetime-local"
+import { cn } from "@/lib/utils"
 import { CANAL_LABELS, type CanalConversacion } from "@/types/conversacion"
 import { TIPO_TIMELINE_LABELS, esTipoTimeline, type TimelineEvento } from "@/types/timeline"
 
@@ -55,17 +56,33 @@ function resumenDetalle(row: TimelineEvento): string | null {
   return partes.length > 0 ? partes.join(" · ") : null
 }
 
-export function TvTimelineFila({ row }: { row: TimelineEvento }) {
+export function TvTimelineFila({ row, compact = false }: { row: TimelineEvento; compact?: boolean }) {
   const resumen = resumenDetalle(row)
   const tipo = esTipoTimeline(row.tipo_evento) ? TIPO_TIMELINE_LABELS[row.tipo_evento] : row.tipo_evento
 
   return (
-    <div className="flex items-start gap-3 rounded-xl p-3 ring-1 ring-border/80">
-      <TimelineEventoMark row={row} size="md" />
+    <div
+      className={cn(
+        "flex items-start gap-2.5 rounded-lg ring-1 ring-border/80",
+        compact ? "p-2" : "gap-3 rounded-xl p-3",
+      )}
+    >
+      <TimelineEventoMark row={row} size={compact ? "sm" : "md"} />
       <div className="min-w-0 flex-1">
-        <p className="text-ui-medium">{tipo}</p>
-        {resumen ? <p className="mt-0.5 text-ui text-muted-foreground">{resumen}</p> : null}
-        <p className="mt-1 text-kicker text-muted-foreground">
+        <p className={cn("truncate", compact ? "text-micro font-medium text-foreground" : "text-ui-medium")}>
+          {tipo}
+        </p>
+        {resumen ? (
+          <p
+            className={cn(
+              "mt-0.5 text-muted-foreground",
+              compact ? "line-clamp-2 text-micro" : "text-ui",
+            )}
+          >
+            {resumen}
+          </p>
+        ) : null}
+        <p className={cn("mt-0.5 text-muted-foreground", compact ? "truncate text-micro" : "mt-1 text-kicker")}>
           {row.perfil_nombre} · {formatTimeOnly(row.created_at)}
         </p>
       </div>

@@ -170,13 +170,14 @@ export function TvPanelPage() {
 
       <div className="flex min-h-0 flex-1 flex-col gap-6 p-6 lg:flex-row">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <KpiCard
               title="Valor en juego"
               value={kpis ? formatMoney(kpis.valor_total_en_juego) : "—"}
               hint="Pipeline abierto"
               icon={CircleDollarSign}
               tone="bg-primary/15 text-primary"
+              density="tv"
             />
             <KpiCard
               title="Meta del mes"
@@ -188,6 +189,7 @@ export function TvPanelPage() {
               }
               icon={Target}
               tone="bg-success/15 text-success"
+              density="tv"
             />
             <KpiCard
               title="Conversión"
@@ -199,6 +201,7 @@ export function TvPanelPage() {
               }
               icon={Percent}
               tone="bg-highlight/15 text-highlight"
+              density="tv"
             />
             <KpiCard
               title="Oportunidades abiertas"
@@ -214,6 +217,7 @@ export function TvPanelPage() {
               hint="En etapas activas"
               icon={Columns3}
               tone="bg-warning/15 text-warning"
+              density="tv"
             />
           </div>
 
@@ -238,13 +242,13 @@ export function TvPanelPage() {
           </section>
         </div>
 
-        <aside className="flex w-full shrink-0 flex-col lg:w-[min(28rem,36vw)]">
-          <h2 className="mb-3 text-section">Actividad reciente</h2>
-          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-1">
+        <aside className="flex w-full shrink-0 flex-col lg:w-[min(17rem,19vw)]">
+          <h2 className="mb-2 text-kicker font-medium text-foreground">Actividad reciente</h2>
+          <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain">
             {timelineVisible.length === 0 ? (
-              <p className="text-kicker text-muted-foreground">Sin eventos recientes.</p>
+              <p className="text-micro text-muted-foreground">Sin eventos recientes.</p>
             ) : (
-              timelineVisible.map((row) => <TvTimelineFila key={row.id} row={row} />)
+              timelineVisible.map((row) => <TvTimelineFila key={row.id} row={row} compact />)
             )}
           </div>
         </aside>
