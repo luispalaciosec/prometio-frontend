@@ -101,7 +101,9 @@ export function WebhooksTab() {
           activo: draft.activo,
         })
         setOpen(false)
-        setSecretoNuevo(created.secreto)
+        if (created.secreto) {
+          setSecretoNuevo(created.secreto)
+        }
         toast.success("Webhook creado.")
       }
       await reload()
@@ -242,8 +244,9 @@ export function WebhooksTab() {
             <DialogTitle>Secreto del webhook</DialogTitle>
           </DialogHeader>
           <p className="text-kicker text-muted-foreground">
-            Copialo ahora. No se vuelve a mostrar en esta pantalla — usalo para verificar{" "}
-            <span className="font-mono text-micro">X-Prometio-Signature</span>.
+            {secretoNuevo
+              ? "Copialo ahora. No se vuelve a mostrar en esta pantalla — usalo para verificar X-Prometio-Signature."
+              : "El secreto HMAC se generó en el servidor. No es recuperable por API; si no lo guardaste al crear, eliminá el webhook y volvé a crearlo."}
           </p>
           {secretoNuevo ? <CopyBlock label="Secreto HMAC" value={secretoNuevo} /> : null}
           <DialogFooter>

@@ -7,9 +7,12 @@ export type OrganizacionWebhook = {
   organizacion_id: string
   evento: EventoWebhook
   url: string
-  /** Presente en la API; mostrar solo una vez al crear. */
-  secreto: string
   activo: boolean
+}
+
+/** POST 201 — el backend puede incluir `secreto` una sola vez al crear. */
+export type OrganizacionWebhookCreateResponse = OrganizacionWebhook & {
+  secreto?: string
 }
 
 export type OrganizacionWebhookCreate = {

@@ -4,13 +4,14 @@ import { useSearchParams } from "react-router-dom"
 import { AparienciaTab } from "@/components/formulario-web/AparienciaTab"
 import { CamposTab } from "@/components/formulario-web/CamposTab"
 import { EmbedTab } from "@/components/formulario-web/EmbedTab"
+import { MedicionTab } from "@/components/formulario-web/MedicionTab"
 import { WebhooksTab } from "@/components/formulario-web/WebhooksTab"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formularioDemoUrl } from "@/lib/formulario-web-urls"
 
-const TAB_IDS = ["embed", "campos", "apariencia", "webhooks"] as const
+const TAB_IDS = ["embed", "campos", "apariencia", "webhooks", "medicion"] as const
 type TabId = (typeof TAB_IDS)[number]
 
 function esTabId(value: string | null): value is TabId {
@@ -33,7 +34,7 @@ export function FormularioWebPage() {
     <>
       <PageHeader
         title="Formulario web"
-        description="Widget público para landings: snippet, campos, apariencia y webhooks."
+        description="Widget público: snippet, campos, apariencia, webhooks y medición."
         action={
           <Button type="button" variant="outline" asChild>
             <a href={formularioDemoUrl()} target="_blank" rel="noreferrer">
@@ -44,11 +45,12 @@ export function FormularioWebPage() {
         }
       />
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
+        <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="embed">Embed</TabsTrigger>
           <TabsTrigger value="campos">Campos</TabsTrigger>
           <TabsTrigger value="apariencia">Apariencia</TabsTrigger>
           <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+          <TabsTrigger value="medicion">Medición</TabsTrigger>
         </TabsList>
         <TabsContent value="embed">
           <EmbedTab />
@@ -61,6 +63,9 @@ export function FormularioWebPage() {
         </TabsContent>
         <TabsContent value="webhooks">
           <WebhooksTab />
+        </TabsContent>
+        <TabsContent value="medicion">
+          <MedicionTab />
         </TabsContent>
       </Tabs>
     </>

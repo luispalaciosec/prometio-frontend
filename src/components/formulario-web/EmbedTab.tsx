@@ -1,17 +1,10 @@
 import { ExternalLink } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
+import { useMemo } from "react"
 
 import { CopyBlock } from "@/components/conectores/CopyBlock"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { getFormularioMeta } from "@/lib/api/formulario-config"
 import {
   FORMULARIO_UTM_KEYS,
   HCAPTCHA_SITE_KEY,
@@ -23,12 +16,8 @@ import {
   formularioPostUrl,
   widgetScriptUrl,
 } from "@/lib/formulario-web-urls"
-import type { FormularioMeta } from "@/types/formulario-meta"
 
 export function EmbedTab() {
-  const [meta, setMeta] = useState<FormularioMeta | null>(null)
-  const [metaError, setMetaError] = useState<string | null>(null)
-
   const urls = useMemo(
     () => ({
       widget: widgetScriptUrl(),
@@ -40,14 +29,6 @@ export function EmbedTab() {
     }),
     [],
   )
-
-  useEffect(() => {
-    void getFormularioMeta()
-      .then(setMeta)
-      .catch((error: unknown) => {
-        setMetaError(error instanceof Error ? error.message : "No se pudo cargar el estado de hCaptcha.")
-      })
-  }, [])
 
   return (
     <div className="max-w-2xl space-y-8">
@@ -110,38 +91,20 @@ export function EmbedTab() {
         </p>
       </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-section">Protección hCaptcha</CardTitle>
-          <CardDescription className="text-kicker">
-            Site key pública en el widget; secret key solo en el servidor (Railway).
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-kicker">Site key (embebida en el widget)</p>
-            <p className="mt-1 break-all font-mono text-ui">{HCAPTCHA_SITE_KEY}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-kicker">Verificación server-side</p>
-            {meta == null && !metaError ? (
-              <span className="inline-block h-5 w-28 animate-pulse rounded-full bg-muted" aria-hidden />
-            ) : metaError ? (
-              <Badge variant="destructive">{metaError}</Badge>
-            ) : meta?.hcaptcha_secret_configurado ? (
-              <Badge variant="success">Activa</Badge>
-            ) : (
-              <Badge variant="warning">No configurada — POST rechaza 422</Badge>
-            )}
-          </div>
-          {!metaError && meta && !meta.hcaptcha_secret_configurado ? (
-            <p className="text-kicker text-muted-foreground">
-              Configurá <span className="font-mono text-micro">HCAPTCHA_SECRET_KEY</span> en el deploy del
-              backend para aceptar envíos reales.
-            </p>
-          ) : null}
-        </CardContent>
-      </Card>
+      <section className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+        <h2 className="text-section">hCaptcha</h2>
+        <p className="text-kicker">
+          Site key pública embebida en el widget. El secret key y el estado de Meta/GA4 están en{" "}
+          <Link
+            to="/configuracion/formulario-web?tab=medicion"
+            className="text-ui-medium underline-offset-4 hover:underline"
+          >
+            Medición
+          </Link>
+          .
+        </p>
+        <p className="break-all font-mono text-ui">{HCAPTCHA_SITE_KEY}</p>
+      </section>
     </div>
   )
 }
