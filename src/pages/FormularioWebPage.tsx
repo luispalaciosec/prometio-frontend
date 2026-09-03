@@ -1,8 +1,10 @@
 import { ExternalLink } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 
+import { AparienciaTab } from "@/components/formulario-web/AparienciaTab"
 import { CamposTab } from "@/components/formulario-web/CamposTab"
 import { EmbedTab } from "@/components/formulario-web/EmbedTab"
+import { WebhooksTab } from "@/components/formulario-web/WebhooksTab"
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -13,17 +15,6 @@ type TabId = (typeof TAB_IDS)[number]
 
 function esTabId(value: string | null): value is TabId {
   return TAB_IDS.includes(value as TabId)
-}
-
-function PlaceholderTab({ fase, titulo }: { fase: string; titulo: string }) {
-  return (
-    <div className="max-w-2xl rounded-xl p-6 ring-1 ring-border">
-      <p className="text-section">{titulo}</p>
-      <p className="mt-2 text-kicker text-muted-foreground">
-        {fase} — próximo corte de esta pantalla.
-      </p>
-    </div>
-  )
 }
 
 export function FormularioWebPage() {
@@ -66,10 +57,10 @@ export function FormularioWebPage() {
           <CamposTab />
         </TabsContent>
         <TabsContent value="apariencia">
-          <PlaceholderTab fase="Fase C" titulo="Apariencia del formulario" />
+          <AparienciaTab />
         </TabsContent>
         <TabsContent value="webhooks">
-          <PlaceholderTab fase="Fase D" titulo="Webhooks salientes" />
+          <WebhooksTab />
         </TabsContent>
       </Tabs>
     </>

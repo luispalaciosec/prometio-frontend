@@ -177,6 +177,13 @@ export function MarcaPage() {
         </section>
         <section className="space-y-4">
           <h2 className="text-section">Colores</h2>
+          <p className="text-kicker text-muted-foreground">
+            Logo y colores también alimentan el widget público del formulario web (
+            <a href="/configuracion/formulario-web?tab=apariencia" className="underline-offset-4 hover:underline">
+              textos y tipografía del formulario
+            </a>
+            ).
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <ColorField id="marca-primario" label="Color primario" value={primario} onChange={setPrimario} />
             <ColorField
