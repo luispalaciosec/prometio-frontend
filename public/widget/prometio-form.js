@@ -30,6 +30,17 @@
 
   const HEX6 = /^#[0-9A-Fa-f]{6}$/;
 
+  const TIPOGRAFIA = {
+    sistema: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
+    inter: '"Inter", ui-sans-serif, system-ui, sans-serif',
+    poppins: '"Poppins", ui-sans-serif, system-ui, sans-serif',
+  };
+
+  const FONT_LINKS = {
+    inter: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap",
+    poppins: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap",
+  };
+
   const CSS = `
     :host {
       display: block;
@@ -182,6 +193,29 @@
 
   function esHex(value) {
     return typeof value === "string" && HEX6.test(value.trim());
+  }
+
+  function cargarTipografia(tipo) {
+    const key = typeof tipo === "string" ? tipo.trim().toLowerCase() : "sistema";
+    if (key === "inter" || key === "poppins") {
+      const id = `prometio-font-${key}`;
+      if (!document.getElementById(id)) {
+        const link = document.createElement("link");
+        link.id = id;
+        link.rel = "stylesheet";
+        link.href = FONT_LINKS[key];
+        document.head.appendChild(link);
+      }
+    }
+    return TIPOGRAFIA[key] ?? TIPOGRAFIA.sistema;
+  }
+
+  function radioBordesPx(marca) {
+    const px = marca?.formulario_radio_bordes_px;
+    if (typeof px === "number" && Number.isFinite(px) && px >= 0) {
+      return `${px}px`;
+    }
+    return null;
   }
 
   function esUrlHttp(value) {
@@ -418,6 +452,10 @@
         typeof this.marca.formulario_texto_boton === "string" && this.marca.formulario_texto_boton.trim()
           ? escapeHtml(this.marca.formulario_texto_boton.trim())
           : "Enviar";
+      const tituloHtml =
+        typeof this.marca.formulario_titulo === "string" && this.marca.formulario_titulo.trim()
+          ? `<h2 class="titulo">${escapeHtml(this.marca.formulario_titulo.trim())}</h2>`
+          : "";
 
       this.shadowRoot.innerHTML = `
         <style>${CSS}</style>
@@ -425,6 +463,7 @@
           <div class="logo-wrap" hidden>
             <img class="logo" alt="" />
           </div>
+          ${tituloHtml}
           <p class="err" hidden></p>
           ${camposHtml}
           <div class="hp" aria-hidden="true">
@@ -454,6 +493,14 @@
       if (acento) {
         this.style.setProperty("--pf-acento", acento);
       }
+
+      const radio = radioBordesPx(marca);
+      if (radio) {
+        this.style.setProperty("--pf-radio", radio);
+      }
+
+      const fontFamily = cargarTipografia(marca.formulario_tipografia);
+      this.style.setProperty("--pf-font-family", fontFamily);
 
       const wrap = this.shadowRoot.querySelector(".logo-wrap");
       const img = this.shadowRoot.querySelector(".logo");
