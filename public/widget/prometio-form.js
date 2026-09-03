@@ -365,6 +365,12 @@
       if (data && typeof data.detail === "string" && data.detail.trim()) {
         return data.detail.trim();
       }
+      if (data && Array.isArray(data.detail) && data.detail.length > 0) {
+        const first = data.detail[0];
+        if (first && typeof first.msg === "string" && first.msg.trim()) {
+          return first.msg.trim();
+        }
+      }
     } catch {
       /* cuerpo no JSON */
     }
