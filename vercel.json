@@ -1,3 +1,6 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/formulario-demo", "destination": "/formulario-demo/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

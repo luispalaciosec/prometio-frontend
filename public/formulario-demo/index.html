@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Geeks Ecuador — Demo formulario web</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #0d2030;
+        --muted: #5c6b78;
+        --border: #d8e0e6;
+        --surface: #ffffff;
+        --canvas: #f6f8fa;
+        --accent: #05729f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: var(--canvas);
+        color: var(--ink);
+        line-height: 1.5;
+      }
+      header {
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+      }
+      .wrap {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      .brand {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+      h1 {
+        margin: 0.35rem 0 0.5rem;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .lead {
+        margin: 0;
+        max-width: 36rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      main {
+        padding: 1.5rem 0 3rem;
+      }
+      .grid {
+        display: grid;
+        gap: 1.25rem;
+      }
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+          align-items: start;
+        }
+      }
+      .panel {
+        padding: 1rem 1.1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        background: var(--surface);
+      }
+      .panel h2 {
+        margin: 0 0 0.65rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      .panel p,
+      .panel li {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.8125rem;
+      }
+      .panel ul {
+        margin: 0.5rem 0 0;
+        padding-left: 1.1rem;
+      }
+      .panel li + li {
+        margin-top: 0.35rem;
+      }
+      .utm-list {
+        margin: 0.65rem 0 0;
+        padding: 0;
+        list-style: none;
+      }
+      .utm-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8125rem;
+      }
+      .utm-list li:last-child {
+        border-bottom: 0;
+      }
+      .utm-list code {
+        color: var(--ink);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.75rem;
+        word-break: break-all;
+      }
+      .utm-empty {
+        color: var(--muted);
+        font-size: 0.8125rem;
+      }
+      .links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        margin-top: 0.75rem;
+      }
+      .links a {
+        color: var(--accent);
+        font-size: 0.8125rem;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+      .footnote {
+        margin-top: 1rem;
+        color: var(--muted);
+        font-size: 0.75rem;
+      }
+      code.inline {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.78rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <p class="brand">Geeks Ecuador</p>
+        <h1>Transformá tu operación digital</h1>
+        <p class="lead">
+          Landing de prueba pública. El formulario de abajo usa el mismo snippet que se copia desde
+          prometIO → Configuración → Formulario web.
+        </p>
+      </div>
+    </header>
+    <main>
+      <div class="wrap grid">
+        <section aria-label="Formulario embebido">
+          <!-- Snippet real (FormularioWebPage) -->
+          <script src="https://prometio.vercel.app/widget/prometio-form.js"></script>
+          <prometio-formulario
+            api="https://prometio-backend-production.up.railway.app/formulario"
+          ></prometio-formulario>
+        </section>
+        <aside class="panel" aria-label="Parámetros UTM de la URL">
+          <h2>UTM en esta URL</h2>
+          <p>
+            El widget lee la query al enviar. Abrí esta misma página con parámetros para probar de
+            punta a punta.
+          </p>
+          <ul class="utm-list" id="utm-list"></ul>
+          <p class="utm-empty" id="utm-empty" hidden>Sin parámetros UTM en la URL actual.</p>
+          <div class="links">
+            <a id="link-google" href="#">Probar ?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=prueba</a>
+            <a id="link-meta" href="#">Probar ?utm_source=meta&amp;utm_medium=paid&amp;utm_campaign=abril&amp;gclid=demo-123</a>
+          </div>
+          <p class="footnote">
+            Ejemplo completo:
+            <code class="inline">/formulario-demo?utm_source=google&amp;utm_medium=cpc&amp;utm_campaign=prueba</code>
+          </p>
+        </aside>
+      </div>
+    </main>
+    <script>
+      const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "fclid", "gclid"]
+
+      function renderUtmPanel() {
+        const params = new URLSearchParams(window.location.search)
+        const list = document.getElementById("utm-list")
+        const empty = document.getElementById("utm-empty")
+        list.replaceChildren()
+
+        let found = false
+        for (const key of UTM_KEYS) {
+          const value = params.get(key)
+          if (!value) {
+            continue
+          }
+          found = true
+          const item = document.createElement("li")
+          const label = document.createElement("span")
+          label.textContent = key
+          const code = document.createElement("code")
+          code.textContent = value
+          item.append(label, code)
+          list.append(item)
+        }
+
+        empty.hidden = found
+      }
+
+      function demoUrl(extra) {
+        const url = new URL(window.location.href)
+        url.search = extra
+        return url.toString()
+      }
+
+      document.getElementById("link-google").href = demoUrl(
+        "utm_source=google&utm_medium=cpc&utm_campaign=prueba",
+      )
+      document.getElementById("link-meta").href = demoUrl(
+        "utm_source=meta&utm_medium=paid&utm_campaign=abril&gclid=demo-123",
+      )
+
+      renderUtmPanel()
+    </script>
+  </body>
+</html>
