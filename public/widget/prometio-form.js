@@ -291,6 +291,14 @@
     }
   }
 
+  function htmlNombreCompleto() {
+    return `
+      <div class="campo">
+        <label for="pf-nombre_completo">Nombre completo <span class="req">*</span></label>
+        <input id="pf-nombre_completo" name="nombre_completo" type="text" required autocomplete="name" />
+      </div>`;
+  }
+
   function htmlCampo(def) {
     const id = `pf-${def.clave}`;
     const reqAttr = def.requerido ? " required" : "";
@@ -335,11 +343,15 @@
     const body = {
       honeypot: vacioANull(form.elements.namedItem("honeypot")?.value),
       hcaptcha_token: hcaptchaToken,
+      nombre_completo: vacioANull(form.elements.namedItem("nombre_completo")?.value),
       ...leerUtms(),
     };
     const camposCustom = {};
 
     for (const def of campos) {
+      if (def.clave === "nombre_completo") {
+        continue;
+      }
       const el = form.elements.namedItem(def.clave);
       if (!el) {
         continue;
@@ -552,7 +564,10 @@
         return;
       }
 
-      this.campos = campos.slice().sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
+      this.campos = campos
+        .filter((def) => def.clave !== "nombre_completo")
+        .slice()
+        .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0));
 
       this.marca = {};
       if (marcaResult.status === "fulfilled" && marcaResult.value.ok) {
@@ -605,6 +620,7 @@
           </div>
           ${tituloHtml}
           <p class="err" hidden></p>
+          ${htmlNombreCompleto()}
           ${camposHtml}
           <div class="hp" aria-hidden="true">
             <label for="prometio-hp">Sitio web</label>
@@ -659,6 +675,11 @@
     }
 
     validarRequeridos(form) {
+      const nombre = form.elements.namedItem("nombre_completo");
+      if (!nombre || !String(nombre.value ?? "").trim()) {
+        return "El nombre completo es obligatorio.";
+      }
+
       for (const def of this.campos) {
         if (!def.requerido) {
           continue;
