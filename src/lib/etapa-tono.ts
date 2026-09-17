@@ -36,10 +36,10 @@ export function claseCuerpoEtapa(codigo: EtapaPipelineCodigo, isOver: boolean): 
   const tono = tonoEtapa(codigo)
   return cn(
     "border border-border/80",
-    tono === "temprana" && "bg-primary/5",
-    tono === "media" && "bg-warning/5",
-    tono === "ganado" && "bg-success/5",
-    tono === "perdido" && "bg-destructive/5",
-    isOver && "border-primary/35 bg-muted/50",
+    tono === "temprana" && "border-primary/15 bg-primary/10",
+    tono === "media" && "border-warning/20 bg-warning/10",
+    tono === "ganado" && "border-success/20 bg-success/10",
+    tono === "perdido" && "border-destructive/20 bg-destructive/10",
+    isOver && "border-primary/40 bg-primary/5",
   )
 }

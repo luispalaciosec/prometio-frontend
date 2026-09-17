@@ -18,7 +18,8 @@ export function PageHeader({
       <div className="flex min-w-0 items-center gap-3">
         {leading}
         <div className="min-w-0 space-y-1">
-          <h1 className="text-page break-words">{title}</h1>
+          <div className="mb-0.5 h-1 w-11 rounded-full bg-linear-to-r from-primary to-highlight" aria-hidden />
+          <h1 className="text-page break-words tracking-tight">{title}</h1>
           {description ? (
             typeof description === "string" ? (
               <p className="text-kicker">{description}</p>

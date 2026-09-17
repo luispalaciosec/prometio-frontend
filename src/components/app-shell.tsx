@@ -88,7 +88,7 @@ export function AppShell() {
 
       <main
         className={cn(
-          "min-h-0 min-w-0 flex-1",
+          "min-h-0 min-w-0 flex-1 bg-background",
           isBandeja ? "flex flex-col overflow-hidden" : "overflow-y-auto overscroll-contain",
         )}
       >

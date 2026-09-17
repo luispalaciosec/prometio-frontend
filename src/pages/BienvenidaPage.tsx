@@ -95,7 +95,7 @@ function SugerenciasCard() {
   return (
     <section className="surface-card p-5">
       <div className="flex items-start gap-4">
-        <KindMark icon={Sparkles} tone="bg-muted text-muted-foreground" size="lg" />
+        <KindMark icon={Sparkles} tone="bg-highlight/15 text-highlight" size="lg" />
         <div className="min-w-0 space-y-2">
           <p className="text-ui-medium">Sugerencias</p>
           <Badge variant="outline">Próximamente</Badge>
