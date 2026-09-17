@@ -87,7 +87,7 @@ export function TvActividadReciente({ eventos }: { eventos: TimelineEvento[] }) 
       {visibles.length === 0 ? (
         <p className="text-micro text-muted-foreground">Sin eventos recientes.</p>
       ) : (
-        <ul className="flex min-h-0 flex-1 flex-col justify-between overflow-hidden rounded-xl bg-muted/20 px-3 py-2 ring-1 ring-border">
+        <ul className="surface-card flex min-h-0 flex-1 flex-col justify-between overflow-hidden px-3 py-2">
           {visibles.map((row) => (
             <li
               key={row.id}

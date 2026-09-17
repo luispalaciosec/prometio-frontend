@@ -353,7 +353,7 @@ export function MedicionTab() {
           </div>
         ) : (
           <>
-            <div className="space-y-4 rounded-xl p-4 ring-1 ring-border">
+            <div className="space-y-4 surface-card p-4">
               <h3 className="text-ui-medium">Meta Conversions API</h3>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="meta-pixel">Pixel ID</Label>
@@ -391,7 +391,7 @@ export function MedicionTab() {
               </Button>
             </div>
 
-            <div className="space-y-4 rounded-xl p-4 ring-1 ring-border">
+            <div className="space-y-4 surface-card p-4">
               <h3 className="text-ui-medium">Google Analytics 4 (Measurement Protocol)</h3>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="ga4-id">Measurement ID</Label>

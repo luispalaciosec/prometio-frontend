@@ -77,7 +77,7 @@ function BloqueCard({ bloque }: { bloque: Bloque }) {
   return (
     <Link
       to={bloque.to}
-      className="rounded-xl p-5 ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20"
+      className="surface-interactive p-5"
     >
       <div className="flex items-start gap-4">
         <KindMark icon={bloque.icon} tone={bloque.tone} size="lg" />
@@ -93,7 +93,7 @@ function BloqueCard({ bloque }: { bloque: Bloque }) {
 
 function SugerenciasCard() {
   return (
-    <section className="rounded-xl p-5 ring-1 ring-border">
+    <section className="surface-card p-5">
       <div className="flex items-start gap-4">
         <KindMark icon={Sparkles} tone="bg-muted text-muted-foreground" size="lg" />
         <div className="min-w-0 space-y-2">

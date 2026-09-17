@@ -30,8 +30,7 @@ export function OportunidadCard({
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "rounded-xl bg-card p-3 ring-1 ring-border transition-shadow duration-150",
-        "shadow-raised hover:ring-foreground/20",
+        "surface-interactive p-3",
         isDragging && "z-10 opacity-70",
       )}
     >

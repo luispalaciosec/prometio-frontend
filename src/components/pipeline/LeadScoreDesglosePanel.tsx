@@ -23,7 +23,7 @@ export function LeadScoreDesglosePanel({
   desglose: LeadScoreDesglose
 }) {
   return (
-    <section className="space-y-4 rounded-xl p-4 ring-1 ring-border">
+    <section className="space-y-4 surface-card p-4">
       <div className="flex flex-wrap items-center gap-3">
         <div>
           <h3 className="text-section">Lead score</h3>

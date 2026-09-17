@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { BrandSurface } from "@/components/brand-surface"
 import { PrometioLogo } from "@/components/prometio-logo"
 import { PageHeader } from "@/components/page-header"
 import { DetailSkeleton } from "@/components/skeleton"
@@ -13,7 +14,7 @@ import {
   uploadLogoOrganizacion,
   uploadLogoOscuroOrganizacion,
 } from "@/lib/api/organizacion"
-import { applyOrganizationTheme, readThemeHex } from "@/lib/theme"
+import { applyOrganizationBrandTheme, readThemeHex } from "@/lib/theme"
 import { useOrgStore } from "@/store/org-store"
 import type { Organizacion } from "@/types/organizacion"
 
@@ -49,7 +50,7 @@ export function MarcaPage() {
     setTerciario(row.color_terciario ?? "")
     setCuaternario(row.color_cuaternario ?? "")
     setOrganizacion(row)
-    applyOrganizationTheme({
+    applyOrganizationBrandTheme({
       primary: row.color_primario,
       secondary: row.color_secundario,
       tertiary: row.color_terciario,
@@ -65,6 +66,18 @@ export function MarcaPage() {
       })
       .finally(() => setCargando(false))
   }, [])
+
+  useEffect(() => {
+    if (cargando && !org) {
+      return
+    }
+    applyOrganizationBrandTheme({
+      primary: HEX.test(primario) ? primario : (org?.color_primario ?? null),
+      secondary: HEX.test(secundario) ? secundario : (org?.color_secundario ?? null),
+      tertiary: HEX.test(terciario) ? terciario : (org?.color_terciario ?? null),
+      quaternary: HEX.test(cuaternario) ? cuaternario : (org?.color_cuaternario ?? null),
+    })
+  }, [primario, secundario, terciario, cuaternario, org, cargando])
 
   async function guardar() {
     const colores: [string, string][] = [
@@ -124,7 +137,7 @@ export function MarcaPage() {
     <>
       <PageHeader
         title="Marca"
-        description="Logo, colores y contacto de la organización. Se aplican en toda la app."
+        description="Logo y colores para cotizaciones PDF, documentos generados y formulario web. La interfaz del CRM usa el theme app (Stripe); estos colores no la tiñen."
       />
       {cargando && !org ? (
         <DetailSkeleton />
@@ -133,12 +146,12 @@ export function MarcaPage() {
         <section className="space-y-3">
           <h2 className="text-section">Logo</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-xl bg-background p-6 ring-1 ring-border">
+            <div className="surface-card p-6">
               <p className="mb-4 text-kicker">Sobre claro</p>
               <PrometioLogo className="h-8 w-auto" />
             </div>
-            <div className="rounded-xl bg-sidebar p-6">
-              <p className="mb-4 text-kicker text-sidebar-foreground/60">Sobre oscuro (sidebar)</p>
+            <div className="surface-card bg-[var(--brand-sidebar)] p-6">
+              <p className="mb-4 text-kicker text-white/70">Sobre oscuro (PDF / header)</p>
               <PrometioLogo onDark className="h-8 w-auto" />
             </div>
           </div>
@@ -191,23 +204,39 @@ export function MarcaPage() {
               label="Color secundario"
               value={secundario}
               onChange={setSecundario}
-              fallbackToken="--secondary"
+              fallbackToken="--brand-secondary"
             />
             <ColorField
               id="marca-terciario"
               label="Color terciario"
               value={terciario}
               onChange={setTerciario}
-              fallbackToken="--highlight"
+              fallbackToken="--brand-highlight"
             />
             <ColorField
               id="marca-cuaternario"
               label="Color cuaternario"
               value={cuaternario}
               onChange={setCuaternario}
-              fallbackToken="--sidebar"
+              fallbackToken="--brand-sidebar"
             />
           </div>
+        </section>
+        <section className="space-y-3">
+          <h2 className="text-section">Vista previa entregables</h2>
+          <p className="text-kicker text-muted-foreground">
+            Botón y acentos en PDF de cotización y formulario web. La interfaz del CRM no usa estos colores.
+          </p>
+          <BrandSurface className="surface-card max-w-md space-y-4 p-6">
+            <div className="rounded-lg bg-[var(--brand-sidebar)] px-4 py-3">
+              <PrometioLogo onDark className="h-7 w-auto" />
+            </div>
+            <div>
+              <p className="text-kicker text-muted-foreground">Total propuesta</p>
+              <p className="text-page tabular-nums">$12.450,00</p>
+            </div>
+            <Button type="button">Aceptar cotización</Button>
+          </BrandSurface>
         </section>
         <section className="space-y-4">
           <h2 className="text-section">Contacto</h2>
@@ -256,13 +285,13 @@ function ColorField({
   label,
   value,
   onChange,
-  fallbackToken = "--primary",
+  fallbackToken = "--brand-primary",
 }: {
   id: string
   label: string
   value: string
   onChange: (value: string) => void
-  fallbackToken?: "--primary" | "--secondary" | "--highlight" | "--sidebar"
+  fallbackToken?: "--brand-primary" | "--brand-secondary" | "--brand-highlight" | "--brand-sidebar"
 }) {
   const picker = HEX.test(value) ? value : readThemeHex(fallbackToken)
   return (

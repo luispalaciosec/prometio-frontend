@@ -34,11 +34,11 @@ export function CopyBlock({
         </Button>
       </div>
       {multiline ? (
-        <pre className="overflow-x-auto rounded-xl p-3 font-mono text-micro ring-1 ring-border">
+        <pre className="overflow-x-auto rounded-xl p-3 font-mono text-micro">
           {value}
         </pre>
       ) : (
-        <p className="break-all rounded-xl p-3 font-mono text-micro ring-1 ring-border">{value}</p>
+        <p className="break-all rounded-xl p-3 font-mono text-micro">{value}</p>
       )}
     </div>
   )

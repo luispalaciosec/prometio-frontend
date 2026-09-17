@@ -95,7 +95,7 @@ function CwvMetrica({
 function CwvTarjeta({ row, estrategia }: { row: SeoCoreWebVitals | null; estrategia: "mobile" | "desktop" }) {
   if (!row) {
     return (
-      <article className="rounded-xl p-4 ring-1 ring-border">
+      <article className="surface-card p-4">
         <p className="text-ui-medium">{SEO_ESTRATEGIA_LABELS[estrategia]}</p>
         <p className="mt-1 text-kicker">Sin medición en esta fuente.</p>
       </article>
@@ -105,7 +105,7 @@ function CwvTarjeta({ row, estrategia }: { row: SeoCoreWebVitals | null; estrate
   const lab = row.fuente === "laboratorio"
 
   return (
-    <article className="rounded-xl p-4 ring-1 ring-border">
+    <article className="surface-card p-4">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-ui-medium">{SEO_ESTRATEGIA_LABELS[row.estrategia]}</p>
         <p className="text-micro">{formatDateTime(row.created_at)}</p>
@@ -320,7 +320,7 @@ export function SeoPage() {
                     ["No verificables", resumen.enlaces_no_verificables],
                   ] as const
                 ).map(([label, value]) => (
-                  <article key={label} className="rounded-xl p-3 ring-1 ring-border">
+                  <article key={label} className="surface-card p-3">
                     <p className="text-micro">{label}</p>
                     <p className="mt-1 text-ui-medium tabular-nums">{value}</p>
                   </article>

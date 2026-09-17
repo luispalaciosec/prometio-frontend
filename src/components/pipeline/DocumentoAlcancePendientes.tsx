@@ -20,14 +20,14 @@ export function DocumentoAlcancePendientes({ filas }: { filas: DocumentoAlcanceP
   }
 
   return (
-    <section className="mb-8 rounded-xl p-4 ring-1 ring-border">
+    <section className="mb-8 surface-card p-4">
       <h2 className="text-section">Documentos pendientes de aprobación</h2>
       <p className="mt-1 text-kicker">Alcance en espera de un supervisor o admin.</p>
       <ul className="mt-4 space-y-2">
         {filas.map((fila) => (
           <li
             key={fila.documento.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2 ring-1 ring-border"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2"
           >
             <div className="min-w-0">
               <p className="text-ui-medium">

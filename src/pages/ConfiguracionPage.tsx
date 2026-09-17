@@ -38,7 +38,7 @@ export function ConfiguracionPage() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className="rounded-xl p-4 ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20"
+                  className="surface-interactive p-4"
                 >
                   <p className="text-ui-medium">{item.label}</p>
                   <p className="mt-1 text-kicker">{item.body}</p>
@@ -56,7 +56,7 @@ export function ConfiguracionPage() {
             href={resendUrl}
             target="_blank"
             rel="noreferrer"
-            className="block rounded-xl p-4 ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20 sm:max-w-md"
+            className="block surface-interactive p-4 sm:max-w-md"
           >
             <p className="text-ui-medium">Resend</p>
             <p className="mt-1 text-kicker">

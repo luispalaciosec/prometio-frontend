@@ -1,5 +1,15 @@
 # prometIO — Guía de UI por pantalla
 
+## Theming (ADR-022)
+
+| Capa | Variables | Origen |
+|------|-----------|--------|
+| **App CRM** | `--primary`, `--sidebar`, `--foreground`, … | Defaults Stripe-inspired en `src/index.css` |
+| **Marca / entregables** | `--brand-primary`, `--brand-secondary`, `--brand-highlight`, `--brand-sidebar` | `organizacion` vía `applyOrganizationBrandTheme()` |
+| **Logo** | assets API | `logo_url`, `logo_url_oscuro` — siempre org |
+
+Previews de cotización/documento en UI: envolver con `BrandSurface` (`className="brand-surface"`). PDFs los genera el backend con los mismos colores de org.
+
 ## Pipeline de Ventas (Fase 1)
 - Vista Kanban arrastrable, 9 columnas (etapas fijas, ver `DATA_MODEL.md` del backend)
 - Cada tarjeta de oportunidad muestra: contacto, empresa, ejecutivo, valor (etiquetado estimado/cotizado), días en la etapa actual

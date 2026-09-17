@@ -84,7 +84,7 @@ export function SaludPage() {
             return (
               <article
                 key={servicio.nombre}
-                className="flex items-start gap-4 rounded-xl p-5 ring-1 ring-border"
+                className="flex items-start gap-4 surface-card p-5"
               >
                 <KindMark icon={visual.icon} tone={visual.tone} size="lg" />
                 <div className="min-w-0">
@@ -126,10 +126,10 @@ function SaludResumen({ servicios }: { servicios: SaludSistema["servicios"] }) {
   return (
     <div
       className={cn(
-        "rounded-xl p-5 ring-1",
-        tono === "ok" && "bg-success/10 ring-success/30",
-        tono === "down" && "bg-destructive/10 ring-destructive/30",
-        tono === "warn" && "bg-warning/10 ring-warning/30",
+        "rounded-xl border p-5",
+        tono === "ok" && "border-success/30 bg-success/10",
+        tono === "down" && "border-destructive/30 bg-destructive/10",
+        tono === "warn" && "border-warning/30 bg-warning/10",
       )}
     >
       <p

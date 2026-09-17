@@ -18,27 +18,31 @@ function aplicarToken(name: `--${string}`, value: string | null | undefined) {
 }
 
 /**
- * Aplica colores de marca de GET /organizacion.
- * primario → --primary, secundario → --secondary,
- * terciario → --highlight, cuaternario → --sidebar.
- * Defaults en index.css (paleta D). Sin hex en componentes.
+ * Colores de entregables (PDF cotización, documentos, widget vía API).
+ * No pisan la UI del CRM — ver ADR-022.
  */
-export function applyOrganizationTheme(colors: {
+export function applyOrganizationBrandTheme(colors: {
   primary?: string | null
   secondary?: string | null
   tertiary?: string | null
   quaternary?: string | null
 }) {
-  aplicarToken("--primary", colors.primary)
-  aplicarToken("--secondary", colors.secondary)
-  aplicarToken("--highlight", colors.tertiary)
-  aplicarToken("--sidebar", colors.quaternary)
+  aplicarToken("--brand-primary", colors.primary)
+  aplicarToken("--brand-secondary", colors.secondary)
+  aplicarToken("--brand-highlight", colors.tertiary)
+  aplicarToken("--brand-sidebar", colors.quaternary)
 }
 
-export function clearOrganizationTheme() {
+export function clearOrganizationBrandTheme() {
   const root = document.documentElement
-  root.style.removeProperty("--primary")
-  root.style.removeProperty("--secondary")
-  root.style.removeProperty("--highlight")
-  root.style.removeProperty("--sidebar")
+  root.style.removeProperty("--brand-primary")
+  root.style.removeProperty("--brand-secondary")
+  root.style.removeProperty("--brand-highlight")
+  root.style.removeProperty("--brand-sidebar")
 }
+
+/** @deprecated Usar applyOrganizationBrandTheme */
+export const applyOrganizationTheme = applyOrganizationBrandTheme
+
+/** @deprecated Usar clearOrganizationBrandTheme */
+export const clearOrganizationTheme = clearOrganizationBrandTheme

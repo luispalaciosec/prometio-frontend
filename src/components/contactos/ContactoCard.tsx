@@ -18,7 +18,7 @@ export function ContactoCard({
     <button
       type="button"
       onClick={onOpen}
-      className="rounded-xl p-4 text-left ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20"
+      className="surface-interactive block p-4 text-left"
     >
       <div className="flex items-start gap-3">
         <EntityAvatar

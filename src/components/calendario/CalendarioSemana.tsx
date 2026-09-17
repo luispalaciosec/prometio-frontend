@@ -8,7 +8,7 @@ const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "
 export function CalendarioSemana({ celdas }: { celdas: CeldaCalendario[] }) {
   return (
     <div className="overflow-x-auto">
-      <div className="grid min-w-[52rem] grid-cols-7 gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border">
+      <div className="grid min-w-[52rem] grid-cols-7 gap-px overflow-hidden rounded-xl bg-border">
         {celdas.map((celda, index) => (
           <div
             key={celda.iso}

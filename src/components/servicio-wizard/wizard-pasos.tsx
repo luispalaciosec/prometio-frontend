@@ -388,7 +388,7 @@ export function PasoFases({
   return (
     <div className="space-y-4">
       {fases.map((fase, index) => (
-        <div key={index} className="grid gap-3 rounded-lg p-3 ring-1 ring-foreground/10 sm:grid-cols-3">
+        <div key={index} className="surface-muted grid gap-3 p-3 sm:grid-cols-3">
           <div className="flex flex-col gap-2">
             <Label>Nombre de la fase</Label>
             <Input

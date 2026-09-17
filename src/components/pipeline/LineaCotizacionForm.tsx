@@ -173,7 +173,7 @@ export function LineaCotizacionForm({
 
   return (
     <form
-      className="grid gap-3 rounded-lg p-3 ring-1 ring-foreground/10"
+      className="surface-muted grid gap-3 p-3"
       onSubmit={(event) => {
         event.preventDefault()
         submit()

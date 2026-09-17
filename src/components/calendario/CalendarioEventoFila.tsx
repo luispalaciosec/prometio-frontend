@@ -58,13 +58,13 @@ export function CalendarioEventoFila({
 
   if (dest) {
     return (
-      <Link to={dest} className="block rounded-xl p-3 ring-1 ring-border transition-colors hover:bg-muted/50">
+      <Link to={dest} className="block surface-card p-3 transition-colors hover:bg-muted/50">
         {cuerpo}
       </Link>
     )
   }
 
-  return <div className="rounded-xl p-3 ring-1 ring-border">{cuerpo}</div>
+  return <div className="surface-card p-3">{cuerpo}</div>
 }
 
 export function CalendarioEventoChip({ evento }: { evento: EventoCalendario }) {

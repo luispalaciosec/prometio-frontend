@@ -225,7 +225,7 @@ export function ConvertirContactoDialog({
             ) : resultados.length === 0 ? (
               <p className="text-kicker">Ningún contacto coincide.</p>
             ) : (
-              <ul className="max-h-40 overflow-y-auto rounded-xl ring-1 ring-border">
+              <ul className="max-h-40 overflow-y-auto surface-card">
                 {resultados.map((row) => (
                   <li key={row.id}>
                     <button

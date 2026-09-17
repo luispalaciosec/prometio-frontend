@@ -88,7 +88,7 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <NavLink to="/" className="shrink-0 px-1" onClick={onNavigate}>
-        <PrometioLogo onDark className="h-7 w-auto" />
+        <PrometioLogo className="h-7 w-auto" />
       </NavLink>
       <nav className="mt-6 min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {isVentas ? (

@@ -83,7 +83,7 @@ export function ActividadLista({
         const pendiente = actividad.programada_para != null && actividad.reportada_en == null
 
         return (
-          <li key={actividad.id} className="rounded-xl p-3 ring-1 ring-border">
+          <li key={actividad.id} className="surface-card p-3">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">

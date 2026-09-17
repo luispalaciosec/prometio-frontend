@@ -62,10 +62,7 @@ function TileCard({ tile }: { tile: Tile }) {
     </div>
   )
 
-  const clase = cn(
-    "rounded-xl p-5 ring-1 ring-border",
-    tile.to && "transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20",
-  )
+  const clase = cn("p-5", tile.to ? "surface-interactive" : "surface-card")
 
   if (!tile.to) {
     return <div className={clase}>{body}</div>

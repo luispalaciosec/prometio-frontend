@@ -103,13 +103,13 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-svh flex-col items-center justify-center bg-background px-4">
+    <div className="relative flex min-h-svh flex-col items-center justify-center bg-muted/40 px-4">
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
 
-      <Card className="w-full max-w-sm border-0 bg-transparent shadow-none ring-0">
-        <CardHeader className="gap-2 px-0">
+      <Card className="w-full max-w-sm bg-card">
+        <CardHeader className="gap-2">
           <PrometioLogo className="mb-1" />
           <CardTitle className="font-heading text-2xl tracking-tight">
             Iniciar sesión
@@ -118,7 +118,7 @@ export function LoginPage() {
             Accede con tu correo de Geeks o con Google.
           </CardDescription>
         </CardHeader>
-        <CardContent className="px-0">
+        <CardContent>
           <form className="flex flex-col gap-4" onSubmit={handlePasswordSignIn}>
             <div className="flex flex-col gap-2">
               <Label htmlFor="email">Correo</Label>

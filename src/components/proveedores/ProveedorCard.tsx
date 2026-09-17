@@ -45,7 +45,7 @@ export function ProveedorCard({
   const tags = proveedor.servicios ?? []
 
   return (
-    <div className="rounded-xl p-4 ring-1 ring-border transition-shadow duration-150 hover:shadow-raised hover:ring-foreground/20">
+    <div className="surface-interactive p-4">
       <button type="button" onClick={onOpen} className="flex w-full items-start gap-3 text-left">
         <EntityAvatar name={proveedor.nombre} seed={proveedor.id} kind="empresa" size="md" />
         <div className="min-w-0 flex-1">

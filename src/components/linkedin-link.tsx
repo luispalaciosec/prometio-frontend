@@ -38,7 +38,7 @@ export function LinkedInLink({
         "inline-flex shrink-0 items-center gap-1.5",
         compact
           ? "rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-primary"
-          : "rounded-md px-2 py-1 text-sm font-medium text-primary ring-1 ring-border hover:bg-muted",
+          : "rounded-md px-2 py-1 text-sm font-medium text-primary hover:bg-muted",
         className,
       )}
       onClick={(event) => event.stopPropagation()}

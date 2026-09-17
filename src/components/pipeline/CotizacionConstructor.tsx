@@ -134,7 +134,7 @@ export function CotizacionConstructor({
         requiereDocumento={cotizacion.requiere_documento_alcance === true}
         documentos={documentos}
       />
-      <div className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+      <div className="space-y-3 surface-card p-4">
         <div>
           <p className="text-ui-medium">Cambiar estado</p>
           <p className="mt-1 text-kicker">
@@ -194,7 +194,7 @@ export function CotizacionConstructor({
           return (
             <li
               key={linea.id}
-              className="flex flex-wrap items-start justify-between gap-2 rounded-lg p-3 ring-1 ring-foreground/10"
+              className="surface-muted flex flex-wrap items-start justify-between gap-2 p-3"
             >
               <div>
                 <p className="text-ui-medium">{servicio?.nombre ?? linea.servicio_id}</p>

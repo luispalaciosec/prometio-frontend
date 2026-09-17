@@ -52,7 +52,7 @@ export function CumpleanosPage() {
             <li key={row.contacto_id}>
               <Link
                 to={`/contactos/${row.contacto_id}`}
-                className="flex items-start gap-4 rounded-xl p-5 ring-1 ring-success/25 transition-shadow duration-150 hover:shadow-raised"
+                className="surface-interactive flex items-start gap-4 p-5 border-success/25"
               >
                 <KindMark icon={Cake} tone="bg-success/15 text-success" size="lg" />
                 <div className="min-w-0">

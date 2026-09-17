@@ -227,7 +227,7 @@ export function EmpresaPage() {
             <h3 className="text-ui-medium">Resultados Google</h3>
             <ul className="space-y-2">
               {google.map((item, index) => (
-                <li key={`${item.url ?? "g"}-${index}`} className="rounded-xl p-3 ring-1 ring-border">
+                <li key={`${item.url ?? "g"}-${index}`} className="surface-card p-3">
                   {item.url ? (
                     <a
                       href={item.url}

@@ -36,7 +36,7 @@ export function PipelineColumn({
       <div
         ref={setNodeRef}
         className={cn(
-          "flex min-h-40 flex-1 flex-col gap-2 rounded-xl p-2 ring-1 transition-colors duration-150",
+          "flex min-h-40 flex-1 flex-col gap-2 rounded-xl p-2 transition-colors duration-150",
           claseCuerpoEtapa(etapa.codigo, isOver),
         )}
       >

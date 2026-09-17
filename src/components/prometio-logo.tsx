@@ -31,14 +31,15 @@ export function PrometioLogo({
           className="size-7 shrink-0"
           aria-hidden
         >
-          <rect width="28" height="28" rx="7" fill="#05729f" />
+          <rect width="28" height="28" rx="7" className="fill-primary" />
           <path
             d="M8 18.5c3.2-6 8.8-6 12 0"
-            stroke="#05c7e8"
+            className="stroke-highlight"
             strokeWidth="2.2"
             strokeLinecap="round"
+            fill="none"
           />
-          <circle cx="14" cy="11" r="2.2" fill="#ffffff" />
+          <circle cx="14" cy="11" r="2.2" className="fill-primary-foreground" />
         </svg>
       )}
       <span
@@ -50,7 +51,7 @@ export function PrometioLogo({
       >
         {wordmark === "prometIO" ? (
           <>
-            promet<span className="text-highlight">IO</span>
+            promet<span className="text-primary">IO</span>
           </>
         ) : (
           wordmark

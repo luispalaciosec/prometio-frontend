@@ -60,7 +60,7 @@ export function TvFinancieroFila({
           tone="bg-highlight/15 text-highlight"
           density="tv"
         />
-        <div className="rounded-xl p-4 ring-1 ring-border">
+        <div className="surface-card p-4">
           <p className="text-kicker">Facturación por pilar</p>
           <p className="mb-3 text-micro text-muted-foreground">IVA incluido · mes actual</p>
           {datos ? (

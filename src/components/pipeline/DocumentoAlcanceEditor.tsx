@@ -210,7 +210,7 @@ function AlcanceFuncionalEditor({
       {value.length === 0 ? <p className="text-kicker">Sin secciones todavía.</p> : null}
       <ul className="space-y-2">
         {value.map((row, index) => (
-          <li key={index} className="space-y-2 rounded-xl p-3 ring-1 ring-border">
+          <li key={index} className="space-y-2 surface-card p-3">
             <div className="flex items-start gap-2">
               <Input
                 value={row.seccion}
@@ -303,7 +303,7 @@ function EntregablesEditor({
       {value.length === 0 ? <p className="text-kicker">Sin entregables todavía.</p> : null}
       <ul className="space-y-2">
         {value.map((row, index) => (
-          <li key={index} className="space-y-2 rounded-xl p-3 ring-1 ring-border">
+          <li key={index} className="space-y-2 surface-card p-3">
             <div className="flex items-start gap-2">
               <Input
                 value={row.nombre}

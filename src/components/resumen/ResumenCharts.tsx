@@ -23,7 +23,7 @@ function ejeX(isoDate: string): string {
 
 function MarcoTooltip({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-lg bg-popover px-3 py-2 text-ui shadow-raised ring-1 ring-border">
+    <div className="rounded-lg bg-popover px-3 py-2 text-ui shadow-raised">
       {children}
     </div>
   )
@@ -104,7 +104,7 @@ function SerieCard({
   const data = puntos.map((punto) => ({ ...punto, label: ejeX(punto.fecha) }))
 
   return (
-    <div className="rounded-xl p-5 ring-1 ring-border">
+    <div className="surface-card p-5">
       <KindMark icon={icon} tone={tone} size="md" label={label} />
       <div className="mt-4 h-40">
         <ResponsiveContainer width="100%" height="100%">

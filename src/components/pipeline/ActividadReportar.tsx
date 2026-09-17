@@ -36,7 +36,7 @@ export function ActividadReportar({
   }
 
   return (
-    <form onSubmit={enviar} className="mt-3 space-y-3 rounded-lg p-3 ring-1 ring-foreground/10">
+    <form onSubmit={enviar} className="surface-muted mt-3 space-y-3 p-3">
       <div className="flex flex-wrap items-center gap-2">
         <TipoActividadMark tipo={actividad.tipo} />
         <p className="text-kicker">Se agrega reportada_en; programada_para se conserva.</p>

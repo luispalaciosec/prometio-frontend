@@ -130,7 +130,7 @@ export function CuentaPage() {
         description="Datos de tu perfil. Calendar y Basecamp son tuyos, no de la organización."
       />
       <div className="space-y-4">
-        <section className="rounded-xl p-4 ring-1 ring-border">
+        <section className="surface-card p-4">
           <h2 className="text-section">Perfil</h2>
           <dl className="mt-3 grid gap-3 sm:grid-cols-2">
             <div>
@@ -149,7 +149,7 @@ export function CuentaPage() {
         </section>
 
         {puedeIntegraciones ? (
-          <section className="rounded-xl p-4 ring-1 ring-border">
+          <section className="surface-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
                 <KindMark icon={CalendarDays} tone="bg-muted text-muted-foreground" size="lg" label="Google Calendar" />
@@ -185,7 +185,7 @@ export function CuentaPage() {
         ) : null}
 
         {puedeIntegraciones ? (
-          <section className="rounded-xl p-4 ring-1 ring-border">
+          <section className="surface-card p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
                 <KindMark icon={Tent} tone="bg-muted text-muted-foreground" size="lg" label="Basecamp" />
@@ -199,7 +199,7 @@ export function CuentaPage() {
                           <img
                             src={estadoBasecamp.basecamp_avatar_url}
                             alt=""
-                            className="size-8 shrink-0 rounded-lg object-cover ring-1 ring-border"
+                            className="size-8 shrink-0 rounded-lg object-cover"
                           />
                         ) : null}
                         {estadoBasecamp.basecamp_nombre ? (

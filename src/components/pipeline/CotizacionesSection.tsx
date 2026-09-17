@@ -129,7 +129,7 @@ export function CotizacionesSection({
   }
 
   return (
-    <section id="cotizaciones" className="rounded-xl p-4 ring-1 ring-border">
+    <section id="cotizaciones" className="surface-card p-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-section">Cotizaciones</h2>
         <Button type="button" size="sm" onClick={() => void nueva()}>

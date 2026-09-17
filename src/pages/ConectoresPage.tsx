@@ -42,7 +42,7 @@ export function ConectoresPage() {
         description="Claude se instala en tu máquina vía MCP. ChatGPT y Gemini todavía no tienen integración."
       />
       <div className="space-y-4">
-        <section className="rounded-xl p-4 ring-1 ring-border">
+        <section className="surface-card p-4">
           <div className="flex items-start gap-3">
             <ConectorMark id="claude" />
             <div className="min-w-0 space-y-1">

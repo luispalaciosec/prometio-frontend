@@ -13,7 +13,7 @@ export function PipelineSkeleton() {
             <Skeleton className="h-3.5 w-24" />
             <Skeleton className="h-3 w-4" />
           </div>
-          <div className="flex min-h-40 flex-col gap-2 rounded-xl p-2 ring-1 ring-border">
+          <div className="flex min-h-40 flex-col gap-2 rounded-xl p-2">
             <Skeleton className="h-16 w-full rounded-xl" />
             <Skeleton className="h-16 w-full rounded-xl" />
           </div>
@@ -117,7 +117,7 @@ export function TimelineSkeleton() {
         <div key={day} className="space-y-2">
           <Skeleton className="h-4 w-32" />
           {Array.from({ length: 3 }, (_, row) => (
-            <div key={row} className="flex items-start gap-2 rounded-xl p-3 ring-1 ring-border">
+            <div key={row} className="flex items-start gap-2 surface-card p-3">
               <Skeleton className="size-8 shrink-0 rounded-lg" />
               <div className="min-w-0 flex-1 space-y-2 pt-0.5">
                 <Skeleton className="h-4 w-40" />
@@ -141,14 +141,14 @@ export function DocumentoAlcanceSectionSkeleton() {
         </div>
         <Skeleton className="h-8 w-52 rounded-md" />
       </div>
-      <div className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border">
+      <div className="flex items-start gap-3 surface-card p-4">
         <Skeleton className="size-11 shrink-0 rounded-xl" />
         <div className="min-w-0 flex-1 space-y-2 pt-1">
           <Skeleton className="h-4 w-36" />
           <Skeleton className="h-3 w-full max-w-sm" />
         </div>
       </div>
-      <div className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+      <div className="space-y-3 surface-card p-4">
         <div className="flex flex-wrap gap-2">
           <Skeleton className="h-5 w-20 rounded-full" />
           <Skeleton className="h-3 w-40" />

@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils"
 
 const TONOS = [
-  "bg-primary text-primary-foreground",
-  "bg-sidebar text-sidebar-foreground",
-  "bg-success text-success-foreground",
-  "bg-warning text-warning-foreground",
-  "bg-highlight text-sidebar",
-  "bg-primary-hover text-primary-foreground",
+  "bg-primary/15 text-primary",
+  "bg-secondary text-secondary-foreground",
+  "bg-success/15 text-success",
+  "bg-warning/15 text-warning",
+  "bg-highlight/15 text-highlight",
+  "bg-muted text-muted-foreground",
 ] as const
 
 const SUFIJO_EMPRESA = /^(s\.?a\.?|c\.?a\.?|llc|inc|ltd|cia)$/i

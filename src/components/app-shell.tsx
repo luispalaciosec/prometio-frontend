@@ -50,7 +50,7 @@ export function AppShell() {
         <PrometioLogo className="h-6 w-auto" />
       </header>
 
-      <aside className="hidden h-full min-h-0 w-56 shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
+      <aside className="hidden h-full min-h-0 w-[15.5rem] shrink-0 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar px-3 py-5 text-sidebar-foreground md:flex">
         <AppNav />
       </aside>
 

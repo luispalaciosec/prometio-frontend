@@ -133,7 +133,7 @@ export function ActividadesSection({
   }
 
   return (
-    <section className="rounded-xl p-4 ring-1 ring-border">
+    <section className="surface-card p-4">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-section">Actividades</h2>
         <div className="flex gap-2">

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
+import { BrandSurface } from "@/components/brand-surface"
 import { DetailSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -189,6 +190,35 @@ export function AparienciaTab() {
             </Select>
           </div>
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-section">Vista previa widget</h2>
+        <p className="text-kicker text-muted-foreground">
+          Colores de marca desde Configuración → Marca. El snippet embebido usa la misma capa{" "}
+          <span className="font-mono text-micro">--brand-*</span>.
+        </p>
+        <BrandSurface
+          className="surface-card max-w-sm space-y-4 p-5"
+          style={{
+            borderRadius: `${Math.min(32, Math.max(0, Number(radioBordes) || 0))}px`,
+            fontFamily:
+              tipografia === "inter"
+                ? "Inter, ui-sans-serif, system-ui, sans-serif"
+                : tipografia === "poppins"
+                  ? "Poppins, ui-sans-serif, system-ui, sans-serif"
+                  : undefined,
+          }}
+        >
+          {titulo.trim() ? <p className="text-section">{titulo.trim()}</p> : null}
+          <div className="space-y-2">
+            <Label className="text-kicker">Nombre</Label>
+            <Input disabled placeholder="Ej. María López" className="bg-background" />
+          </div>
+          <Button type="button" disabled={!textoBoton.trim()}>
+            {textoBoton.trim() || "Enviar"}
+          </Button>
+        </BrandSurface>
       </section>
 
       <section className="space-y-4">

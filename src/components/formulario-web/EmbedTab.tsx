@@ -61,7 +61,7 @@ export function EmbedTab() {
           El widget no lleva token. Deriva marca y campos a partir del atributo{" "}
           <span className="font-mono text-micro">api</span> del custom element.
         </p>
-        <dl className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+        <dl className="space-y-3 surface-card p-4">
           <EndpointRow label="Widget (script CDN)" url={urls.widget} />
           <EndpointRow label="POST alta de contacto" url={urls.post} />
           <EndpointRow label="GET marca + estilos" url={urls.marca} />
@@ -75,7 +75,7 @@ export function EmbedTab() {
           El widget lee <span className="font-mono text-micro">window.location.search</span> de la página
           anfitriona al enviar. Si un parámetro no está en la URL, no se incluye en el POST.
         </p>
-        <ul className="divide-y divide-border rounded-xl ring-1 ring-border">
+        <ul className="divide-y divide-border surface-card">
           {FORMULARIO_UTM_KEYS.map((key) => (
             <li key={key} className="flex items-center justify-between gap-3 px-4 py-3">
               <span className="font-mono text-ui">{key}</span>
@@ -91,7 +91,7 @@ export function EmbedTab() {
         </p>
       </section>
 
-      <section className="space-y-3 rounded-xl p-4 ring-1 ring-border">
+      <section className="space-y-3 surface-card p-4">
         <h2 className="text-section">hCaptcha</h2>
         <p className="text-kicker">
           Site key pública embebida en el widget. El secret key y el estado de Meta/GA4 están en{" "}

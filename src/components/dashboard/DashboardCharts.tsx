@@ -45,7 +45,7 @@ function fillEtapa(etapa: string): string {
 
 function MarcoTooltip({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-lg bg-popover px-3 py-2 text-ui shadow-raised ring-1 ring-border">
+    <div className="rounded-lg bg-popover px-3 py-2 text-ui shadow-raised">
       {children}
     </div>
   )

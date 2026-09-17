@@ -16,7 +16,7 @@ export function CalendarioMes({ celdas }: { celdas: CeldaCalendario[] }) {
             </p>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border">
+        <div className="grid grid-cols-7 gap-px overflow-hidden rounded-xl bg-border">
           {celdas.map((celda) => {
             const extra = celda.eventos.length - MAX_VISIBLE
             return (

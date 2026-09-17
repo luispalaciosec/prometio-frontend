@@ -23,12 +23,7 @@ export function KpiCard({
   const tv = density === "tv"
 
   return (
-    <div
-      className={cn(
-        "rounded-xl ring-1 ring-border transition-shadow duration-150 hover:shadow-raised",
-        tv ? "p-4" : "p-5",
-      )}
-    >
+    <div className={cn("surface-card transition-shadow duration-150 hover:shadow-modal", tv ? "p-4" : "p-5")}>
       <div className={cn("flex items-start", tv ? "gap-3" : "gap-4")}>
         <KindMark icon={icon} tone={tone} size={tv ? "md" : "lg"} />
         <div className="min-w-0 flex-1">

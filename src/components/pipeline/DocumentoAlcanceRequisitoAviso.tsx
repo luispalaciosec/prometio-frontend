@@ -24,8 +24,8 @@ export function DocumentoAlcanceRequisitoAviso({
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-xl px-4 py-3 ring-1",
-        aprobado ? "bg-success/10 ring-success/30" : "bg-warning/10 ring-warning/30",
+        "flex items-start gap-3 rounded-xl border px-4 py-3",
+        aprobado ? "border-success/30 bg-success/10" : "border-warning/30 bg-warning/10",
       )}
       role="status"
     >

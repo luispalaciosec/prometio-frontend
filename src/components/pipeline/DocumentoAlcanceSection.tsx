@@ -271,7 +271,7 @@ export function DocumentoAlcanceSection({
   const acciones = abierto ? accionesDocumentoVisibles(perfil, abierto) : []
 
   return (
-    <section id="documento-alcance" className="space-y-4 rounded-xl p-4 ring-1 ring-border">
+    <section id="documento-alcance" className="space-y-4 surface-card p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-section">Documento de alcance</h3>
@@ -319,8 +319,8 @@ export function DocumentoAlcanceSection({
                     type="button"
                     onClick={() => setAbiertoId(row.id)}
                     className={cn(
-                      "shrink-0 rounded-full px-3 py-1 text-micro ring-1 ring-border",
-                      seleccionado && "bg-muted ring-foreground/20",
+                      "shrink-0 rounded-full border border-transparent px-3 py-1 text-micro",
+                      seleccionado && "border-primary/40 bg-muted",
                     )}
                   >
                     v{row.version}
@@ -334,7 +334,7 @@ export function DocumentoAlcanceSection({
           ) : null}
 
           {abierto && generando ? (
-            <div className="flex items-start gap-3 rounded-xl p-4 ring-1 ring-border">
+            <div className="flex items-start gap-3 surface-card p-4">
               <span className="inline-flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
                 <Loader2 className="size-5 animate-spin" strokeWidth={1.75} />
               </span>
@@ -348,7 +348,7 @@ export function DocumentoAlcanceSection({
           ) : null}
 
           {abierto && abierto.generacion_ia_estado === "fallido" ? (
-            <div className="rounded-xl p-4 ring-1 ring-border">
+            <div className="surface-card p-4">
               <p className="text-ui-medium">La generación falló</p>
               <p className="mt-1 text-kicker">
                 {abierto.generacion_ia_error ?? "El proveedor de IA no devolvió el borrador."}

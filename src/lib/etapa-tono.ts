@@ -35,10 +35,11 @@ export function claseTituloEtapa(codigo: EtapaPipelineCodigo): string {
 export function claseCuerpoEtapa(codigo: EtapaPipelineCodigo, isOver: boolean): string {
   const tono = tonoEtapa(codigo)
   return cn(
-    tono === "temprana" && "bg-primary/5 ring-border",
-    tono === "media" && "bg-warning/5 ring-border",
-    tono === "ganado" && "bg-success/5 ring-border",
-    tono === "perdido" && "bg-destructive/5 ring-border",
-    isOver && "bg-muted/40 ring-foreground/20",
+    "border border-border/80",
+    tono === "temprana" && "bg-primary/5",
+    tono === "media" && "bg-warning/5",
+    tono === "ganado" && "bg-success/5",
+    tono === "perdido" && "bg-destructive/5",
+    isOver && "border-primary/35 bg-muted/50",
   )
 }

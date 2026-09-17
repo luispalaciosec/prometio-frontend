@@ -223,7 +223,7 @@ export function TvPanelPage() {
 
           <TvFinancieroFila datos={financiero} contificoDisponible={contificoDisponible} />
 
-          <section className="min-h-0 flex-1 rounded-xl p-5 ring-1 ring-border">
+          <section className="min-h-0 flex-1 surface-card p-5">
             <div className="mb-4 flex items-baseline justify-between gap-2">
               <h2 className="text-section">
                 {vistaRotacion === "pipeline" ? "Pipeline por etapa" : "Metas por vendedor"}

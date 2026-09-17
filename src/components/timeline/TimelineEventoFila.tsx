@@ -95,12 +95,12 @@ export function TimelineEventoFila({ row }: { row: TimelineEvento }) {
     return (
       <Link
         to={dest}
-        className="block cursor-pointer rounded-xl p-3 ring-1 ring-border transition-colors hover:bg-muted/50"
+        className="block cursor-pointer surface-card p-3 transition-colors hover:bg-muted/50"
       >
         {cuerpo}
       </Link>
     )
   }
 
-  return <div className="rounded-xl p-3 ring-1 ring-border">{cuerpo}</div>
+  return <div className="surface-card p-3">{cuerpo}</div>
 }
