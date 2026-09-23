@@ -28,6 +28,7 @@ export type CrearLineaInput = {
   descripcion?: string | null
   precio_venta_base_manual?: number | null
   justificacion_precio?: string | null
+  categoria_servicio_id?: string | null
 }
 
 export type ActualizarLineaInput = {
@@ -42,6 +43,7 @@ export type ActualizarLineaInput = {
   descripcion?: string | null
   precio_venta_base_manual?: number | null
   justificacion_precio?: string | null
+  categoria_servicio_id?: string | null
 }
 
 export type PdfCotizacionVariante = "cliente" | "interno"
@@ -94,19 +96,24 @@ export function createCotizacion(
 }
 
 export function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalculada> {
+  const body: Record<string, unknown> = {
+    servicio_id: input.servicio_id,
+    proveedor_id: input.proveedor_id ?? null,
+    costo_proveedor: input.costo_proveedor ?? null,
+    margen_pct: input.margen_pct ?? null,
+    comision_agencia_pct: input.comision_agencia_pct ?? null,
+    cantidad: input.cantidad ?? 1,
+    descripcion: input.descripcion ?? null,
+    precio_venta_base_manual: input.precio_venta_base_manual ?? null,
+    justificacion_precio: input.justificacion_precio ?? null,
+  }
+  // Línea a medida: backend exige UUID. Con catálogo no enviar — se hereda del servicio.
+  if (input.servicio_id == null) {
+    body.categoria_servicio_id = input.categoria_servicio_id ?? null
+  }
   return apiFetch(`/cotizaciones/${input.cotizacion_id}/lineas`, {
     method: "POST",
-    body: JSON.stringify({
-      servicio_id: input.servicio_id,
-      proveedor_id: input.proveedor_id ?? null,
-      costo_proveedor: input.costo_proveedor ?? null,
-      margen_pct: input.margen_pct ?? null,
-      comision_agencia_pct: input.comision_agencia_pct ?? null,
-      cantidad: input.cantidad ?? 1,
-      descripcion: input.descripcion ?? null,
-      precio_venta_base_manual: input.precio_venta_base_manual ?? null,
-      justificacion_precio: input.justificacion_precio ?? null,
-    }),
+    body: JSON.stringify(body),
   })
 }
 
@@ -135,6 +142,9 @@ export function updateLinea(input: ActualizarLineaInput): Promise<LineaCotizacio
   }
   if ("justificacion_precio" in input) {
     body.justificacion_precio = input.justificacion_precio ?? null
+  }
+  if ("categoria_servicio_id" in input) {
+    body.categoria_servicio_id = input.categoria_servicio_id ?? null
   }
   return apiFetch(`/cotizaciones/${input.cotizacion_id}/lineas/${input.id}`, {
     method: "PATCH",

@@ -158,18 +158,31 @@ export function listCategoriasServicio(): Promise<CategoriaServicio[]> {
   return apiFetch("/config/categorias-servicio")
 }
 
-export function upsertCategoriaServicio(
-  input: Omit<CategoriaServicio, "id"> & { id?: string },
-): Promise<CategoriaServicio> {
+export function upsertCategoriaServicio(input: {
+  id?: string
+  nombre: string
+  pilar: CategoriaServicio["pilar"]
+  /** Ignorado en PATCH; solo POST legacy en mocks. */
+  organizacion_id?: string
+}): Promise<CategoriaServicio> {
   if (input.id) {
+    const body: { nombre: string; pilar?: CategoriaServicio["pilar"] } = {
+      nombre: input.nombre.trim(),
+    }
+    if (input.pilar != null) {
+      body.pilar = input.pilar
+    }
     return apiFetch(`/config/categorias-servicio/${input.id}`, {
       method: "PATCH",
-      body: JSON.stringify({ nombre: input.nombre }),
+      body: JSON.stringify(body),
     })
+  }
+  if (input.pilar == null) {
+    return Promise.reject(new Error("El pilar es obligatorio al crear una categoría."))
   }
   return apiFetch("/config/categorias-servicio", {
     method: "POST",
-    body: JSON.stringify({ nombre: input.nombre }),
+    body: JSON.stringify({ nombre: input.nombre.trim(), pilar: input.pilar }),
   })
 }
 

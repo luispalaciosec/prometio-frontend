@@ -242,6 +242,7 @@ export type CrearLineaInput = {
   descripcion?: string | null
   precio_venta_base_manual?: number | null
   justificacion_precio?: string | null
+  categoria_servicio_id?: string | null
 }
 
 export async function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalculada> {
@@ -287,6 +288,7 @@ export async function createLinea(input: CrearLineaInput): Promise<LineaCotizaci
     comision_agencia_pct,
     cantidad,
     descripcion: input.descripcion ?? null,
+    categoria_servicio_id: input.categoria_servicio_id ?? null,
     precio_base_cliente_aplicado: null,
     precio_venta_base_manual: input.precio_venta_base_manual ?? null,
     justificacion_precio: input.justificacion_precio ?? null,

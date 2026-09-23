@@ -13,12 +13,18 @@ import {
   OportunidadNotFoundError,
   getOportunidad,
 } from "@/lib/api/oportunidad"
-import { getConfiguracionGeneral, listEtapasPipeline, listServicios } from "@/lib/config-api"
+import {
+  getConfiguracionGeneral,
+  listCategoriasServicio,
+  listEtapasPipeline,
+  listServicios,
+} from "@/lib/config-api"
 import { formatMoney } from "@/lib/costo-interno"
 import { useAuthStore } from "@/store/auth-store"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas } from "@/types/cotizacion"
 import type { DocumentoAlcance } from "@/types/documento-alcance"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { OportunidadKanban } from "@/types/oportunidad"
 import type { Proveedor } from "@/types/proveedor"
 import type { Servicio } from "@/types/servicio"
@@ -34,6 +40,7 @@ type LoadState =
       etapaNombre: string
       servicios: Servicio[]
       proveedores: Proveedor[]
+      categorias: CategoriaServicio[]
       config: ConfiguracionGeneral | null
       documentos: DocumentoAlcance[]
     }
@@ -62,12 +69,13 @@ export function CotizacionPage() {
     void (async () => {
       try {
         const cotizacion = await getCotizacion(id, perfil)
-        const [oportunidad, etapas, servicios, proveedores, config, documentos] =
+        const [oportunidad, etapas, servicios, proveedores, categorias, config, documentos] =
           await Promise.all([
             getOportunidad(cotizacion.oportunidad_id, perfil),
             listEtapasPipeline(),
             listServicios(),
             listProveedores(),
+            listCategoriasServicio(),
             getConfiguracionGeneral(),
             listDocumentosAlcance(id),
           ])
@@ -84,6 +92,7 @@ export function CotizacionPage() {
           etapaNombre,
           servicios,
           proveedores,
+          categorias,
           config,
           documentos,
         })
@@ -138,7 +147,7 @@ export function CotizacionPage() {
     return <CotizacionError title="No se pudo cargar" body={state.message} />
   }
 
-  const { cotizacion, oportunidad, etapaNombre, servicios, proveedores, config, documentos } =
+  const { cotizacion, oportunidad, etapaNombre, servicios, proveedores, categorias, config, documentos } =
     state
 
   return (
@@ -173,6 +182,8 @@ export function CotizacionPage() {
             ejecutivoId={oportunidad.ejecutivo.id}
             servicios={servicios}
             proveedores={proveedores}
+            categorias={categorias}
+            categoriaInteresId={oportunidad.categoria_interes_id}
             config={config}
             documentoIdInicial={documentoQuery}
             documentos={documentos}

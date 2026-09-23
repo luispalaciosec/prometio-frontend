@@ -44,6 +44,7 @@ export type SugerenciaLineaAsistente = {
   descripcion: string
   requiere_proveedor: boolean
   motivo: string
+  categoria_servicio_id?: string | null
 }
 
 export type SugerirLineasResponse = {

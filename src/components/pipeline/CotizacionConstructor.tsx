@@ -33,7 +33,18 @@ import type { DocumentoAlcance } from "@/types/documento-alcance"
 import type { LineaCotizacion } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
 import type { Proveedor } from "@/types/proveedor"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Servicio } from "@/types/servicio"
+
+function etiquetaCategoriaLinea(linea: LineaCotizacion, servicios: Servicio[]): string | null {
+  if (linea.categoria_servicio_nombre) {
+    return linea.categoria_servicio_nombre
+  }
+  if (linea.servicio_id) {
+    return servicios.find((row) => row.id === linea.servicio_id)?.categoria_nombre ?? null
+  }
+  return null
+}
 
 function tituloLinea(linea: LineaCotizacion, servicios: Servicio[]): string {
   if (linea.descripcion?.trim()) {
@@ -58,6 +69,8 @@ export function CotizacionConstructor({
   ejecutivoId,
   servicios,
   proveedores,
+  categorias,
+  categoriaInteresId,
   config,
   documentoIdInicial,
   documentos,
@@ -69,6 +82,8 @@ export function CotizacionConstructor({
   ejecutivoId: string
   servicios: Servicio[]
   proveedores: Proveedor[]
+  categorias: CategoriaServicio[]
+  categoriaInteresId?: string | null
   config: ConfiguracionGeneral | null
   documentoIdInicial?: string | null
   documentos?: DocumentoAlcance[]
@@ -125,6 +140,10 @@ export function CotizacionConstructor({
   }, [cotizacion.id, esBorrador, firmaLineas, cotizacion.requiere_aprobacion])
 
   async function agregar(input: LineaCotizacionFormInput) {
+    if (input.servicio_id == null && !input.categoria_servicio_id) {
+      toast.error("Elegí una categoría para la línea a medida.")
+      return
+    }
     try {
       await createLinea({
         perfil,
@@ -155,6 +174,9 @@ export function CotizacionConstructor({
           comision_agencia_pct: input.comision_agencia_pct,
           cantidad: input.cantidad,
           descripcion: input.descripcion,
+          ...(linea.servicio_id == null
+            ? { categoria_servicio_id: input.categoria_servicio_id }
+            : {}),
         })
       } else {
         await updateLinea({
@@ -165,6 +187,9 @@ export function CotizacionConstructor({
           descripcion: input.descripcion,
           precio_venta_base_manual: input.precio_venta_base_manual,
           justificacion_precio: input.justificacion_precio,
+          ...(linea.servicio_id == null
+            ? { categoria_servicio_id: input.categoria_servicio_id }
+            : {}),
         })
       }
       setEditandoId(null)
@@ -294,6 +319,8 @@ export function CotizacionConstructor({
                   linea={linea}
                   servicios={servicios}
                   proveedores={proveedores}
+                  categorias={categorias}
+                  categoriaInteresId={categoriaInteresId}
                   config={config}
                   onSubmit={(input) => void guardar(linea, input)}
                   onCancel={() => setEditandoId(null)}
@@ -312,6 +339,10 @@ export function CotizacionConstructor({
                   <p className="mt-1 text-ui text-muted-foreground">{linea.descripcion}</p>
                 ) : null}
                 <p className="text-kicker text-muted-foreground">
+                  {(() => {
+                    const categoria = etiquetaCategoriaLinea(linea, servicios)
+                    return categoria ? <>{categoria} · </> : null
+                  })()}
                   {linea.costo_proveedor != null
                     ? "Con proveedor"
                     : linea.servicio_id
@@ -358,6 +389,8 @@ export function CotizacionConstructor({
               notaContexto={notaPrefill ?? undefined}
               servicios={servicios}
               proveedores={proveedores}
+              categorias={categorias}
+              categoriaInteresId={categoriaInteresId}
               config={config}
               onSubmit={(input) => void agregar(input)}
               onCancel={prefillNuevaLinea ? limpiarPrefill : undefined}

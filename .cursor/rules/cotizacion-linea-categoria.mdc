@@ -1,0 +1,36 @@
+---
+description: Contrato categorías comerciales (linea_cotizacion + config con pilar).
+globs:
+  - src/components/pipeline/LineaCotizacionForm.tsx
+  - src/components/pipeline/CotizacionConstructor.tsx
+  - src/lib/api/cotizacion.ts
+  - src/pages/CategoriasServicioPage.tsx
+  - src/types/categoria-servicio.ts
+  - src/lib/config-api.ts
+---
+
+# Categorías en líneas de cotización
+
+## Línea a medida (`servicio_id: null`)
+
+- POST exige `categoria_servicio_id` (UUID). Sin él → 422.
+- UI: selector obligatorio en paso 2 del alta; lista desde `GET /config/categorias-servicio`.
+- Precarga default: `oportunidad.categoria_interes_id` (editable).
+- En `createLinea`, incluir `categoria_servicio_id` **solo** cuando `servicio_id == null`.
+
+## Línea con catálogo
+
+- No enviar `categoria_servicio_id` en POST (backend hereda de `servicio.categoria_id`).
+- PATCH con categoría en línea con servicio → 422.
+
+## Lectura de líneas
+
+- `categoria_servicio_nombre` puede ser null → **Sin categoría**. El pilar de la categoría **no** viene en la línea (informes por pilar: paso aparte si se pide).
+
+## Config categorías (admin)
+
+- `GET /config/categorias-servicio` → `{ id, organizacion_id, nombre, pilar }`. `pilar` nullable en datos legacy.
+- `POST` body `{ nombre, pilar }` — pilar obligatorio: `marca` | `crecimiento` | `transformacion` | `transversal`.
+- `PATCH` acepta `nombre` y/o `pilar`.
+- UI tabla: mostrar **Sin pilar** si `pilar == null`; en edición permitir asignarlo.
+- `DELETE` → 409 con detalle si la usa servicios, líneas u oportunidades (mostrar `ApiError.detail`).

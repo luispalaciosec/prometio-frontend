@@ -8,6 +8,8 @@ export type LineaCotizacion = {
   comision_agencia_pct: number | null
   cantidad: number
   descripcion: string | null
+  categoria_servicio_id: string | null
+  categoria_servicio_nombre?: string | null
   precio_base_cliente_aplicado: number | null
   precio_venta_base_manual: number | null
   justificacion_precio: string | null

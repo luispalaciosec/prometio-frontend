@@ -92,11 +92,13 @@ function seed(): MockDb {
         id: "cat-creatividad",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre: "Creatividad",
+        pilar: "marca",
       },
       {
         id: "cat-media",
         organizacion_id: MOCK_ORGANIZACION_ID,
         nombre: "Media",
+        pilar: null,
       },
     ],
     tipos_documento: [

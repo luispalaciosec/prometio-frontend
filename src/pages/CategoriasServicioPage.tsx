@@ -17,6 +17,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Table,
   TableBody,
   TableCell,
@@ -32,14 +39,23 @@ import {
 } from "@/lib/config-api"
 import { useAuthStore } from "@/store/auth-store"
 import type { CategoriaServicio } from "@/types/categoria-servicio"
+import { PILAR_LABELS, type Pilar } from "@/types/servicio"
 
-type Draft = { id?: string; nombre: string }
+const PILARES: Pilar[] = ["marca", "crecimiento", "transformacion", "transversal"]
+
+const SIN_PILAR = "__sin_pilar__"
+
+type Draft = { id?: string; nombre: string; pilar: Pilar | null }
+
+function etiquetaPilar(pilar: Pilar | null): string {
+  return pilar ? PILAR_LABELS[pilar] : "Sin pilar"
+}
 
 export function CategoriasServicioPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const [rows, setRows] = useState<CategoriaServicio[] | null>(null)
   const [open, setOpen] = useState(false)
-  const [draft, setDraft] = useState<Draft>({ nombre: "" })
+  const [draft, setDraft] = useState<Draft>({ nombre: "", pilar: null })
 
   async function reload() {
     setRows(await listCategoriasServicio())
@@ -54,14 +70,23 @@ export function CategoriasServicioPage() {
       toast.error("El nombre es obligatorio.")
       return
     }
-    await upsertCategoriaServicio({
-      id: draft.id,
-      organizacion_id: perfil?.organizacion_id ?? MOCK_ORGANIZACION_ID,
-      nombre: draft.nombre.trim(),
-    })
-    toast.success("Categoría guardada.")
-    setOpen(false)
-    await reload()
+    if (!draft.id && draft.pilar == null) {
+      toast.error("Elegí un pilar para la categoría nueva.")
+      return
+    }
+    try {
+      await upsertCategoriaServicio({
+        id: draft.id,
+        organizacion_id: perfil?.organizacion_id ?? MOCK_ORGANIZACION_ID,
+        nombre: draft.nombre.trim(),
+        pilar: draft.pilar,
+      })
+      toast.success("Categoría guardada.")
+      setOpen(false)
+      await reload()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo guardar la categoría.")
+    }
   }
 
   async function remove(id: string) {
@@ -82,11 +107,11 @@ export function CategoriasServicioPage() {
     <>
       <PageHeader
         title="Categorías de servicio"
-        description="Catálogo para clasificar servicios. No se puede borrar una categoría que ya tenga servicios asignados."
+        description="Catálogo comercial para servicios, líneas a medida y oportunidades. Cada categoría pertenece a un pilar de negocio."
         action={
           <Button
             onClick={() => {
-              setDraft({ nombre: "" })
+              setDraft({ nombre: "", pilar: null })
               setOpen(true)
             }}
           >
@@ -107,7 +132,7 @@ export function CategoriasServicioPage() {
               variant="ghost"
               size="sm"
               onClick={() => {
-                setDraft({ nombre: "" })
+                setDraft({ nombre: "", pilar: null })
                 setOpen(true)
               }}
             >
@@ -120,6 +145,7 @@ export function CategoriasServicioPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
+              <TableHead>Pilar</TableHead>
               <TableHead className="w-40" />
             </TableRow>
           </TableHeader>
@@ -127,12 +153,15 @@ export function CategoriasServicioPage() {
             {rows.map((row) => (
               <TableRow key={row.id}>
                 <TableCell className="text-ui-medium">{row.nombre}</TableCell>
+                <TableCell className="text-ui text-muted-foreground">
+                  {etiquetaPilar(row.pilar)}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setDraft({ id: row.id, nombre: row.nombre })
+                      setDraft({ id: row.id, nombre: row.nombre, pilar: row.pilar })
                       setOpen(true)
                     }}
                   >
@@ -153,15 +182,50 @@ export function CategoriasServicioPage() {
           <DialogHeader>
             <DialogTitle>{draft.id ? "Editar categoría" : "Nueva categoría"}</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="nombre">Nombre</Label>
-            <Input
-              id="nombre"
-              value={draft.nombre}
-              onChange={(event) =>
-                setDraft((prev) => ({ ...prev, nombre: event.target.value }))
-              }
-            />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="nombre">Nombre</Label>
+              <Input
+                id="nombre"
+                value={draft.nombre}
+                onChange={(event) =>
+                  setDraft((prev) => ({ ...prev, nombre: event.target.value }))
+                }
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="pilar">
+                Pilar{draft.id ? "" : " (obligatorio)"}
+              </Label>
+              <Select
+                value={draft.pilar ?? SIN_PILAR}
+                onValueChange={(value) =>
+                  setDraft((prev) => ({
+                    ...prev,
+                    pilar: value === SIN_PILAR ? null : (value as Pilar),
+                  }))
+                }
+              >
+                <SelectTrigger id="pilar">
+                  <SelectValue placeholder="Elegir pilar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {draft.id ? (
+                    <SelectItem value={SIN_PILAR}>Sin pilar</SelectItem>
+                  ) : null}
+                  {PILARES.map((pilar) => (
+                    <SelectItem key={pilar} value={pilar}>
+                      {PILAR_LABELS[pilar]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {draft.id ? (
+                <p className="text-kicker text-muted-foreground">
+                  Las categorías heredadas pueden mostrar «Sin pilar» hasta que las clasifiques acá.
+                </p>
+              ) : null}
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
