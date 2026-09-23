@@ -1,42 +1,20 @@
 import { useCallback, useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
-import { CotizacionConstructor } from "@/components/pipeline/CotizacionConstructor"
 import { CotizacionLista } from "@/components/pipeline/CotizacionLista"
 import { Button } from "@/components/ui/button"
-import {
-  createCotizacion,
-  getCotizacion,
-  listCotizaciones,
-  listProveedores,
-} from "@/lib/api/cotizacion"
+import { createCotizacion, listCotizaciones } from "@/lib/api/cotizacion"
+import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
-import { getConfiguracionGeneral, listServicios } from "@/lib/config-api"
 import { useAuthStore } from "@/store/auth-store"
-import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas } from "@/types/cotizacion"
 import type { DocumentoAlcance } from "@/types/documento-alcance"
-import type { Proveedor } from "@/types/proveedor"
-import type { Servicio } from "@/types/servicio"
 
-export function CotizacionesSection({
-  oportunidadId,
-  ejecutivoId,
-}: {
-  oportunidadId: string
-  ejecutivoId: string
-}) {
+export function CotizacionesSection({ oportunidadId }: { oportunidadId: string }) {
+  const navigate = useNavigate()
   const perfil = useAuthStore((state) => state.perfil)
-  const [searchParams] = useSearchParams()
-  const cotizacionQuery = searchParams.get("cotizacion")
-  const documentoQuery = searchParams.get("documento")
   const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[] | null>(null)
-  const [abiertaId, setAbiertaId] = useState<string | null>(cotizacionQuery)
-  const [abierta, setAbierta] = useState<CotizacionConLineas | null>(null)
-  const [servicios, setServicios] = useState<Servicio[]>([])
-  const [proveedores, setProveedores] = useState<Proveedor[]>([])
-  const [config, setConfig] = useState<ConfiguracionGeneral | null>(null)
   const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
 
   const reloadLista = useCallback(async () => {
@@ -45,31 +23,6 @@ export function CotizacionesSection({
     }
     setCotizaciones(await listCotizaciones({ oportunidad_id: oportunidadId }))
   }, [perfil, oportunidadId])
-
-  const reloadAbierta = useCallback(async () => {
-    if (!perfil || !abiertaId) {
-      setAbierta(null)
-      return
-    }
-    setAbierta(await getCotizacion(abiertaId, perfil))
-    await reloadLista()
-  }, [perfil, abiertaId, reloadLista])
-
-  useEffect(() => {
-    void Promise.all([listServicios(), listProveedores(), getConfiguracionGeneral()]).then(
-      ([catalogo, pvs, general]) => {
-        setServicios(catalogo)
-        setProveedores(pvs)
-        setConfig(general)
-      },
-    )
-  }, [])
-
-  useEffect(() => {
-    if (cotizacionQuery) {
-      setAbiertaId(cotizacionQuery)
-    }
-  }, [cotizacionQuery])
 
   useEffect(() => {
     if (!cotizaciones) {
@@ -95,25 +48,15 @@ export function CotizacionesSection({
   }, [cotizaciones])
 
   useEffect(() => {
-    if (!cotizacionQuery) {
-      return
-    }
-    const target = documentoQuery ? "documento-alcance" : "cotizaciones"
-    document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }, [cotizacionQuery, documentoQuery])
-
-  useEffect(() => {
     void reloadLista().catch((error: unknown) => {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar las cotizaciones.")
       setCotizaciones([])
     })
   }, [reloadLista])
 
-  useEffect(() => {
-    void reloadAbierta().catch((error: unknown) => {
-      toast.error(error instanceof Error ? error.message : "No se pudo abrir la cotización.")
-    })
-  }, [reloadAbierta])
+  function abrir(cotizacionId: string) {
+    navigate(rutaConstructorCotizacion(cotizacionId))
+  }
 
   async function nueva() {
     if (!perfil) {
@@ -121,8 +64,7 @@ export function CotizacionesSection({
     }
     try {
       const created = await createCotizacion(oportunidadId, perfil)
-      setAbiertaId(created.id)
-      await reloadLista()
+      navigate(rutaConstructorCotizacion(created.id))
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo crear la cotización.")
     }
@@ -139,27 +81,11 @@ export function CotizacionesSection({
       <CotizacionLista
         cotizaciones={cotizaciones ?? []}
         cargando={cotizaciones == null}
-        abiertaId={abiertaId}
+        abiertaId={null}
         docsPorCotizacion={docsPorCotizacion}
-        onAbrir={setAbiertaId}
+        onAbrir={abrir}
         onNueva={() => void nueva()}
       />
-      {abierta && perfil ? (
-        <CotizacionConstructor
-          cotizacion={abierta}
-          perfil={perfil}
-          ejecutivoId={ejecutivoId}
-          servicios={servicios}
-          proveedores={proveedores}
-          config={config}
-          documentoIdInicial={documentoQuery}
-          documentos={docsPorCotizacion[abierta.id]}
-          onChange={reloadAbierta}
-          onDocumentosChange={(rows) =>
-            setDocsPorCotizacion((prev) => ({ ...prev, [abierta.id]: rows }))
-          }
-        />
-      ) : null}
     </section>
   )
 }

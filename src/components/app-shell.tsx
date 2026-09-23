@@ -12,6 +12,7 @@ export function AppShell() {
   const [menuAbierto, setMenuAbierto] = useState(false)
   const isPipeline = location.pathname === "/pipeline"
   const isBandeja = location.pathname.startsWith("/bandeja")
+  const isCotizacionBuilder = /^\/cotizaciones\/[^/]+$/.test(location.pathname)
 
   useEffect(() => {
     setMenuAbierto(false)
@@ -99,7 +100,9 @@ export function AppShell() {
               ? "flex min-h-0 flex-1 flex-col"
               : isPipeline
                 ? "px-4 py-4 md:px-6 md:py-6"
-                : "mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8",
+                : isCotizacionBuilder
+                  ? "mx-auto w-full max-w-6xl px-4 py-4 md:px-8 md:py-8"
+                  : "mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8",
           )}
         >
           <Outlet />

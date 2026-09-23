@@ -31,7 +31,7 @@ Previews de cotización/documento en UI: envolver con `BrandSurface` (`className
 ## Cotizaciones (lista global)
 - Ruta `/cotizaciones` en Negocios, junto a Pipeline / Alertas / Dashboard
 - Lista con búsqueda (`q`: contacto, empresa o número) y filtro por estado; el backend aplica ownership (vendedor ve las suyas)
-- Cada fila: número, contacto/empresa, estado, total, fecha. Click abre `/pipeline/:id?cotizacion=:id` (el constructor de siempre)
+- Cada fila: número, contacto/empresa, estado, total, fecha. Click abre `/cotizaciones/:id` (constructor dedicado). Enlaces viejos `?cotizacion=` en oportunidad redirigen ahí.
 
 ## Cotizador (Fase 1)
 - Constructor de líneas: seleccionar servicio, proveedor (opcional), costo del proveedor

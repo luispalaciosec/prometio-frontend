@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/table"
 import { DuplicarCotizacionDialog } from "@/components/pipeline/DuplicarCotizacionDialog"
 import { duplicarCotizacion, listCotizaciones } from "@/lib/api/cotizacion"
+import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { Button } from "@/components/ui/button"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import {
@@ -157,7 +158,7 @@ export function CotizacionesPage() {
       const nueva = await duplicarCotizacion(duplicarId, oportunidadIdDestino)
       setDuplicarId(null)
       toast.success(`Plantilla copiada como ${nueva.numero}.`)
-      navigate(`/pipeline/${oportunidadIdDestino}?cotizacion=${nueva.id}`)
+      navigate(rutaConstructorCotizacion(nueva.id))
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo duplicar la cotización.")
     } finally {
@@ -234,9 +235,7 @@ export function CotizacionesPage() {
               <TableRow
                 key={row.id}
                 className="cursor-pointer"
-                onClick={() =>
-                  navigate(`/pipeline/${row.oportunidad_id}?cotizacion=${row.id}`)
-                }
+                onClick={() => navigate(rutaConstructorCotizacion(row.id))}
               >
                 <TableCell className="text-ui-medium">{row.numero}</TableCell>
                 <TableCell className="whitespace-normal">

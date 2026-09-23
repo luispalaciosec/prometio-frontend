@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 
 import { OportunidadSkeleton } from "@/components/skeleton"
@@ -28,6 +28,7 @@ import {
   listEtapasPipeline,
   listServicios,
 } from "@/lib/config-api"
+import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { useAuthStore } from "@/store/auth-store"
 import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
@@ -52,6 +53,9 @@ type LoadState =
 
 export function OportunidadPage() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const cotizacionRedirect = searchParams.get("cotizacion")
+  const documentoRedirect = searchParams.get("documento")
   const perfil = useAuthStore((state) => state.perfil)
   const [state, setState] = useState<LoadState>({ status: "loading" })
   const [editarOpen, setEditarOpen] = useState(false)
@@ -125,6 +129,15 @@ export function OportunidadPage() {
 
   if (!id) {
     return <OportunidadError title="Oportunidad no encontrada" />
+  }
+
+  if (cotizacionRedirect) {
+    return (
+      <Navigate
+        to={rutaConstructorCotizacion(cotizacionRedirect, documentoRedirect)}
+        replace
+      />
+    )
   }
 
   if (state.status === "loading") {
@@ -266,10 +279,7 @@ export function OportunidadPage() {
         />
       </div>
       <div className="mt-8">
-        <CotizacionesSection
-          oportunidadId={state.oportunidad.id}
-          ejecutivoId={state.oportunidad.ejecutivo.id}
-        />
+        <CotizacionesSection oportunidadId={state.oportunidad.id} />
       </div>
     </>
   )

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom"
 
 import { DocumentoAlcanceEstadoBadge } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
 import { Button } from "@/components/ui/button"
+import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { formatDateTime } from "@/lib/datetime-local"
 import type { DocumentoAlcance } from "@/types/documento-alcance"
 
@@ -46,7 +47,10 @@ export function DocumentoAlcancePendientes({ filas }: { filas: DocumentoAlcanceP
                 size="sm"
                 onClick={() =>
                   navigate(
-                    `/pipeline/${fila.oportunidadId}?cotizacion=${fila.documento.cotizacion_id}&documento=${fila.documento.id}`,
+                    rutaConstructorCotizacion(
+                      fila.documento.cotizacion_id,
+                      fila.documento.id,
+                    ),
                   )
                 }
               >
