@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 
+import { CategoriaInteresPicker } from "@/components/pipeline/CategoriaInteresPicker"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,16 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
 import type { OportunidadKanban, OportunidadUpdate } from "@/types/oportunidad"
-import type { Servicio } from "@/types/servicio"
 
 type Draft = {
   contacto_id: string
   empresa_id: string
   valor_referencial: string
-  servicio_id: string
+  categoria_interes_id: string | null
 }
 
 function draftDesde(oportunidad: OportunidadKanban): Draft {
@@ -35,7 +36,7 @@ function draftDesde(oportunidad: OportunidadKanban): Draft {
     empresa_id: oportunidad.empresa_id,
     valor_referencial:
       oportunidad.valor_referencial != null ? String(oportunidad.valor_referencial) : "",
-    servicio_id: oportunidad.servicios_ids[0] ?? "",
+    categoria_interes_id: oportunidad.categoria_interes_id,
   }
 }
 
@@ -45,7 +46,7 @@ export function OportunidadEditarDialog({
   oportunidad,
   contactos,
   empresas,
-  servicios,
+  categorias,
   onConfirm,
   onCancel,
 }: {
@@ -54,7 +55,7 @@ export function OportunidadEditarDialog({
   oportunidad: OportunidadKanban | null
   contactos: Contacto[]
   empresas: Empresa[]
-  servicios: Servicio[]
+  categorias: CategoriaServicio[]
   onConfirm: (input: OportunidadUpdate) => void
   onCancel: () => void
 }) {
@@ -62,7 +63,7 @@ export function OportunidadEditarDialog({
     contacto_id: "",
     empresa_id: "",
     valor_referencial: "",
-    servicio_id: "",
+    categoria_interes_id: null,
   })
   const contactosOpciones = useMemo(() => {
     if (!oportunidad || contactos.some((row) => row.id === oportunidad.contacto_id)) {
@@ -79,14 +80,6 @@ export function OportunidadEditarDialog({
     }
     return [{ id: oportunidad.empresa_id, nombre: oportunidad.empresa.nombre }, ...empresas]
   }, [empresas, oportunidad])
-  const catalogo = useMemo(() => {
-    const visibles = servicios.filter((row) => row.estado !== "archivado")
-    const actual = servicios.find((row) => row.id === draft.servicio_id)
-    if (actual && !visibles.some((row) => row.id === actual.id)) {
-      return [actual, ...visibles]
-    }
-    return visibles
-  }, [servicios, draft.servicio_id])
 
   useEffect(() => {
     if (open && oportunidad) {
@@ -117,7 +110,7 @@ export function OportunidadEditarDialog({
       contacto_id: draft.contacto_id,
       empresa_id: draft.empresa_id,
       valor_referencial: valor === "" ? null : Number(valor),
-      servicios_ids: draft.servicio_id ? [draft.servicio_id] : null,
+      categoria_interes_id: draft.categoria_interes_id,
     })
   }
 
@@ -193,25 +186,15 @@ export function OportunidadEditarDialog({
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="opp-edit-servicio">Servicio</Label>
-            <Select
-              value={draft.servicio_id || "none"}
-              onValueChange={(value) =>
-                setDraft((prev) => ({ ...prev, servicio_id: value === "none" ? "" : value }))
+            <Label>Interés comercial</Label>
+            <CategoriaInteresPicker
+              categorias={categorias}
+              value={draft.categoria_interes_id}
+              onChange={(categoria_interes_id) =>
+                setDraft((prev) => ({ ...prev, categoria_interes_id }))
               }
-            >
-              <SelectTrigger id="opp-edit-servicio">
-                <SelectValue placeholder="Sin servicio" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin servicio</SelectItem>
-                {catalogo.map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              disabled={enviando}
+            />
           </div>
         </div>
         <DialogFooter className="rounded-b-2xl">

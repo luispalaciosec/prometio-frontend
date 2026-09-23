@@ -31,14 +31,18 @@ export function OportunidadDetalle({
           />
         </dd>
       </div>
-      <div className="flex flex-col gap-1 sm:col-span-2">
-        <dt className="text-micro">Servicios</dt>
-        <dd className="text-ui">
-          {servicios.length > 0
-            ? servicios.map((servicio) => servicio.nombre).join(", ")
-            : "Sin servicios asociados"}
-        </dd>
-      </div>
+      <Field
+        label="Interés comercial"
+        value={oportunidad.categoria_interes_nombre ?? "Sin clasificar"}
+      />
+      {servicios.length > 0 ? (
+        <div className="flex flex-col gap-1 sm:col-span-2">
+          <dt className="text-micro">Servicios (legado)</dt>
+          <dd className="text-ui text-muted-foreground">
+            {servicios.map((servicio) => servicio.nombre).join(", ")}
+          </dd>
+        </div>
+      ) : null}
       {mostrarCausas ? (
         <>
           <Field label="Causa de pérdida principal" value={causaPrincipal ?? "Sin registrar"} />

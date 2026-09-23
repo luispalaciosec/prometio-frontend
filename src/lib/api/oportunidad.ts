@@ -56,6 +56,8 @@ function normalizar(row: Oportunidad): Oportunidad {
   return {
     ...row,
     servicios_ids: row.servicios_ids ?? [],
+    categoria_interes_id: row.categoria_interes_id ?? null,
+    categoria_interes_nombre: row.categoria_interes_nombre ?? null,
     activo: row.activo !== false,
     lead_score: row.lead_score ?? 0,
     lead_score_desglose: row.lead_score_desglose ?? DESGLOSE_VACIO,
@@ -171,6 +173,7 @@ export async function createOportunidad(input: OportunidadCreate): Promise<Oport
       empresa_id: input.empresa_id,
       valor_referencial: input.valor_referencial ?? null,
       servicios_ids: servicios.length > 0 ? servicios : null,
+      categoria_interes_id: input.categoria_interes_id ?? null,
     }),
   })
 }
@@ -192,6 +195,9 @@ export async function updateOportunidad(
   }
   if (input.servicios_ids !== undefined) {
     body.servicios_ids = input.servicios_ids
+  }
+  if (input.categoria_interes_id !== undefined) {
+    body.categoria_interes_id = input.categoria_interes_id
   }
   try {
     const row = await apiFetch<Oportunidad>(`/oportunidades/${id}`, {

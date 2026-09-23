@@ -1,7 +1,7 @@
 export type LineaCotizacion = {
   id: string
   cotizacion_id: string
-  servicio_id: string
+  servicio_id: string | null
   proveedor_id: string | null
   costo_proveedor: number | null
   margen_pct: number | null
@@ -9,6 +9,8 @@ export type LineaCotizacion = {
   cantidad: number
   descripcion: string | null
   precio_base_cliente_aplicado: number | null
+  precio_venta_base_manual: number | null
+  justificacion_precio: string | null
 }
 
 export type CalculoLinea = {

@@ -36,3 +36,20 @@ export type CotizacionConLineas = Cotizacion & {
   lineas: LineaCotizacionCalculada[]
   total_cotizacion: number
 }
+
+export type SugerenciaLineaAsistente = {
+  servicio_id: string | null
+  servicio_nombre_sugerido: string
+  cantidad: number
+  descripcion: string
+  requiere_proveedor: boolean
+  motivo: string
+}
+
+export type SugerirLineasResponse = {
+  sugerencias: SugerenciaLineaAsistente[]
+}
+
+export type PreviewAprobacion = {
+  requiere_aprobacion: boolean
+}

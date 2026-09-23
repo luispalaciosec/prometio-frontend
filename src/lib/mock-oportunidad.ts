@@ -170,6 +170,8 @@ function row(
     valor_cotizado,
     probabilidad_cierre: null,
     servicios_ids,
+    categoria_interes_id: extra?.categoria_interes_id ?? null,
+    categoria_interes_nombre: extra?.categoria_interes_nombre ?? null,
     causa_perdida_principal_id: extra?.causa_perdida_principal_id ?? null,
     causa_perdida_secundaria_id: extra?.causa_perdida_secundaria_id ?? null,
     competidor_mencionado: extra?.competidor_mencionado ?? null,

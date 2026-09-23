@@ -233,13 +233,15 @@ export async function createCotizacion(
 export type CrearLineaInput = {
   perfil: Perfil
   cotizacion_id: string
-  servicio_id: string
+  servicio_id: string | null
   proveedor_id?: string | null
   costo_proveedor?: number | null
   margen_pct?: number | null
   comision_agencia_pct?: number | null
   cantidad?: number
   descripcion?: string | null
+  precio_venta_base_manual?: number | null
+  justificacion_precio?: string | null
 }
 
 export async function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalculada> {
@@ -286,6 +288,8 @@ export async function createLinea(input: CrearLineaInput): Promise<LineaCotizaci
     cantidad,
     descripcion: input.descripcion ?? null,
     precio_base_cliente_aplicado: null,
+    precio_venta_base_manual: input.precio_venta_base_manual ?? null,
+    justificacion_precio: input.justificacion_precio ?? null,
   }
   db.lineas = [...db.lineas, created]
   persist(db)

@@ -5,7 +5,12 @@ import { getOportunidad } from "@/lib/api/oportunidad"
 import { apiFetch, apiFetchBlob } from "@/lib/api-client"
 import type { AccionCotizacion } from "@/lib/cotizacion-transiciones"
 import { puedeVerDesgloseCotizacion } from "@/lib/pipeline-acceso"
-import type { CotizacionConLineas, CotizacionEstado } from "@/types/cotizacion"
+import type {
+  CotizacionConLineas,
+  CotizacionEstado,
+  PreviewAprobacion,
+  SugerirLineasResponse,
+} from "@/types/cotizacion"
 import type { LineaCotizacionCalculada } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
 
@@ -14,13 +19,15 @@ export type { AccionCotizacion } from "@/lib/cotizacion-transiciones"
 export type CrearLineaInput = {
   perfil: Perfil
   cotizacion_id: string
-  servicio_id: string
+  servicio_id: string | null
   proveedor_id?: string | null
   costo_proveedor?: number | null
   margen_pct?: number | null
   comision_agencia_pct?: number | null
   cantidad?: number
   descripcion?: string | null
+  precio_venta_base_manual?: number | null
+  justificacion_precio?: string | null
 }
 
 export type ActualizarLineaInput = {
@@ -28,11 +35,13 @@ export type ActualizarLineaInput = {
   cotizacion_id: string
   id: string
   proveedor_id?: string | null
-  costo_proveedor?: number
-  margen_pct?: number
-  comision_agencia_pct?: number
+  costo_proveedor?: number | null
+  margen_pct?: number | null
+  comision_agencia_pct?: number | null
   cantidad?: number
   descripcion?: string | null
+  precio_venta_base_manual?: number | null
+  justificacion_precio?: string | null
 }
 
 export type PdfCotizacionVariante = "cliente" | "interno"
@@ -95,6 +104,8 @@ export function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalc
       comision_agencia_pct: input.comision_agencia_pct ?? null,
       cantidad: input.cantidad ?? 1,
       descripcion: input.descripcion ?? null,
+      precio_venta_base_manual: input.precio_venta_base_manual ?? null,
+      justificacion_precio: input.justificacion_precio ?? null,
     }),
   })
 }
@@ -119,6 +130,12 @@ export function updateLinea(input: ActualizarLineaInput): Promise<LineaCotizacio
   if ("descripcion" in input) {
     body.descripcion = input.descripcion ?? null
   }
+  if ("precio_venta_base_manual" in input) {
+    body.precio_venta_base_manual = input.precio_venta_base_manual ?? null
+  }
+  if ("justificacion_precio" in input) {
+    body.justificacion_precio = input.justificacion_precio ?? null
+  }
   return apiFetch(`/cotizaciones/${input.cotizacion_id}/lineas/${input.id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
@@ -135,6 +152,30 @@ export function deleteLinea(input: {
 
 export function enviarCotizacion(id: string, _perfil: Perfil): Promise<CotizacionConLineas> {
   return apiFetch(`/cotizaciones/${id}/enviar`, { method: "POST" })
+}
+
+export function getPreviewAprobacion(cotizacionId: string): Promise<PreviewAprobacion> {
+  return apiFetch(`/cotizaciones/${cotizacionId}/preview-aprobacion`)
+}
+
+export function duplicarCotizacion(
+  cotizacionId: string,
+  oportunidadIdDestino: string,
+): Promise<CotizacionConLineas> {
+  return apiFetch(`/cotizaciones/${cotizacionId}/duplicar`, {
+    method: "POST",
+    body: JSON.stringify({ oportunidad_id_destino: oportunidadIdDestino }),
+  })
+}
+
+export function sugerirLineasCotizacion(
+  cotizacionId: string,
+  descripcionPedido: string,
+): Promise<SugerirLineasResponse> {
+  return apiFetch(`/cotizaciones/${cotizacionId}/sugerir-lineas`, {
+    method: "POST",
+    body: JSON.stringify({ descripcion_pedido: descripcionPedido }),
+  })
 }
 
 export function aprobarPreparacion(id: string, _perfil: Perfil): Promise<CotizacionConLineas> {

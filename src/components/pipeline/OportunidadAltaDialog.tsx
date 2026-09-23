@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 
+import { CategoriaInteresPicker } from "@/components/pipeline/CategoriaInteresPicker"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -17,23 +18,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
 import type { OportunidadCreate } from "@/types/oportunidad"
-import type { Servicio } from "@/types/servicio"
 
 type Draft = {
   contacto_id: string
   empresa_id: string
   valor_referencial: string
-  servicio_id: string
+  categoria_interes_id: string | null
 }
 
 const VACIO: Draft = {
   contacto_id: "",
   empresa_id: "",
   valor_referencial: "",
-  servicio_id: "",
+  categoria_interes_id: null,
 }
 
 export function OportunidadAltaDialog({
@@ -41,7 +42,7 @@ export function OportunidadAltaDialog({
   enviando,
   contactos,
   empresas,
-  servicios,
+  categorias,
   onConfirm,
   onCancel,
 }: {
@@ -49,15 +50,11 @@ export function OportunidadAltaDialog({
   enviando: boolean
   contactos: Contacto[]
   empresas: Empresa[]
-  servicios: Servicio[]
+  categorias: CategoriaServicio[]
   onConfirm: (input: OportunidadCreate) => void
   onCancel: () => void
 }) {
   const [draft, setDraft] = useState<Draft>(VACIO)
-  const catalogo = useMemo(
-    () => servicios.filter((row) => row.estado !== "archivado"),
-    [servicios],
-  )
 
   useEffect(() => {
     if (open) {
@@ -88,7 +85,7 @@ export function OportunidadAltaDialog({
       contacto_id: draft.contacto_id,
       empresa_id: draft.empresa_id,
       valor_referencial: valor === "" ? null : Number(valor),
-      servicios_ids: draft.servicio_id ? [draft.servicio_id] : null,
+      categoria_interes_id: draft.categoria_interes_id,
     })
   }
 
@@ -165,25 +162,18 @@ export function OportunidadAltaDialog({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="opp-servicio">Servicio</Label>
-            <Select
-              value={draft.servicio_id || "none"}
-              onValueChange={(value) =>
-                setDraft((prev) => ({ ...prev, servicio_id: value === "none" ? "" : value }))
+            <Label>Interés comercial</Label>
+            <CategoriaInteresPicker
+              categorias={categorias}
+              value={draft.categoria_interes_id}
+              onChange={(categoria_interes_id) =>
+                setDraft((prev) => ({ ...prev, categoria_interes_id }))
               }
-            >
-              <SelectTrigger id="opp-servicio">
-                <SelectValue placeholder="Sin servicio" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin servicio</SelectItem>
-                {catalogo.map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              disabled={enviando}
+            />
+            <p className="text-xs text-muted-foreground">
+              Clasificación liviana — sin costos ni catálogo. El servicio concreto se elige al cotizar.
+            </p>
           </div>
         </div>
         <DialogFooter className="rounded-b-2xl">

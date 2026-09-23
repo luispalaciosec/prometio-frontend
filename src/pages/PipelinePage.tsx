@@ -26,7 +26,12 @@ import {
   puedeVerEquipo,
   reasignarOportunidad,
 } from "@/lib/api/oportunidad"
-import { listCausasPerdida, listEtapasPipeline, listServicios } from "@/lib/config-api"
+import {
+  listCategoriasServicio,
+  listCausasPerdida,
+  listEtapasPipeline,
+  listServicios,
+} from "@/lib/config-api"
 import { coincideTexto } from "@/lib/lista-filtros"
 import { useAuthStore } from "@/store/auth-store"
 import type { EstadoAlerta } from "@/types/alerta"
@@ -36,6 +41,7 @@ import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
 import type { OportunidadCreate, OportunidadKanban, PipelineScope } from "@/types/oportunidad"
 import type { Perfil } from "@/types/perfil"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Servicio } from "@/types/servicio"
 import { Columns3 } from "lucide-react"
 
@@ -61,6 +67,7 @@ export function PipelinePage() {
   const [vista, setVista] = useState<PipelineVista>(leerVista)
   const [etapas, setEtapas] = useState<EtapaPipeline[]>([])
   const [servicios, setServicios] = useState<Servicio[]>([])
+  const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
   const [causas, setCausas] = useState<CausaPerdida[]>([])
   const [items, setItems] = useState<OportunidadKanban[]>([])
   const [alertasPorId, setAlertasPorId] = useState<Map<string, EstadoAlerta>>(new Map())
@@ -101,12 +108,14 @@ export function PipelinePage() {
     void Promise.all([
       listEtapasPipeline(),
       listServicios(),
+      listCategoriasServicio(),
       listCausasPerdida(),
       mostrarAlcance ? listPerfilesElegiblesEjecutivo() : Promise.resolve([]),
     ])
-      .then(([pipeline, catalogo, catalogoCausas, perfiles]) => {
+      .then(([pipeline, catalogo, cats, catalogoCausas, perfiles]) => {
         setEtapas(pipeline)
         setServicios(catalogo)
+        setCategorias(cats)
         setCausas(catalogoCausas)
         setPerfilesElegibles(perfiles)
         setCatalogoListo(true)
@@ -327,7 +336,7 @@ export function PipelinePage() {
         enviando={enviando}
         contactos={contactosAlta}
         empresas={empresasAlta}
-        servicios={servicios}
+        categorias={categorias}
         onConfirm={(input) => void crear(input)}
         onCancel={() => setAltaOpen(false)}
       />

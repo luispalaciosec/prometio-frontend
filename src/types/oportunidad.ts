@@ -19,6 +19,8 @@ export type Oportunidad = {
   valor_cotizado: number | null
   probabilidad_cierre: number | null
   servicios_ids: string[]
+  categoria_interes_id: string | null
+  categoria_interes_nombre: string | null
   causa_perdida_principal_id: string | null
   causa_perdida_secundaria_id: string | null
   competidor_mencionado: string | null
@@ -43,6 +45,7 @@ export type OportunidadCreate = {
   empresa_id: string
   valor_referencial?: number | null
   servicios_ids?: string[] | null
+  categoria_interes_id?: string | null
 }
 
 export type OportunidadUpdate = {
@@ -50,4 +53,5 @@ export type OportunidadUpdate = {
   empresa_id?: string
   valor_referencial?: number | null
   servicios_ids?: string[] | null
+  categoria_interes_id?: string | null
 }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 
 import { HistorialPreciosDialog } from "@/components/pipeline/HistorialPreciosDialog"
 import { LineaCalculoVivo } from "@/components/pipeline/LineaCalculoVivo"
+import { SugerenciaPrecioPanel } from "@/components/pipeline/SugerenciaPrecioPanel"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -27,13 +28,15 @@ import type { Servicio } from "@/types/servicio"
 const SIN_PROVEEDOR = "none"
 
 export type LineaCotizacionFormInput = {
-  servicio_id: string
+  servicio_id: string | null
   proveedor_id: string | null
   costo_proveedor: number | null
   margen_pct: number | null
   comision_agencia_pct: number | null
   cantidad: number
   descripcion: string | null
+  precio_venta_base_manual: number | null
+  justificacion_precio: string | null
 }
 
 function defaultsDeServicio(
@@ -48,6 +51,14 @@ function defaultsDeServicio(
       servicio?.comision_sugerida_min_pct ?? config?.comision_agencia_default_min_pct ?? "",
     ),
   }
+}
+
+function numeroOpcional(raw: string): number | null {
+  const parsed = parseOptionalNumber(raw)
+  if (parsed === "invalid" || parsed == null) {
+    return null
+  }
+  return parsed
 }
 
 export function LineaCotizacionForm({
@@ -67,6 +78,8 @@ export function LineaCotizacionForm({
   onSubmit: (input: LineaCotizacionFormInput) => void
   onCancel?: () => void
 }) {
+  const esEdicionSinServicio = modo === "edicion" && linea?.servicio_id == null
+  const [sinCatalogo, setSinCatalogo] = useState(esEdicionSinServicio)
   const caminoFijoConProveedor =
     modo === "edicion" ? linea?.costo_proveedor != null : null
   const [servicioId, setServicioId] = useState(linea?.servicio_id ?? "")
@@ -82,6 +95,13 @@ export function LineaCotizacionForm({
   )
   const [cantidadRaw, setCantidadRaw] = useState(String(linea?.cantidad ?? 1))
   const [descripcion, setDescripcion] = useState(linea?.descripcion ?? "")
+  const [ajustarPrecio, setAjustarPrecio] = useState(
+    linea?.precio_venta_base_manual != null && linea.costo_proveedor == null,
+  )
+  const [precioManualRaw, setPrecioManualRaw] = useState(
+    linea?.precio_venta_base_manual != null ? String(linea.precio_venta_base_manual) : "",
+  )
+  const [justificacion, setJustificacion] = useState(linea?.justificacion_precio ?? "")
 
   const servicio = servicios.find((row) => row.id === servicioId)
   const precioDirecto = precioDirectoServicio(servicio)
@@ -90,37 +110,50 @@ export function LineaCotizacionForm({
     caminoFijoConProveedor ?? (costoParsed !== null && costoParsed !== "invalid")
 
   useEffect(() => {
-    if (modo !== "alta" || !conProveedor) {
+    if (modo !== "alta" || !conProveedor || sinCatalogo) {
       return
     }
     const defaults = defaultsDeServicio(servicio, config)
     setMargenRaw((prev) => (prev.trim() === "" ? defaults.margen : prev))
     setComisionRaw((prev) => (prev.trim() === "" ? defaults.comision : prev))
-  }, [modo, conProveedor, servicio, config])
+  }, [modo, conProveedor, sinCatalogo, servicio, config])
+
+  const precioSinProveedor = useMemo(() => {
+    if (ajustarPrecio || sinCatalogo) {
+      const manual = parseOptionalNumber(precioManualRaw)
+      if (manual != null && manual !== "invalid") {
+        return manual
+      }
+      return null
+    }
+    return precioDirecto
+  }, [ajustarPrecio, sinCatalogo, precioManualRaw, precioDirecto])
 
   const calculo = useMemo(() => {
     if (!config) {
       return null
     }
-    const cantidad = parseOptionalNumber(cantidadRaw)
-    if (cantidad === "invalid" || cantidad == null || cantidad === 0) {
-      /* cantidad 0 is valid number but useless; still calculate unit */
-    }
     if (conProveedor) {
       const costo = parseOptionalNumber(costoRaw)
       const margen = parseOptionalNumber(margenRaw)
       const comision = parseOptionalNumber(comisionRaw)
-      if (costo == null || costo === "invalid" || margen == null || margen === "invalid" || comision == null || comision === "invalid") {
+      if (costo == null || costo === "invalid") {
         return null
       }
-      return calcularLineaConProveedor(costo, margen, comision, config.tasa_impuesto_pct)
+      const margenEfectivo = margen === "invalid" || margen == null ? 0 : margen
+      const comisionEfectivo = comision === "invalid" || comision == null ? 0 : comision
+      return calcularLineaConProveedor(
+        costo,
+        margenEfectivo,
+        comisionEfectivo,
+        config.tasa_impuesto_pct,
+      )
     }
-    const precio = precioDirectoServicio(servicio)
-    if (precio == null) {
+    if (precioSinProveedor == null) {
       return null
     }
-    return calcularLineaSinProveedor(precio, config.tasa_impuesto_pct)
-  }, [config, conProveedor, costoRaw, margenRaw, comisionRaw, cantidadRaw, servicio])
+    return calcularLineaSinProveedor(precioSinProveedor, config.tasa_impuesto_pct)
+  }, [config, conProveedor, costoRaw, margenRaw, comisionRaw, precioSinProveedor])
 
   function submit() {
     const cantidad = parseOptionalNumber(cantidadRaw)
@@ -128,47 +161,60 @@ export function LineaCotizacionForm({
       return
     }
     const descripcionLinea = descripcion.trim() ? descripcion.trim() : null
+    const usaManual = (sinCatalogo && !conProveedor) || ajustarPrecio
+    const precioManual = usaManual ? numeroOpcional(precioManualRaw) : null
+    const justificacionLinea = usaManual && justificacion.trim() ? justificacion.trim() : null
+
     if (conProveedor) {
       const costo = parseOptionalNumber(costoRaw)
-      const margen = parseOptionalNumber(margenRaw)
-      const comision = parseOptionalNumber(comisionRaw)
-      if (costo == null || costo === "invalid" || margen == null || margen === "invalid" || comision == null || comision === "invalid") {
+      if (costo == null || costo === "invalid") {
         return
       }
       onSubmit({
-        servicio_id: servicioId,
+        servicio_id: sinCatalogo ? null : servicioId || null,
         proveedor_id: proveedorId === SIN_PROVEEDOR ? null : proveedorId,
         costo_proveedor: costo,
-        margen_pct: margen,
-        comision_agencia_pct: comision,
+        margen_pct: numeroOpcional(margenRaw),
+        comision_agencia_pct: numeroOpcional(comisionRaw),
         cantidad,
         descripcion: descripcionLinea,
+        precio_venta_base_manual: null,
+        justificacion_precio: null,
       })
       return
     }
+
     onSubmit({
-      servicio_id: servicioId,
+      servicio_id: sinCatalogo ? null : servicioId || null,
       proveedor_id: null,
       costo_proveedor: null,
       margen_pct: null,
       comision_agencia_pct: null,
       cantidad,
       descripcion: descripcionLinea,
+      precio_venta_base_manual: usaManual ? precioManual : null,
+      justificacion_precio: usaManual ? justificacionLinea : null,
     })
   }
 
+  const descripcionOk = sinCatalogo ? descripcion.trim() !== "" : true
+  const servicioOk = sinCatalogo || servicioId !== ""
+  const manualOk =
+    !((sinCatalogo && !conProveedor) || ajustarPrecio) ||
+    (numeroOpcional(precioManualRaw) != null && justificacion.trim() !== "")
+  const catalogoPrecioOk =
+    sinCatalogo || conProveedor || ajustarPrecio || precioDirecto != null
+
   const puedeEnviar =
-    servicioId !== "" &&
+    servicioOk &&
+    descripcionOk &&
+    manualOk &&
+    catalogoPrecioOk &&
     parseOptionalNumber(cantidadRaw) !== "invalid" &&
     parseOptionalNumber(cantidadRaw) != null &&
     (conProveedor
-      ? parseOptionalNumber(costoRaw) != null &&
-        parseOptionalNumber(costoRaw) !== "invalid" &&
-        parseOptionalNumber(margenRaw) != null &&
-        parseOptionalNumber(margenRaw) !== "invalid" &&
-        parseOptionalNumber(comisionRaw) != null &&
-        parseOptionalNumber(comisionRaw) !== "invalid"
-      : precioDirecto != null) &&
+      ? parseOptionalNumber(costoRaw) != null && parseOptionalNumber(costoRaw) !== "invalid"
+      : precioSinProveedor != null) &&
     config != null
 
   return (
@@ -179,46 +225,78 @@ export function LineaCotizacionForm({
         submit()
       }}
     >
+      {modo === "alta" ? (
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant={sinCatalogo ? "outline" : "default"}
+            onClick={() => setSinCatalogo(false)}
+          >
+            Del catálogo
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant={sinCatalogo ? "default" : "outline"}
+            onClick={() => {
+              setSinCatalogo(true)
+              setServicioId("")
+            }}
+          >
+            No está en el catálogo
+          </Button>
+        </div>
+      ) : null}
+
+      {!sinCatalogo ? (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="linea-servicio">Servicio</Label>
+          <Select
+            value={servicioId || undefined}
+            onValueChange={setServicioId}
+            disabled={modo === "edicion"}
+          >
+            <SelectTrigger id="linea-servicio">
+              <SelectValue placeholder="Selecciona un servicio" />
+            </SelectTrigger>
+            <SelectContent>
+              {servicios
+                .filter((row) => row.estado === "activo")
+                .map((row) => (
+                  <SelectItem key={row.id} value={row.id}>
+                    {row.nombre}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+          {servicio ? (
+            <HistorialPreciosDialog
+              servicioId={servicio.id}
+              servicioNombre={servicio.nombre}
+              mapeado={Boolean(servicio.contifico_producto_id)}
+            />
+          ) : null}
+        </div>
+      ) : null}
+
       <div className="flex flex-col gap-2">
-        <Label htmlFor="linea-servicio">Servicio</Label>
-        <Select
-          value={servicioId || undefined}
-          onValueChange={setServicioId}
-          disabled={modo === "edicion"}
-        >
-          <SelectTrigger id="linea-servicio">
-            <SelectValue placeholder="Selecciona un servicio" />
-          </SelectTrigger>
-          <SelectContent>
-            {servicios
-              .filter((row) => row.estado === "activo")
-              .map((row) => (
-                <SelectItem key={row.id} value={row.id}>
-                  {row.nombre}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
-        {servicio ? (
-          <HistorialPreciosDialog
-            servicioId={servicio.id}
-            servicioNombre={servicio.nombre}
-            mapeado={Boolean(servicio.contifico_producto_id)}
-          />
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="linea-descripcion">Descripción</Label>
+        <Label htmlFor="linea-descripcion">
+          Descripción{sinCatalogo ? " (obligatoria)" : ""}
+        </Label>
         <Textarea
           id="linea-descripcion"
           value={descripcion}
           onChange={(event) => setDescripcion(event.target.value)}
+          required={sinCatalogo}
+          placeholder={
+            sinCatalogo
+              ? "Nombre del ítem tal como lo verá el cliente"
+              : "Opcional — reemplaza la descripción del catálogo en el PDF"
+          }
         />
-        <p className="text-kicker">
-          Opcional. Texto de esta cotización: si lo llenás, el PDF del cliente lo muestra en vez
-          de la descripción del catálogo.
-        </p>
       </div>
+
       {caminoFijoConProveedor === false ? null : (
         <div className="flex flex-col gap-2">
           <Label htmlFor="linea-costo">Costo del proveedor</Label>
@@ -232,12 +310,13 @@ export function LineaCotizacionForm({
           />
           {modo === "alta" ? (
             <p className="text-kicker">
-              Dejalo vacío para cotizar sin proveedor (precio directo del servicio). Cero es un
-              costo válido, no es lo mismo que vacío.
+              Dejalo vacío para cotizar sin proveedor. Con costo usás margen y comisión (vacíos =
+              defaults globales).
             </p>
           ) : null}
         </div>
       )}
+
       {conProveedor ? (
         <>
           <div className="flex flex-col gap-2">
@@ -262,7 +341,6 @@ export function LineaCotizacionForm({
               id="linea-margen"
               type="number"
               step="0.1"
-              required
               value={margenRaw}
               onChange={(event) => setMargenRaw(event.target.value)}
             />
@@ -273,22 +351,59 @@ export function LineaCotizacionForm({
               id="linea-comision"
               type="number"
               step="0.1"
-              required
               value={comisionRaw}
               onChange={(event) => setComisionRaw(event.target.value)}
             />
-            <p className="text-kicker">
-              El valor inicial es el mínimo del rango sugerido del servicio.
-            </p>
           </div>
         </>
       ) : (
-        <p className="text-ui text-muted-foreground">
-          Precio directo:{" "}
-          {precioDirecto != null ? precioDirecto : "este servicio no tiene un precio base al cliente"}.
-          Margen y comisión no aplican.
-        </p>
+        <div className="space-y-3">
+          {!sinCatalogo && precioDirecto != null ? (
+            <p className="text-ui text-muted-foreground">
+              Precio de catálogo: {precioDirecto}. Podés ajustarlo con motivo registrado.
+            </p>
+          ) : null}
+          {!sinCatalogo ? (
+            <label className="flex cursor-pointer items-center gap-2 text-kicker">
+              <input
+                type="checkbox"
+                checked={ajustarPrecio}
+                onChange={(event) => setAjustarPrecio(event.target.checked)}
+              />
+              Ajustar precio (fuera del catálogo)
+            </label>
+          ) : null}
+          {(sinCatalogo || ajustarPrecio || precioDirecto == null) && !conProveedor ? (
+            <>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="linea-precio-manual">Precio base al cliente</Label>
+                <Input
+                  id="linea-precio-manual"
+                  type="number"
+                  step="0.01"
+                  required
+                  value={precioManualRaw}
+                  onChange={(event) => setPrecioManualRaw(event.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="linea-justificacion">Motivo del precio</Label>
+                <Textarea
+                  id="linea-justificacion"
+                  required
+                  value={justificacion}
+                  onChange={(event) => setJustificacion(event.target.value)}
+                  placeholder="Ej. urgencia, volumen, alcance acotado…"
+                />
+              </div>
+            </>
+          ) : null}
+          {servicioId && !conProveedor ? (
+            <SugerenciaPrecioPanel servicioId={servicioId} precioActual={precioSinProveedor} />
+          ) : null}
+        </div>
       )}
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="linea-cantidad">Cantidad</Label>
         <Input

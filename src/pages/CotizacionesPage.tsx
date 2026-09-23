@@ -26,7 +26,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { listCotizaciones } from "@/lib/api/cotizacion"
+import { DuplicarCotizacionDialog } from "@/components/pipeline/DuplicarCotizacionDialog"
+import { duplicarCotizacion, listCotizaciones } from "@/lib/api/cotizacion"
+import { Button } from "@/components/ui/button"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import {
   etiquetaContacto,
@@ -58,6 +60,8 @@ export function CotizacionesPage() {
   const [qDebounced, setQDebounced] = useState("")
   const [estado, setEstado] = useState<CotizacionEstado | null>(null)
   const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
+  const [duplicarId, setDuplicarId] = useState<string | null>(null)
+  const [duplicando, setDuplicando] = useState(false)
 
   useEffect(() => {
     const t = window.setTimeout(() => setQDebounced(busqueda), 300)
@@ -144,6 +148,23 @@ export function CotizacionesPage() {
 
   const hayFiltro = Boolean(qDebounced.trim() || estado)
 
+  async function confirmarDuplicar(oportunidadIdDestino: string) {
+    if (!duplicarId || !perfil) {
+      return
+    }
+    setDuplicando(true)
+    try {
+      const nueva = await duplicarCotizacion(duplicarId, oportunidadIdDestino)
+      setDuplicarId(null)
+      toast.success(`Plantilla copiada como ${nueva.numero}.`)
+      navigate(`/pipeline/${oportunidadIdDestino}?cotizacion=${nueva.id}`)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo duplicar la cotización.")
+    } finally {
+      setDuplicando(false)
+    }
+  }
+
   return (
     <>
       <PageHeader
@@ -205,6 +226,7 @@ export function CotizacionesPage() {
               <TableHead>Alcance</TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead>Fecha</TableHead>
+              <TableHead className="w-0" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -233,11 +255,32 @@ export function CotizacionesPage() {
                 <TableCell className="text-muted-foreground">
                   {formatDateTime(row.created_at)}
                 </TableCell>
+                <TableCell className="text-right">
+                  {row.estado === "aprobada" && row.lineas.length > 0 ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        setDuplicarId(row.id)
+                      }}
+                    >
+                      Duplicar plantilla
+                    </Button>
+                  ) : null}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       )}
+      <DuplicarCotizacionDialog
+        open={duplicarId != null}
+        enviando={duplicando}
+        onConfirm={(destino) => void confirmarDuplicar(destino)}
+        onCancel={() => setDuplicarId(null)}
+      />
     </>
   )
 }

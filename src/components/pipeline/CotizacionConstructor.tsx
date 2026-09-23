@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
+import { CotizacionAsistenteLineas } from "@/components/pipeline/CotizacionAsistenteLineas"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
 import { CotizacionPdfAcciones } from "@/components/pipeline/CotizacionPdfAcciones"
 import { CotizacionTransiciones } from "@/components/pipeline/CotizacionTransiciones"
@@ -8,12 +9,16 @@ import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanc
 import { DocumentoAlcanceRequisitoAviso } from "@/components/pipeline/DocumentoAlcanceRequisitoAviso"
 import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
 import { LineaCotizacionForm, type LineaCotizacionFormInput } from "@/components/pipeline/LineaCotizacionForm"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ApiError } from "@/lib/api-client"
 import { formatMoney } from "@/lib/costo-interno"
+import { getSugerenciaPrecio } from "@/lib/config-api"
 import {
   createLinea,
   deleteLinea,
   ejecutarTransicion,
+  getPreviewAprobacion,
   updateLinea,
   type AccionCotizacion,
 } from "@/lib/api/cotizacion"
@@ -24,6 +29,23 @@ import type { LineaCotizacion } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
 import type { Proveedor } from "@/types/proveedor"
 import type { Servicio } from "@/types/servicio"
+
+function tituloLinea(linea: LineaCotizacion, servicios: Servicio[]): string {
+  if (linea.descripcion?.trim()) {
+    return linea.descripcion.trim()
+  }
+  if (linea.servicio_id) {
+    return servicios.find((row) => row.id === linea.servicio_id)?.nombre ?? "Servicio"
+  }
+  return "Ítem a medida"
+}
+
+function mensajeError(error: unknown, fallback: string): string {
+  if (error instanceof ApiError && error.status === 422) {
+    return error.detail
+  }
+  return error instanceof Error ? error.message : fallback
+}
 
 export function CotizacionConstructor({
   cotizacion,
@@ -51,6 +73,31 @@ export function CotizacionConstructor({
   const esBorrador = cotizacion.estado === "borrador"
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [transicionPendiente, setTransicionPendiente] = useState(false)
+  const [previewAprobacion, setPreviewAprobacion] = useState<boolean | null>(null)
+
+  const firmaLineas = cotizacion.lineas.map((linea) => linea.id).join("|")
+
+  useEffect(() => {
+    if (!esBorrador) {
+      setPreviewAprobacion(cotizacion.requiere_aprobacion)
+      return
+    }
+    let cancelled = false
+    void getPreviewAprobacion(cotizacion.id)
+      .then((row) => {
+        if (!cancelled) {
+          setPreviewAprobacion(row.requiere_aprobacion)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setPreviewAprobacion(null)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [cotizacion.id, esBorrador, firmaLineas, cotizacion.requiere_aprobacion])
 
   async function agregar(input: LineaCotizacionFormInput) {
     try {
@@ -61,15 +108,15 @@ export function CotizacionConstructor({
       })
       await onChange()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo agregar la línea.")
+      toast.error(mensajeError(error, "No se pudo agregar la línea."))
     }
   }
 
   async function guardar(linea: LineaCotizacion, input: LineaCotizacionFormInput) {
     try {
       if (linea.costo_proveedor != null) {
-        if (input.costo_proveedor == null || input.margen_pct == null || input.comision_agencia_pct == null) {
-          toast.error("Esta línea es con proveedor: no se puede vaciar el camino.")
+        if (input.costo_proveedor == null) {
+          toast.error("Esta línea es con proveedor: no se puede vaciar el costo.")
           return
         }
         await updateLinea({
@@ -90,12 +137,14 @@ export function CotizacionConstructor({
           id: linea.id,
           cantidad: input.cantidad,
           descripcion: input.descripcion,
+          precio_venta_base_manual: input.precio_venta_base_manual,
+          justificacion_precio: input.justificacion_precio,
         })
       }
       setEditandoId(null)
       await onChange()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo guardar la línea.")
+      toast.error(mensajeError(error, "No se pudo guardar la línea."))
     }
   }
 
@@ -111,9 +160,37 @@ export function CotizacionConstructor({
     }
   }
 
+  async function avisoPrecioBajoAlEnviar() {
+    for (const linea of cotizacion.lineas) {
+      if (linea.servicio_id == null || linea.costo_proveedor != null) {
+        continue
+      }
+      const precio =
+        linea.precio_venta_base_manual ?? linea.precio_base_cliente_aplicado ?? linea.precio_venta_base
+      try {
+        const ref = await getSugerenciaPrecio(linea.servicio_id, 12)
+        if (
+          ref.precio_sugerido_min != null &&
+          precio != null &&
+          precio < ref.precio_sugerido_min
+        ) {
+          toast.warning(
+            `«${tituloLinea(linea, servicios)}» está por debajo del mínimo histórico (${formatMoney(ref.precio_sugerido_min)}).`,
+          )
+          return
+        }
+      } catch {
+        /* referencia opcional */
+      }
+    }
+  }
+
   async function transicionar(accion: AccionCotizacion) {
     setTransicionPendiente(true)
     try {
+      if (accion === "enviar") {
+        await avisoPrecioBajoAlEnviar()
+      }
       await ejecutarTransicion(cotizacion.id, perfil, accion)
       await onChange()
     } catch (error) {
@@ -128,6 +205,11 @@ export function CotizacionConstructor({
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-section">{cotizacion.numero}</p>
         <CotizacionEstadoBadge estado={cotizacion.estado} />
+        {previewAprobacion ? (
+          <Badge variant="warning">Pedirá aprobación al enviar</Badge>
+        ) : previewAprobacion === false && esBorrador ? (
+          <Badge variant="outline">Sin aprobación por descuento</Badge>
+        ) : null}
         <DocumentoAlcanceIndicador docs={documentos} />
       </div>
       <DocumentoAlcanceRequisitoAviso
@@ -175,7 +257,9 @@ export function CotizacionConstructor({
       </p>
       <ul className="space-y-3">
         {cotizacion.lineas.map((linea) => {
-          const servicio = servicios.find((row) => row.id === linea.servicio_id)
+          const servicio = linea.servicio_id
+            ? servicios.find((row) => row.id === linea.servicio_id)
+            : undefined
           if (editandoId === linea.id && esBorrador) {
             return (
               <li key={linea.id}>
@@ -197,14 +281,23 @@ export function CotizacionConstructor({
               className="surface-muted flex flex-wrap items-start justify-between gap-2 p-3"
             >
               <div>
-                <p className="text-ui-medium">{servicio?.nombre ?? linea.servicio_id}</p>
-                {linea.descripcion ? (
+                <p className="text-ui-medium">{tituloLinea(linea, servicios)}</p>
+                {servicio && linea.descripcion ? (
                   <p className="mt-1 text-ui text-muted-foreground">{linea.descripcion}</p>
                 ) : null}
                 <p className="text-kicker text-muted-foreground">
-                  {linea.costo_proveedor != null ? "Con proveedor" : "Sin proveedor"} · cantidad{" "}
+                  {linea.costo_proveedor != null
+                    ? "Con proveedor"
+                    : linea.servicio_id
+                      ? "Sin proveedor"
+                      : "A medida"}
+                  {linea.precio_venta_base_manual != null ? " · precio ajustado" : ""}
+                  {" · cantidad "}
                   {linea.cantidad} · {formatMoney(linea.total_linea_extendido)}
                 </p>
+                {linea.justificacion_precio ? (
+                  <p className="text-micro text-muted-foreground">{linea.justificacion_precio}</p>
+                ) : null}
               </div>
               {esBorrador ? (
                 <div className="flex gap-1">
@@ -221,17 +314,24 @@ export function CotizacionConstructor({
         })}
       </ul>
       {esBorrador ? (
-        <div>
-          <p className="mb-2 text-sm font-medium">Nueva línea</p>
-          <LineaCotizacionForm
-            key={cotizacion.lineas.map((linea) => linea.id).join("|")}
-            modo="alta"
-            servicios={servicios}
-            proveedores={proveedores}
-            config={config}
-            onSubmit={(input) => void agregar(input)}
+        <>
+          <CotizacionAsistenteLineas
+            cotizacionId={cotizacion.id}
+            perfil={perfil}
+            onLineaAgregada={onChange}
           />
-        </div>
+          <div>
+            <p className="mb-2 text-sm font-medium">Nueva línea</p>
+            <LineaCotizacionForm
+              key={firmaLineas}
+              modo="alta"
+              servicios={servicios}
+              proveedores={proveedores}
+              config={config}
+              onSubmit={(input) => void agregar(input)}
+            />
+          </div>
+        </>
       ) : null}
       <DocumentoAlcanceSection
         cotizacionId={cotizacion.id}

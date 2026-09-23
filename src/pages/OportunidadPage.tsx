@@ -22,11 +22,17 @@ import {
   updateOportunidad,
 } from "@/lib/api/oportunidad"
 import { puedeVerEquipo } from "@/lib/pipeline-acceso"
-import { listCausasPerdida, listEtapasPipeline, listServicios } from "@/lib/config-api"
+import {
+  listCategoriasServicio,
+  listCausasPerdida,
+  listEtapasPipeline,
+  listServicios,
+} from "@/lib/config-api"
 import { useAuthStore } from "@/store/auth-store"
 import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
 import type { OportunidadKanban, OportunidadUpdate } from "@/types/oportunidad"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Servicio } from "@/types/servicio"
 
 type LoadState =
@@ -53,6 +59,7 @@ export function OportunidadPage() {
   const [cambiandoEstado, setCambiandoEstado] = useState(false)
   const [contactos, setContactos] = useState<Contacto[]>([])
   const [empresas, setEmpresas] = useState<Empresa[]>([])
+  const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
 
   useEffect(() => {
     if (!id || !perfil) {
@@ -61,11 +68,12 @@ export function OportunidadPage() {
     let cancelled = false
     void (async () => {
       try {
-        const [oportunidad, etapas, servicios, causas] = await Promise.all([
+        const [oportunidad, etapas, servicios, causas, cats] = await Promise.all([
           getOportunidad(id, perfil),
           listEtapasPipeline(),
           listServicios(),
           listCausasPerdida(),
+          listCategoriasServicio(),
         ])
         if (cancelled) {
           return
@@ -73,6 +81,7 @@ export function OportunidadPage() {
         const etapaNombre =
           etapas.find((etapa) => etapa.codigo === oportunidad.etapa)?.nombre ??
           oportunidad.etapa
+        setCategorias(cats)
         setState({
           status: "ok",
           oportunidad,
@@ -246,7 +255,7 @@ export function OportunidadPage() {
         oportunidad={state.oportunidad}
         contactos={contactos}
         empresas={empresas}
-        servicios={state.catalogoServicios}
+        categorias={categorias}
         onConfirm={(input) => void guardar(input)}
         onCancel={() => setEditarOpen(false)}
       />

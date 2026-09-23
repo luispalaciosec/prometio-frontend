@@ -116,6 +116,21 @@ export function listHistorialPrecios(
   return apiFetch(`/servicios/${servicioId}/historial-precios?meses=${meses}`)
 }
 
+export type SugerenciaPrecioResponse = {
+  muestras: number
+  precio_sugerido_min: number | null
+  precio_sugerido_max: number | null
+  precio_promedio: number | null
+  precio_catalogo: number | null
+}
+
+export function getSugerenciaPrecio(
+  servicioId: string,
+  meses = 12,
+): Promise<SugerenciaPrecioResponse> {
+  return apiFetch(`/servicios/${servicioId}/sugerencia-precio?meses=${meses}`)
+}
+
 export function listCausasPerdida(): Promise<CausaPerdida[]> {
   return apiFetch("/config/causas-perdida")
 }
