@@ -8,7 +8,12 @@ import { CotizacionTransiciones } from "@/components/pipeline/CotizacionTransici
 import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
 import { DocumentoAlcanceRequisitoAviso } from "@/components/pipeline/DocumentoAlcanceRequisitoAviso"
 import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
-import { LineaCotizacionForm, type LineaCotizacionFormInput } from "@/components/pipeline/LineaCotizacionForm"
+import {
+  LineaCotizacionForm,
+  prefillDesdeSugerencia,
+  type LineaCotizacionFormInput,
+  type LineaFormPrefillAlta,
+} from "@/components/pipeline/LineaCotizacionForm"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ApiError } from "@/lib/api-client"
@@ -23,7 +28,7 @@ import {
   type AccionCotizacion,
 } from "@/lib/api/cotizacion"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
-import type { CotizacionConLineas } from "@/types/cotizacion"
+import type { CotizacionConLineas, SugerenciaLineaAsistente } from "@/types/cotizacion"
 import type { DocumentoAlcance } from "@/types/documento-alcance"
 import type { LineaCotizacion } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
@@ -74,8 +79,28 @@ export function CotizacionConstructor({
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [transicionPendiente, setTransicionPendiente] = useState(false)
   const [previewAprobacion, setPreviewAprobacion] = useState<boolean | null>(null)
+  const [prefillNuevaLinea, setPrefillNuevaLinea] = useState<LineaFormPrefillAlta | null>(null)
+  const [notaPrefill, setNotaPrefill] = useState<string | null>(null)
+  const [prefillKey, setPrefillKey] = useState(0)
 
   const firmaLineas = cotizacion.lineas.map((linea) => linea.id).join("|")
+
+  function precargarDesdeSugerencia(row: SugerenciaLineaAsistente) {
+    setPrefillNuevaLinea(prefillDesdeSugerencia(row))
+    setNotaPrefill(row.motivo)
+    setPrefillKey((value) => value + 1)
+    window.requestAnimationFrame(() => {
+      document.getElementById("nueva-linea-cotizacion")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
+    })
+  }
+
+  function limpiarPrefill() {
+    setPrefillNuevaLinea(null)
+    setNotaPrefill(null)
+  }
 
   useEffect(() => {
     if (!esBorrador) {
@@ -106,6 +131,7 @@ export function CotizacionConstructor({
         cotizacion_id: cotizacion.id,
         ...input,
       })
+      limpiarPrefill()
       await onChange()
     } catch (error) {
       toast.error(mensajeError(error, "No se pudo agregar la línea."))
@@ -319,16 +345,22 @@ export function CotizacionConstructor({
             cotizacionId={cotizacion.id}
             perfil={perfil}
             onLineaAgregada={onChange}
+            onPrecargarLinea={precargarDesdeSugerencia}
           />
-          <div>
-            <p className="mb-2 text-sm font-medium">Nueva línea</p>
+          <div id="nueva-linea-cotizacion">
+            <p className="mb-2 text-sm font-medium">
+              {prefillNuevaLinea ? "Nueva línea (desde sugerencia)" : "Nueva línea"}
+            </p>
             <LineaCotizacionForm
-              key={firmaLineas}
+              key={`${firmaLineas}-${prefillKey}`}
               modo="alta"
+              prefillAlta={prefillNuevaLinea ?? undefined}
+              notaContexto={notaPrefill ?? undefined}
               servicios={servicios}
               proveedores={proveedores}
               config={config}
               onSubmit={(input) => void agregar(input)}
+              onCancel={prefillNuevaLinea ? limpiarPrefill : undefined}
             />
           </div>
         </>

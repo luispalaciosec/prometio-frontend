@@ -10,14 +10,20 @@ import { createLinea, sugerirLineasCotizacion } from "@/lib/api/cotizacion"
 import type { SugerenciaLineaAsistente } from "@/types/cotizacion"
 import type { Perfil } from "@/types/perfil"
 
+function requiereFormulario(row: SugerenciaLineaAsistente): boolean {
+  return row.servicio_id == null || row.requiere_proveedor
+}
+
 export function CotizacionAsistenteLineas({
   cotizacionId,
   perfil,
   onLineaAgregada,
+  onPrecargarLinea,
 }: {
   cotizacionId: string
   perfil: Perfil
   onLineaAgregada: () => Promise<void>
+  onPrecargarLinea: (sugerencia: SugerenciaLineaAsistente) => void
 }) {
   const [pedido, setPedido] = useState("")
   const [cargando, setCargando] = useState(false)
@@ -50,26 +56,21 @@ export function CotizacionAsistenteLineas({
   }
 
   async function confirmar(row: SugerenciaLineaAsistente, key: string) {
-    if (row.requiere_proveedor || !row.servicio_id) {
-      toast.message(
-        row.servicio_id
-          ? "Esta línea lleva proveedor — agregala con «Nueva línea» y el costo correspondiente."
-          : "Ítem a medida — usá «No está en el catálogo» en Nueva línea y completá descripción y precio.",
-      )
+    if (requiereFormulario(row)) {
+      onPrecargarLinea(row)
+      setSugerencias((prev) => prev?.filter((item) => item !== row) ?? null)
       return
     }
     setConfirmando(key)
     try {
-      if (row.servicio_id) {
-        await createLinea({
-          perfil,
-          cotizacion_id: cotizacionId,
-          servicio_id: row.servicio_id,
-          descripcion: row.descripcion.trim() || null,
-          cantidad: row.cantidad,
-        })
-        toast.success("Línea agregada desde sugerencia.")
-      }
+      await createLinea({
+        perfil,
+        cotizacion_id: cotizacionId,
+        servicio_id: row.servicio_id,
+        descripcion: row.descripcion.trim() || null,
+        cantidad: row.cantidad,
+      })
+      toast.success("Línea agregada desde sugerencia.")
       await onLineaAgregada()
       setSugerencias((prev) => prev?.filter((item) => item !== row) ?? null)
     } catch (error) {
@@ -113,6 +114,7 @@ export function CotizacionAsistenteLineas({
         <ul className="space-y-3">
           {sugerencias.map((row, index) => {
             const key = `${row.servicio_id ?? "custom"}-${index}`
+            const viaFormulario = requiereFormulario(row)
             return (
               <li key={key} className="surface-muted space-y-2 p-3">
                 <p className="text-ui-medium">
@@ -130,7 +132,11 @@ export function CotizacionAsistenteLineas({
                   disabled={confirmando != null}
                   onClick={() => void confirmar(row, key)}
                 >
-                  {confirmando === key ? "Agregando…" : "Agregar esta línea"}
+                  {confirmando === key
+                    ? "Agregando…"
+                    : viaFormulario
+                      ? "Revisar en formulario"
+                      : "Agregar esta línea"}
                 </Button>
               </li>
             )

@@ -39,6 +39,39 @@ export type LineaCotizacionFormInput = {
   justificacion_precio: string | null
 }
 
+/** Precarga del formulario de alta desde POST .../sugerir-lineas */
+export type LineaFormPrefillAlta = {
+  sinCatalogo: boolean
+  servicio_id: string | null
+  descripcion: string
+  cantidad: number
+  caminoProveedor: boolean
+  justificacion_precio: string
+  motivo: string
+}
+
+export function prefillDesdeSugerencia(row: {
+  servicio_id: string | null
+  servicio_nombre_sugerido: string
+  cantidad: number
+  descripcion: string
+  requiere_proveedor: boolean
+  motivo: string
+}): LineaFormPrefillAlta {
+  const sinCatalogo = row.servicio_id == null
+  const descripcion =
+    row.descripcion.trim() || row.servicio_nombre_sugerido.trim() || "Ítem a medida"
+  return {
+    sinCatalogo,
+    servicio_id: row.servicio_id,
+    descripcion,
+    cantidad: row.cantidad,
+    caminoProveedor: row.requiere_proveedor,
+    justificacion_precio: sinCatalogo && !row.requiere_proveedor ? row.motivo : "",
+    motivo: row.motivo,
+  }
+}
+
 function defaultsDeServicio(
   servicio: Servicio | undefined,
   config: ConfiguracionGeneral | null,
@@ -64,6 +97,8 @@ function numeroOpcional(raw: string): number | null {
 export function LineaCotizacionForm({
   modo,
   linea,
+  prefillAlta,
+  notaContexto,
   servicios,
   proveedores,
   config,
@@ -72,6 +107,8 @@ export function LineaCotizacionForm({
 }: {
   modo: "alta" | "edicion"
   linea?: LineaCotizacion
+  prefillAlta?: LineaFormPrefillAlta
+  notaContexto?: string
   servicios: Servicio[]
   proveedores: Proveedor[]
   config: ConfiguracionGeneral | null
@@ -79,10 +116,17 @@ export function LineaCotizacionForm({
   onCancel?: () => void
 }) {
   const esEdicionSinServicio = modo === "edicion" && linea?.servicio_id == null
-  const [sinCatalogo, setSinCatalogo] = useState(esEdicionSinServicio)
+  const [sinCatalogo, setSinCatalogo] = useState(
+    esEdicionSinServicio || prefillAlta?.sinCatalogo === true,
+  )
+  const [caminoProveedorForzado, setCaminoProveedorForzado] = useState(
+    prefillAlta?.caminoProveedor ?? false,
+  )
   const caminoFijoConProveedor =
     modo === "edicion" ? linea?.costo_proveedor != null : null
-  const [servicioId, setServicioId] = useState(linea?.servicio_id ?? "")
+  const [servicioId, setServicioId] = useState(
+    linea?.servicio_id ?? prefillAlta?.servicio_id ?? "",
+  )
   const [proveedorId, setProveedorId] = useState(linea?.proveedor_id ?? SIN_PROVEEDOR)
   const [costoRaw, setCostoRaw] = useState(
     linea?.costo_proveedor != null ? String(linea.costo_proveedor) : "",
@@ -93,27 +137,35 @@ export function LineaCotizacionForm({
   const [comisionRaw, setComisionRaw] = useState(
     linea?.comision_agencia_pct != null ? String(linea.comision_agencia_pct) : "",
   )
-  const [cantidadRaw, setCantidadRaw] = useState(String(linea?.cantidad ?? 1))
-  const [descripcion, setDescripcion] = useState(linea?.descripcion ?? "")
+  const [cantidadRaw, setCantidadRaw] = useState(
+    String(linea?.cantidad ?? prefillAlta?.cantidad ?? 1),
+  )
+  const [descripcion, setDescripcion] = useState(
+    linea?.descripcion ?? prefillAlta?.descripcion ?? "",
+  )
   const [ajustarPrecio, setAjustarPrecio] = useState(
-    linea?.precio_venta_base_manual != null && linea.costo_proveedor == null,
+    (linea?.precio_venta_base_manual != null && linea.costo_proveedor == null) ||
+      Boolean(prefillAlta?.sinCatalogo && !prefillAlta.caminoProveedor),
   )
   const [precioManualRaw, setPrecioManualRaw] = useState(
     linea?.precio_venta_base_manual != null ? String(linea.precio_venta_base_manual) : "",
   )
-  const [justificacion, setJustificacion] = useState(linea?.justificacion_precio ?? "")
+  const [justificacion, setJustificacion] = useState(
+    linea?.justificacion_precio ?? prefillAlta?.justificacion_precio ?? "",
+  )
 
   const servicio = servicios.find((row) => row.id === servicioId)
   const precioDirecto = precioDirectoServicio(servicio)
   const costoParsed = parseOptionalNumber(costoRaw)
   const conProveedor =
-    caminoFijoConProveedor ?? (costoParsed !== null && costoParsed !== "invalid")
+    caminoFijoConProveedor ??
+    (caminoProveedorForzado || (costoParsed !== null && costoParsed !== "invalid"))
 
   useEffect(() => {
-    if (modo !== "alta" || !conProveedor || sinCatalogo) {
+    if (modo !== "alta" || !conProveedor) {
       return
     }
-    const defaults = defaultsDeServicio(servicio, config)
+    const defaults = defaultsDeServicio(sinCatalogo ? undefined : servicio, config)
     setMargenRaw((prev) => (prev.trim() === "" ? defaults.margen : prev))
     setComisionRaw((prev) => (prev.trim() === "" ? defaults.comision : prev))
   }, [modo, conProveedor, sinCatalogo, servicio, config])
@@ -225,13 +277,22 @@ export function LineaCotizacionForm({
         submit()
       }}
     >
+      {notaContexto ? (
+        <div className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2">
+          <p className="text-ui-medium text-foreground">Contexto de la sugerencia</p>
+          <p className="mt-1 text-kicker">{notaContexto}</p>
+        </div>
+      ) : null}
       {modo === "alta" ? (
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
             size="sm"
             variant={sinCatalogo ? "outline" : "default"}
-            onClick={() => setSinCatalogo(false)}
+            onClick={() => {
+              setSinCatalogo(false)
+              setCaminoProveedorForzado(false)
+            }}
           >
             Del catálogo
           </Button>
@@ -242,6 +303,7 @@ export function LineaCotizacionForm({
             onClick={() => {
               setSinCatalogo(true)
               setServicioId("")
+              setCaminoProveedorForzado(false)
             }}
           >
             No está en el catálogo
@@ -306,12 +368,19 @@ export function LineaCotizacionForm({
             step="0.01"
             required={caminoFijoConProveedor === true}
             value={costoRaw}
-            onChange={(event) => setCostoRaw(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value
+              setCostoRaw(value)
+              if (value.trim() === "" && caminoProveedorForzado) {
+                setCaminoProveedorForzado(true)
+              }
+            }}
           />
           {modo === "alta" ? (
             <p className="text-kicker">
-              Dejalo vacío para cotizar sin proveedor. Con costo usás margen y comisión (vacíos =
-              defaults globales).
+              {caminoProveedorForzado
+                ? "Completá el costo del proveedor. Margen y comisión vacíos usan defaults globales."
+                : "Dejalo vacío para cotizar sin proveedor. Con costo usás margen y comisión (vacíos = defaults globales)."}
             </p>
           ) : null}
         </div>
