@@ -5,16 +5,15 @@ import {
   Bell,
   CalendarClock,
   FileText,
-  Sparkles,
   Target,
   type LucideIcon,
 } from "lucide-react"
 
+import { SugerenciasCard } from "@/components/bienvenida/SugerenciasCard"
 import { EmptyState } from "@/components/empty-state"
 import { KindMark } from "@/components/kind-mark"
 import { PageHeader } from "@/components/page-header"
 import { TilesSkeleton } from "@/components/skeleton"
-import { Badge } from "@/components/ui/badge"
 import { getInicio } from "@/lib/api/inicio"
 import { formatMoney } from "@/lib/costo-interno"
 import type { Inicio } from "@/types/inicio"
@@ -75,10 +74,7 @@ function bloquesDe(data: Inicio): Bloque[] {
 
 function BloqueCard({ bloque }: { bloque: Bloque }) {
   return (
-    <Link
-      to={bloque.to}
-      className="surface-interactive p-5"
-    >
+    <Link to={bloque.to} className="surface-interactive p-5">
       <div className="flex items-start gap-4">
         <KindMark icon={bloque.icon} tone={bloque.tone} size="lg" />
         <div className="min-w-0">
@@ -88,24 +84,6 @@ function BloqueCard({ bloque }: { bloque: Bloque }) {
         </div>
       </div>
     </Link>
-  )
-}
-
-function SugerenciasCard() {
-  return (
-    <section className="surface-card p-5">
-      <div className="flex items-start gap-4">
-        <KindMark icon={Sparkles} tone="bg-highlight/15 text-highlight" size="lg" />
-        <div className="min-w-0 space-y-2">
-          <p className="text-ui-medium">Sugerencias</p>
-          <Badge variant="outline">Próximamente</Badge>
-          <p className="text-kicker">
-            Sugerencias de IA. Se scopea en un corte propio; el lugar en esta pantalla ya queda
-            reservado.
-          </p>
-        </div>
-      </div>
-    </section>
   )
 }
 
@@ -137,24 +115,22 @@ export function BienvenidaPage() {
   return (
     <>
       <PageHeader title="Bienvenida" description="Tu día en el CRM." />
-      {bloques == null ? (
-        <TilesSkeleton count={5} />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {error ? (
-            <div className="sm:col-span-2">
-              <EmptyState
-                icon={CalendarClock}
-                title="Sin el día"
-                body="No se pudieron cargar actividades, cotizaciones, alertas ni la meta."
-              />
-            </div>
-          ) : (
-            bloques.map((bloque) => <BloqueCard key={bloque.label} bloque={bloque} />)
-          )}
-          <SugerenciasCard />
-        </div>
-      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {bloques == null ? (
+          <TilesSkeleton count={4} />
+        ) : error ? (
+          <div className="sm:col-span-2">
+            <EmptyState
+              icon={CalendarClock}
+              title="Sin el día"
+              body="No se pudieron cargar actividades, cotizaciones, alertas ni la meta."
+            />
+          </div>
+        ) : (
+          bloques.map((bloque) => <BloqueCard key={bloque.label} bloque={bloque} />)
+        )}
+        <SugerenciasCard />
+      </div>
     </>
   )
 }
