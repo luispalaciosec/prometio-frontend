@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 
 import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
+import { DashboardDetalleModal } from "@/components/dashboard/DashboardDetalleModal"
+import { DashboardKpiTrigger } from "@/components/dashboard/DashboardKpiTrigger"
 import { DashboardMetas } from "@/components/dashboard/DashboardMetas"
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
@@ -23,6 +25,8 @@ import { formatMoney } from "@/lib/costo-interno"
 import { esSoloLoPropio } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
+import type { DashboardDetalleRequest } from "@/types/dashboard-detalle"
+import { cn } from "@/lib/utils"
 import { BarChart3, CalendarClock, CircleDollarSign, CircleOff, Columns3, FileText, Percent } from "lucide-react"
 
 const ESTADO_COTIZACION: Record<string, string> = {
@@ -40,6 +44,16 @@ export function DashboardPage() {
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
   const [cargando, setCargando] = useState(true)
+  const [detalleReq, setDetalleReq] = useState<DashboardDetalleRequest | null>(null)
+  const returnFocusRef = useRef<HTMLElement | null>(null)
+
+  function abrirDetalle(req: Omit<DashboardDetalleRequest, "previewValor" | "previewTitulo"> & {
+    previewValor: string
+    previewTitulo?: string
+  }, source: HTMLElement) {
+    returnFocusRef.current = source
+    setDetalleReq(req)
+  }
 
   async function reload(rango?: { desde: string; hasta: string }) {
     setCargando(true)
@@ -67,9 +81,18 @@ export function DashboardPage() {
     conversion?.tasa_conversion_pct == null
       ? "—"
       : `${conversion.tasa_conversion_pct.toFixed(1)}%`
+  const pipelineAbierto =
+    kpis?.pipeline_por_etapa
+      .filter((row) => row.etapa !== "cierre_ganado" && row.etapa !== "cierre_perdido")
+      .reduce((sum, row) => sum + row.cantidad, 0) ?? 0
 
   return (
     <>
+      <DashboardDetalleModal
+        request={detalleReq}
+        onClose={() => setDetalleReq(null)}
+        returnFocusRef={returnFocusRef}
+      />
       <PageHeader
         title="Dashboard"
         description={
@@ -115,34 +138,75 @@ export function DashboardPage() {
       ) : (
         <div className="space-y-8">
           <div className="grid gap-4 sm:grid-cols-3">
-            <KpiCard
-              title="Valor en juego"
-              value={formatMoney(kpis.valor_total_en_juego)}
-              icon={CircleDollarSign}
-              tone="bg-primary/15 text-primary"
-            />
-            <KpiCard
-              title="Conversión"
-              value={tasa}
-              hint={`${conversion?.ganadas ?? 0} ganadas · ${conversion?.perdidas ?? 0} perdidas`}
-              icon={Percent}
-              tone="bg-success/15 text-success"
-            />
-            <KpiCard
-              title="Pipeline abierto"
-              value={String(
-                kpis.pipeline_por_etapa
-                  .filter((row) => row.etapa !== "cierre_ganado" && row.etapa !== "cierre_perdido")
-                  .reduce((sum, row) => sum + row.cantidad, 0),
-              )}
-              icon={Columns3}
-              tone="bg-highlight/15 text-highlight"
-            />
+            <DashboardKpiTrigger
+              ariaLabel="Ver detalle del valor en juego"
+              onOpen={(source) =>
+                abrirDetalle(
+                  {
+                    tarjeta: "valor_en_juego",
+                    previewValor: formatMoney(kpis.valor_total_en_juego),
+                    previewTitulo: "Valor en juego",
+                  },
+                  source,
+                )
+              }
+            >
+              <KpiCard
+                title="Valor en juego"
+                value={formatMoney(kpis.valor_total_en_juego)}
+                icon={CircleDollarSign}
+                tone="bg-primary/15 text-primary"
+              />
+            </DashboardKpiTrigger>
+            <DashboardKpiTrigger
+              ariaLabel="Ver detalle de conversión"
+              onOpen={(source) =>
+                abrirDetalle(
+                  {
+                    tarjeta: "conversion",
+                    previewValor: tasa,
+                    previewTitulo: "Conversión",
+                  },
+                  source,
+                )
+              }
+            >
+              <KpiCard
+                title="Conversión"
+                value={tasa}
+                hint={`${conversion?.ganadas ?? 0} ganadas · ${conversion?.perdidas ?? 0} perdidas`}
+                icon={Percent}
+                tone="bg-success/15 text-success"
+              />
+            </DashboardKpiTrigger>
+            <DashboardKpiTrigger
+              ariaLabel="Ver detalle del pipeline abierto"
+              onOpen={(source) =>
+                abrirDetalle(
+                  {
+                    tarjeta: "pipeline_abierto",
+                    previewValor: String(pipelineAbierto),
+                    previewTitulo: "Pipeline abierto",
+                  },
+                  source,
+                )
+              }
+            >
+              <KpiCard
+                title="Pipeline abierto"
+                value={String(pipelineAbierto)}
+                icon={Columns3}
+                tone="bg-highlight/15 text-highlight"
+              />
+            </DashboardKpiTrigger>
           </div>
           {kpis.metas ? (
             <DashboardMetas
               metas={kpis.metas}
               puedeConfigurar={perfil?.equipo === "administrativo"}
+              onAbrirDetalleMeta={(source, previewValor, previewTitulo) =>
+                abrirDetalle({ tarjeta: "meta", previewValor, previewTitulo }, source)
+              }
             />
           ) : null}
           <section className="space-y-3">
@@ -158,8 +222,41 @@ export function DashboardPage() {
               </TableHeader>
               <TableBody>
                 {kpis.pipeline_por_etapa.map((row) => (
-                  <TableRow key={row.etapa}>
-                    <TableCell>{row.nombre}</TableCell>
+                  <TableRow
+                    key={row.etapa}
+                    className={cn(
+                      "cursor-pointer hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    )}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Ver detalle de ${row.nombre}`}
+                    onClick={(event) =>
+                      abrirDetalle(
+                        {
+                          tarjeta: "pipeline_etapa",
+                          etapa: row.etapa,
+                          previewValor: formatMoney(row.valor_en_juego),
+                          previewTitulo: row.nombre,
+                        },
+                        event.currentTarget,
+                      )
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        abrirDetalle(
+                          {
+                            tarjeta: "pipeline_etapa",
+                            etapa: row.etapa,
+                            previewValor: formatMoney(row.valor_en_juego),
+                            previewTitulo: row.nombre,
+                          },
+                          event.currentTarget,
+                        )
+                      }
+                    }}
+                  >
+                    <TableCell className="text-ui-medium">{row.nombre}</TableCell>
                     <TableCell className="text-right tabular-nums">{row.cantidad}</TableCell>
                     <TableCell className="text-right tabular-nums">{formatMoney(row.valor_en_juego)}</TableCell>
                   </TableRow>

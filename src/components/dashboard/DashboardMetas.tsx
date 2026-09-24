@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { CircleDollarSign, Percent, Target } from "lucide-react"
 
+import { DashboardKpiTrigger } from "@/components/dashboard/DashboardKpiTrigger"
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
 import { Button } from "@/components/ui/button"
@@ -27,9 +28,11 @@ function avanceLabel(pct: number | null | undefined): string {
 export function DashboardMetas({
   metas,
   puedeConfigurar,
+  onAbrirDetalleMeta,
 }: {
   metas: MetasComerciales
   puedeConfigurar: boolean
+  onAbrirDetalleMeta: (source: HTMLButtonElement, previewValor: string, previewTitulo: string) => void
 }) {
   const hayTotal = metas.meta_total != null
   const hayVendedores = metas.por_vendedor.length > 0
@@ -65,24 +68,45 @@ export function DashboardMetas({
         <>
           {hayTotal ? (
             <div className="grid gap-4 sm:grid-cols-3">
-              <KpiCard
-                title="Meta"
-                value={formatMoney(metas.meta_total ?? 0)}
-                icon={Target}
-                tone="bg-primary/15 text-primary"
-              />
-              <KpiCard
-                title="Cerrado"
-                value={formatMoney(metas.valor_cerrado_total)}
-                icon={CircleDollarSign}
-                tone="bg-success/15 text-success"
-              />
-              <KpiCard
-                title="Avance"
-                value={avanceLabel(metas.avance_total_pct)}
-                icon={Percent}
-                tone="bg-highlight/15 text-highlight"
-              />
+              <DashboardKpiTrigger
+                ariaLabel="Ver detalle de la meta comercial"
+                onOpen={(source) =>
+                  onAbrirDetalleMeta(source, formatMoney(metas.meta_total ?? 0), "Meta comercial")
+                }
+              >
+                <KpiCard
+                  title="Meta"
+                  value={formatMoney(metas.meta_total ?? 0)}
+                  icon={Target}
+                  tone="bg-primary/15 text-primary"
+                />
+              </DashboardKpiTrigger>
+              <DashboardKpiTrigger
+                ariaLabel="Ver detalle del monto cerrado"
+                onOpen={(source) =>
+                  onAbrirDetalleMeta(source, formatMoney(metas.valor_cerrado_total), "Cerrado hacia la meta")
+                }
+              >
+                <KpiCard
+                  title="Cerrado"
+                  value={formatMoney(metas.valor_cerrado_total)}
+                  icon={CircleDollarSign}
+                  tone="bg-success/15 text-success"
+                />
+              </DashboardKpiTrigger>
+              <DashboardKpiTrigger
+                ariaLabel="Ver detalle del avance comercial"
+                onOpen={(source) =>
+                  onAbrirDetalleMeta(source, avanceLabel(metas.avance_total_pct), "Avance de la meta")
+                }
+              >
+                <KpiCard
+                  title="Avance"
+                  value={avanceLabel(metas.avance_total_pct)}
+                  icon={Percent}
+                  tone="bg-highlight/15 text-highlight"
+                />
+              </DashboardKpiTrigger>
             </div>
           ) : null}
           {hayVendedores ? (
