@@ -10,9 +10,13 @@ import { TableSkeleton } from "@/components/skeleton"
 import { ApiError } from "@/lib/api-client"
 import {
   FACTURAS_PAGE_SIZE,
-  facturasPeriodoBounds,
+  etiquetaPeriodoFacturas,
   getFacturasResumen,
   listFacturas,
+  periodoFacturasInicial,
+  periodoFacturasSig,
+  resolveFacturasPeriodoBounds,
+  type FacturasPeriodoModo,
 } from "@/lib/api/factura"
 import { createClienteMedios, listClientesMedios } from "@/lib/config-api"
 import { formatMoney } from "@/lib/costo-interno"
@@ -44,7 +48,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-const MESES_OPCIONES = [3, 6, 12, 24] as const
+const MESES_ROLLING = [3, 6, 12, 24] as const
+
+const PERIODO_MODOS: { value: FacturasPeriodoModo; label: string }[] = [
+  { value: "mes_actual", label: "Este mes (hasta hoy)" },
+  { value: "mes", label: "Un mes…" },
+  { value: "ultimos", label: "Últimos meses…" },
+  { value: "rango", label: "Rango de fechas" },
+]
 
 function SortableHead({
   label,
@@ -85,9 +96,7 @@ export function FacturasPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const esAdmin = perfil?.equipo === "administrativo"
 
-  const [meses, setMeses] = useState<number>(6)
-  const [desde, setDesde] = useState("")
-  const [hasta, setHasta] = useState("")
+  const [periodo, setPeriodo] = useState(periodoFacturasInicial)
   const [cliente, setCliente] = useState("")
   const [clienteDebounced, setClienteDebounced] = useState("")
   const [ordenPor, setOrdenPor] = useState<FacturaOrdenPor>("fecha")
@@ -104,14 +113,16 @@ export function FacturasPage() {
   const [marcandoRuc, setMarcandoRuc] = useState<string | null>(null)
   const [mediosDialogOpen, setMediosDialogOpen] = useState(false)
 
-  const modoRango = Boolean(desde && hasta)
-  const periodoSig = modoRango ? `rango|${desde}|${hasta}` : `meses|${meses}`
+  const periodoSig = periodoFacturasSig(periodo)
+  const bounds = resolveFacturasPeriodoBounds(periodo)
+  const periodoRangoIncompleto = periodo.modo === "rango" && (!periodo.rangoDesde || !periodo.rangoHasta)
   const filterSig = `${periodoSig}|${clienteDebounced}|${ordenPor}|${ordenDireccion}`
   const prevFilterSig = useRef(filterSig)
 
-  const bounds = facturasPeriodoBounds(modoRango ? { desde, hasta } : { meses })
-
   useEffect(() => {
+    if (periodoRangoIncompleto) {
+      return
+    }
     setResumen(null)
     setResumenError(null)
     void getFacturasResumen(bounds)
@@ -138,6 +149,13 @@ export function FacturasPage() {
   }, [resumen?.clientes_medios_configurados, mediosDialogOpen])
 
   useEffect(() => {
+    if (periodoRangoIncompleto) {
+      setRows([])
+      setTotal(0)
+      setError(null)
+      return
+    }
+
     const filtrosCambiaron = prevFilterSig.current !== filterSig
     if (filtrosCambiaron) {
       prevFilterSig.current = filterSig
@@ -149,7 +167,8 @@ export function FacturasPage() {
     setRows(null)
     setError(null)
     void listFacturas({
-      ...(modoRango ? { desde, hasta } : { meses }),
+      desde: bounds.desde,
+      hasta: bounds.hasta,
       cliente: clienteDebounced || undefined,
       orden_por: ordenPor,
       orden_direccion: ordenDireccion,
@@ -214,16 +233,11 @@ export function FacturasPage() {
   const puedeSiguiente = offset + FACTURAS_PAGE_SIZE < total
 
   function emptyBody(): string {
-    if (hayFiltroCliente && modoRango) {
-      return "Ninguna factura FAC coincide con el cliente buscado en el rango seleccionado."
-    }
+    const cuando = etiquetaPeriodoFacturas(periodo, bounds)
     if (hayFiltroCliente) {
-      return "Ninguna factura FAC coincide con el cliente buscado en el período seleccionado."
+      return `Ninguna factura FAC coincide con el cliente buscado en ${cuando}.`
     }
-    if (modoRango) {
-      return `No hay facturas FAC en Contífico entre ${desde} y ${hasta}.`
-    }
-    return `No hay facturas FAC en Contífico en los últimos ${meses} meses.`
+    return `No hay facturas FAC en Contífico en ${cuando}.`
   }
 
   const avisoMediosSinConfig = (resumen?.clientes_medios_configurados ?? 0) === 0
@@ -245,53 +259,98 @@ export function FacturasPage() {
 
       <div className="filter-bar mb-4">
         <div className="filter-field sm:max-w-xs">
-          <Label htmlFor="facturas-meses">Período</Label>
+          <Label htmlFor="facturas-periodo-modo">Período</Label>
           <Select
-            value={String(meses)}
-            disabled={modoRango}
-            onValueChange={(value) => {
-              setDesde("")
-              setHasta("")
-              setMeses(Number(value))
-            }}
+            value={periodo.modo}
+            onValueChange={(value) =>
+              setPeriodo((prev) => ({ ...prev, modo: value as FacturasPeriodoModo }))
+            }
           >
-            <SelectTrigger id="facturas-meses" className="h-9">
+            <SelectTrigger id="facturas-periodo-modo" className="h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {MESES_OPCIONES.map((item) => (
-                <SelectItem key={item} value={String(item)}>
-                  Últimos {item} meses
+              {PERIODO_MODOS.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <div className="filter-field">
-          <Label htmlFor="facturas-desde">Desde</Label>
-          <Input
-            id="facturas-desde"
-            type="date"
-            value={desde}
-            onChange={(event) => setDesde(event.target.value)}
-            className="h-9"
-          />
-        </div>
-        <div className="filter-field">
-          <Label htmlFor="facturas-hasta">Hasta</Label>
-          <Input
-            id="facturas-hasta"
-            type="date"
-            value={hasta}
-            onChange={(event) => setHasta(event.target.value)}
-            className="h-9"
-          />
-        </div>
-        {modoRango ? (
-          <p className="text-kicker text-muted-foreground sm:basis-full">
-            Si elegís fechas, el rango por meses no aplica. El resumen y la lista usan el mismo rango.
-          </p>
+        {periodo.modo === "mes" ? (
+          <div className="filter-field sm:max-w-xs">
+            <Label htmlFor="facturas-mes">Mes</Label>
+            <Input
+              id="facturas-mes"
+              type="month"
+              value={periodo.mesCalendario}
+              onChange={(event) =>
+                setPeriodo((prev) => ({ ...prev, mesCalendario: event.target.value }))
+              }
+              className="h-9"
+            />
+          </div>
         ) : null}
+        {periodo.modo === "ultimos" ? (
+          <div className="filter-field sm:max-w-xs">
+            <Label htmlFor="facturas-ultimos">Ventana</Label>
+            <Select
+              value={String(periodo.mesesRolling)}
+              onValueChange={(value) =>
+                setPeriodo((prev) => ({ ...prev, mesesRolling: Number(value) }))
+              }
+            >
+              <SelectTrigger id="facturas-ultimos" className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {MESES_ROLLING.map((item) => (
+                  <SelectItem key={item} value={String(item)}>
+                    Últimos {item} meses
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
+        {periodo.modo === "rango" ? (
+          <>
+            <div className="filter-field">
+              <Label htmlFor="facturas-desde">Desde</Label>
+              <Input
+                id="facturas-desde"
+                type="date"
+                value={periodo.rangoDesde}
+                onChange={(event) =>
+                  setPeriodo((prev) => ({ ...prev, rangoDesde: event.target.value }))
+                }
+                className="h-9"
+              />
+            </div>
+            <div className="filter-field">
+              <Label htmlFor="facturas-hasta">Hasta</Label>
+              <Input
+                id="facturas-hasta"
+                type="date"
+                value={periodo.rangoHasta}
+                onChange={(event) =>
+                  setPeriodo((prev) => ({ ...prev, rangoHasta: event.target.value }))
+                }
+                className="h-9"
+              />
+            </div>
+          </>
+        ) : null}
+        {!periodoRangoIncompleto ? (
+          <p className="text-kicker text-muted-foreground sm:basis-full">
+            Mostrando {bounds.desde} → {bounds.hasta} (hora Ecuador). Resumen y lista van al mismo período.
+          </p>
+        ) : (
+          <p className="text-kicker text-muted-foreground sm:basis-full">
+            Elegí fecha desde y hasta para ver el rango.
+          </p>
+        )}
         {!cuentaVerificada ? (
           <p className="text-kicker text-warning sm:basis-full">
             La cuenta de Contífico todavía no fue verificada como la de Geeks.
