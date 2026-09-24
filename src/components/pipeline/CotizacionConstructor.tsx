@@ -77,6 +77,7 @@ export function CotizacionConstructor({
   documentos,
   onChange,
   onDocumentosChange,
+  onProveedorCreated,
 }: {
   cotizacion: CotizacionConLineas
   clienteNombre?: string
@@ -91,6 +92,7 @@ export function CotizacionConstructor({
   documentos?: DocumentoAlcance[]
   onChange: () => Promise<void>
   onDocumentosChange?: (docs: DocumentoAlcance[]) => void
+  onProveedorCreated?: (proveedor: Proveedor) => void
 }) {
   const esBorrador = cotizacion.estado === "borrador"
   const [editandoId, setEditandoId] = useState<string | null>(null)
@@ -326,6 +328,7 @@ export function CotizacionConstructor({
                   config={config}
                   onSubmit={(input) => void guardar(linea, input)}
                   onCancel={() => setEditandoId(null)}
+                  onProveedorCreated={onProveedorCreated}
                 />
               </li>
             )
@@ -396,6 +399,7 @@ export function CotizacionConstructor({
               config={config}
               onSubmit={(input) => void agregar(input)}
               onCancel={prefillNuevaLinea ? limpiarPrefill : undefined}
+              onProveedorCreated={onProveedorCreated}
             />
           </div>
         </>

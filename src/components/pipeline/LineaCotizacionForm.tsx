@@ -4,17 +4,12 @@ import { CategoriaServicioPicker } from "@/components/pipeline/CategoriaServicio
 import { HistorialPreciosDialog } from "@/components/pipeline/HistorialPreciosDialog"
 import { LineaCalculoVivo } from "@/components/pipeline/LineaCalculoVivo"
 import { SugerenciaPrecioPanel } from "@/components/pipeline/SugerenciaPrecioPanel"
+import { ProveedorQuickCreateDialog } from "@/components/proveedores/ProveedorQuickCreateDialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { SearchCombobox } from "@/components/ui/search-combobox"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   calcularLineaConProveedor,
   calcularLineaSinProveedor,
@@ -28,6 +23,9 @@ import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Servicio } from "@/types/servicio"
 
 const SIN_PROVEEDOR = "none"
+
+const AYUDA_DESCRIPCION_MEDIDA =
+  "La primera línea es el nombre del servicio. Escribí cada punto en su propia línea con «- » y los subtítulos terminados en «:». El PDF respeta ese orden."
 
 type ModoCobro = "directo" | "proveedor"
 
@@ -123,6 +121,7 @@ export function LineaCotizacionForm({
   config,
   onSubmit,
   onCancel,
+  onProveedorCreated,
 }: {
   modo: "alta" | "edicion"
   linea?: LineaCotizacion
@@ -136,6 +135,7 @@ export function LineaCotizacionForm({
   config: ConfiguracionGeneral | null
   onSubmit: (input: LineaCotizacionFormInput) => void
   onCancel?: () => void
+  onProveedorCreated?: (proveedor: Proveedor) => void
 }) {
   const esEdicionSinServicio = modo === "edicion" && linea?.servicio_id == null
   const [sinCatalogo, setSinCatalogo] = useState(
@@ -149,7 +149,10 @@ export function LineaCotizacionForm({
   const [servicioId, setServicioId] = useState(
     linea?.servicio_id ?? prefillAlta?.servicio_id ?? "",
   )
-  const [proveedorId, setProveedorId] = useState(linea?.proveedor_id ?? SIN_PROVEEDOR)
+  const [proveedorId, setProveedorId] = useState(
+    linea?.proveedor_id ?? SIN_PROVEEDOR,
+  )
+  const [crearProveedorQuery, setCrearProveedorQuery] = useState<string | null>(null)
   const [costoRaw, setCostoRaw] = useState(
     linea?.costo_proveedor != null ? String(linea.costo_proveedor) : "",
   )
@@ -185,6 +188,27 @@ export function LineaCotizacionForm({
   const [paso, setPaso] = useState(1)
   const [modoCobro, setModoCobro] = useState<ModoCobro | null>(
     prefillAlta?.caminoProveedor ? "proveedor" : null,
+  )
+
+  const servicioOptions = useMemo(
+    () =>
+      servicios
+        .filter((row) => row.estado === "activo")
+        .map((row) => ({ value: row.id, label: row.nombre })),
+    [servicios],
+  )
+
+  const proveedorOptions = useMemo(
+    () =>
+      proveedores
+        .filter((row) => row.activo !== false)
+        .map((row) => ({ value: row.id, label: row.nombre })),
+    [proveedores],
+  )
+
+  const proveedorPinned = useMemo(
+    () => [{ value: SIN_PROVEEDOR, label: "Sin proveedor nombrado" }],
+    [],
   )
 
   const servicio = servicios.find((row) => row.id === servicioId)
@@ -368,22 +392,20 @@ export function LineaCotizacionForm({
 
       {conProveedor ? (
         <>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="linea-proveedor">Proveedor</Label>
-            <Select value={proveedorId} onValueChange={setProveedorId}>
-              <SelectTrigger id="linea-proveedor">
-                <SelectValue placeholder="Opcional" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={SIN_PROVEEDOR}>Sin proveedor nombrado</SelectItem>
-                {proveedores.map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.nombre}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <SearchCombobox
+            id="linea-proveedor"
+            label="Proveedor"
+            placeholder="Buscar proveedor…"
+            value={proveedorId}
+            onChange={setProveedorId}
+            options={proveedorOptions}
+            pinnedOptions={proveedorPinned}
+            clearSelectionValue={SIN_PROVEEDOR}
+            showClearSelection={proveedorId !== SIN_PROVEEDOR}
+            emptyQueryMessage={(q) => `Ninguno coincide con «${q}»`}
+            onCreateNew={(q) => setCrearProveedorQuery(q)}
+            createNewLabel={(q) => `Crear proveedor «${q}»`}
+          />
           <div className="flex flex-col gap-2">
             <Label htmlFor="linea-margen">Margen de agencia (%)</Label>
             <Input
@@ -528,23 +550,16 @@ export function LineaCotizacionForm({
               </Button>
             </div>
             {!sinCatalogo ? (
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="linea-servicio">Servicio</Label>
-                <Select value={servicioId || undefined} onValueChange={setServicioId}>
-                  <SelectTrigger id="linea-servicio">
-                    <SelectValue placeholder="Selecciona un servicio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {servicios
-                      .filter((row) => row.estado === "activo")
-                      .map((row) => (
-                        <SelectItem key={row.id} value={row.id}>
-                          {row.nombre}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <SearchCombobox
+                id="linea-servicio"
+                label="Servicio"
+                placeholder="Buscar en el catálogo…"
+                value={servicioId}
+                onChange={setServicioId}
+                options={servicioOptions}
+                clearSelectionValue=""
+                emptyQueryMessage={(q) => `Ninguno coincide con «${q}»`}
+              />
             ) : (
               <div className="flex flex-col gap-2">
                 <Label htmlFor="linea-descripcion-breve">Nombre del ítem</Label>
@@ -555,6 +570,7 @@ export function LineaCotizacionForm({
                   placeholder="Tal como lo verá el cliente en la cotización"
                   rows={2}
                 />
+                <p className="text-kicker text-muted-foreground">{AYUDA_DESCRIPCION_MEDIDA}</p>
               </div>
             )}
           </>
@@ -633,6 +649,9 @@ export function LineaCotizacionForm({
                     : "Opcional — reemplaza la descripción del catálogo en el PDF"
                 }
               />
+              {sinCatalogo ? (
+                <p className="text-kicker text-muted-foreground">{AYUDA_DESCRIPCION_MEDIDA}</p>
+              ) : null}
             </div>
             {camposMontos}
           </>
@@ -698,6 +717,20 @@ export function LineaCotizacionForm({
             </Button>
           ) : null}
         </div>
+        <ProveedorQuickCreateDialog
+          open={crearProveedorQuery != null}
+          nombreInicial={crearProveedorQuery ?? ""}
+          onOpenChange={(next) => {
+            if (!next) {
+              setCrearProveedorQuery(null)
+            }
+          }}
+          onCreated={(row) => {
+            onProveedorCreated?.(row)
+            setProveedorId(row.id)
+            setCrearProveedorQuery(null)
+          }}
+        />
       </form>
     )
   }
@@ -734,25 +767,17 @@ export function LineaCotizacionForm({
 
       {!sinCatalogo ? (
         <div className="flex flex-col gap-2">
-          <Label htmlFor="linea-servicio">Servicio</Label>
-          <Select
-            value={servicioId || undefined}
-            onValueChange={setServicioId}
+          <SearchCombobox
+            id="linea-servicio"
+            label="Servicio"
+            placeholder="Buscar en el catálogo…"
+            value={servicioId}
+            onChange={setServicioId}
+            options={servicioOptions}
             disabled={modo === "edicion"}
-          >
-            <SelectTrigger id="linea-servicio">
-              <SelectValue placeholder="Selecciona un servicio" />
-            </SelectTrigger>
-            <SelectContent>
-              {servicios
-                .filter((row) => row.estado === "activo")
-                .map((row) => (
-                  <SelectItem key={row.id} value={row.id}>
-                    {row.nombre}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
+            clearSelectionValue=""
+            emptyQueryMessage={(q) => `Ninguno coincide con «${q}»`}
+          />
           {servicio ? (
             <HistorialPreciosDialog
               servicioId={servicio.id}
@@ -778,6 +803,9 @@ export function LineaCotizacionForm({
               : "Opcional — reemplaza la descripción del catálogo en el PDF"
           }
         />
+        {sinCatalogo ? (
+          <p className="text-kicker text-muted-foreground">{AYUDA_DESCRIPCION_MEDIDA}</p>
+        ) : null}
       </div>
 
       {camposMontos}
@@ -791,6 +819,20 @@ export function LineaCotizacionForm({
           </Button>
         ) : null}
       </div>
+      <ProveedorQuickCreateDialog
+        open={crearProveedorQuery != null}
+        nombreInicial={crearProveedorQuery ?? ""}
+        onOpenChange={(next) => {
+          if (!next) {
+            setCrearProveedorQuery(null)
+          }
+        }}
+        onCreated={(row) => {
+          onProveedorCreated?.(row)
+          setProveedorId(row.id)
+          setCrearProveedorQuery(null)
+        }}
+      />
     </form>
   )
 }

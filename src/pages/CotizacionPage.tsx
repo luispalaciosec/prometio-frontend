@@ -20,6 +20,7 @@ import {
   listServicios,
 } from "@/lib/config-api"
 import { formatMoney } from "@/lib/costo-interno"
+import { compareTextoLocale } from "@/lib/lista-filtros"
 import { useAuthStore } from "@/store/auth-store"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas } from "@/types/cotizacion"
@@ -192,6 +193,18 @@ export function CotizacionPage() {
             onDocumentosChange={(rows) =>
               setState((prev) =>
                 prev.status === "ok" ? { ...prev, documentos: rows } : prev,
+              )
+            }
+            onProveedorCreated={(proveedor) =>
+              setState((prev) =>
+                prev.status === "ok"
+                  ? {
+                      ...prev,
+                      proveedores: [...prev.proveedores, proveedor].sort((a, b) =>
+                        compareTextoLocale(a.nombre, b.nombre),
+                      ),
+                    }
+                  : prev,
               )
             }
           />
