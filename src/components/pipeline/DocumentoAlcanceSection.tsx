@@ -4,7 +4,11 @@ import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
 import { DocumentoAlcanceSectionSkeleton } from "@/components/skeleton"
-import { DocumentoAlcanceEditor, draftDesdeDocumento, type DocumentoAlcanceDraft } from "@/components/pipeline/DocumentoAlcanceEditor"
+import { draftDesdeDocumento, type DocumentoAlcanceDraft } from "@/components/pipeline/DocumentoAlcanceEditor"
+import {
+  DocumentoAlcanceWizard,
+  type LineaCotizacionResumen,
+} from "@/components/documento-alcance-wizard/DocumentoAlcanceWizard"
 import { DocumentoAlcanceEstadoBadge } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +29,6 @@ import {
   listDocumentosAlcance,
   reabrirDocumentoAlcance,
   rechazarDocumentoAlcance,
-  updateDocumentoAlcance,
 } from "@/lib/api/documento-alcance"
 import {
   documentoEditable,
@@ -42,10 +45,8 @@ import {
 import { formatDateTime } from "@/lib/datetime-local"
 import { cn } from "@/lib/utils"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
-import type { DocumentoAlcance, DocumentoAlcanceUpdate } from "@/types/documento-alcance"
+import type { DocumentoAlcance } from "@/types/documento-alcance"
 import type { Perfil } from "@/types/perfil"
-
-const POLL_MS = 2500
 
 const ACCION_LABEL: Record<AccionDocumentoAlcance, string> = {
   enviar: "Enviar a aprobación",
@@ -63,6 +64,8 @@ export function DocumentoAlcanceSection({
   requiereDocumento,
   documentoIdInicial,
   onListaChange,
+  clienteNombre,
+  lineasResumen,
 }: {
   cotizacionId: string
   perfil: Perfil
@@ -70,12 +73,13 @@ export function DocumentoAlcanceSection({
   requiereDocumento: boolean
   documentoIdInicial?: string | null
   onListaChange?: (docs: DocumentoAlcance[]) => void
+  clienteNombre?: string
+  lineasResumen?: LineaCotizacionResumen[]
 }) {
   const [docs, setDocs] = useState<DocumentoAlcance[] | null>(null)
   const [abiertoId, setAbiertoId] = useState<string | null>(documentoIdInicial ?? null)
   const [abierto, setAbierto] = useState<DocumentoAlcance | null>(null)
   const [draft, setDraft] = useState<DocumentoAlcanceDraft | null>(null)
-  const [guardando, setGuardando] = useState(false)
   const [creando, setCreando] = useState(false)
   const [accionPendiente, setAccionPendiente] = useState<AccionDocumentoAlcance | null>(null)
   const [reabrirOpen, setReabrirOpen] = useState(false)
@@ -138,64 +142,20 @@ export function DocumentoAlcanceSection({
       })
   }, [abiertoId])
 
-  useEffect(() => {
-    if (!abierto || !generacionEnCurso(abierto)) {
-      return
-    }
-    const timer = window.setInterval(() => {
-      void getDocumentoAlcance(abierto.id)
-        .then((row) => {
-          setAbierto(row)
-          setDraft(draftDesdeDocumento(row))
-          setDocs((prev) => {
-            if (!prev) {
-              return prev
-            }
-            const next = prev.map((item) => (item.id === row.id ? row : item))
-            onListaChange?.(next)
-            return next
-          })
-          if (row.generacion_ia_estado === "completado") {
-            toast.success("Borrador listo. Ya lo podés editar.")
-          } else if (row.generacion_ia_estado === "fallido") {
-            toast.error(row.generacion_ia_error ?? "La generación del borrador falló.")
-          }
-        })
-        .catch((error: unknown) => {
-          toast.error(error instanceof Error ? error.message : "No se pudo actualizar el documento.")
-        })
-    }, POLL_MS)
-    return () => window.clearInterval(timer)
-  }, [abierto?.id, abierto?.generacion_ia_estado])
-
-  async function generar() {
+  async function generar(opts?: { generarIa?: boolean }) {
     setCreando(true)
     try {
-      const creado = await crearDocumentoAlcance(cotizacionId)
+      const creado = await crearDocumentoAlcance(cotizacionId, opts)
       await reloadLista(creado.id)
-      toast.success("Generando el borrador. Suele tardar entre 10 y 20 segundos.")
+      if (opts?.generarIa === false) {
+        toast.success("Documento en blanco listo. Escribí vos o usá el copiloto en cada paso.")
+      } else {
+        toast.success("Generando el borrador. Suele tardar entre 10 y 20 segundos.")
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudo generar el documento.")
     } finally {
       setCreando(false)
-    }
-  }
-
-  async function guardar() {
-    if (!abierto || !draft) {
-      return
-    }
-    setGuardando(true)
-    try {
-      const row = await updateDocumentoAlcance(abierto.id, patchDesdeDraft(draft))
-      setAbierto(row)
-      setDraft(draftDesdeDocumento(row))
-      await reloadLista(row.id)
-      toast.success("Documento guardado.")
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo guardar el documento.")
-    } finally {
-      setGuardando(false)
     }
   }
 
@@ -267,7 +227,6 @@ export function DocumentoAlcanceSection({
   const sinDocs = docs !== null && lista.length === 0
   const puedeGenerar = lista.every((row) => !documentoUsable(row))
   const editable = documentoEditable(abierto)
-  const generando = generacionEnCurso(abierto)
   const acciones = abierto ? accionesDocumentoVisibles(perfil, abierto) : []
 
   return (
@@ -286,10 +245,21 @@ export function DocumentoAlcanceSection({
           )}
         </div>
         {puedeGenerar ? (
-          <Button type="button" size="sm" disabled={creando} onClick={() => void generar()}>
-            {creando ? <Loader2 className="size-4 animate-spin" /> : null}
-            Generar Documento de Alcance
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" disabled={creando} onClick={() => void generar()}>
+              {creando ? <Loader2 className="size-4 animate-spin" /> : null}
+              Generar con IA
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={creando}
+              onClick={() => void generar({ generarIa: false })}
+            >
+              Empezar en blanco
+            </Button>
+          </div>
         ) : null}
       </div>
 
@@ -301,9 +271,20 @@ export function DocumentoAlcanceSection({
           title="Sin documento de alcance"
           body="Se arma con las líneas de esta cotización. La IA escribe un borrador; después lo editás."
           action={
-            <Button type="button" variant="ghost" size="sm" disabled={creando} onClick={() => void generar()}>
-              Generar Documento de Alcance
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button type="button" variant="ghost" size="sm" disabled={creando} onClick={() => void generar()}>
+                Generar con IA
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={creando}
+                onClick={() => void generar({ generarIa: false })}
+              >
+                Empezar en blanco
+              </Button>
+            </div>
           }
         />
       ) : (
@@ -333,33 +314,7 @@ export function DocumentoAlcanceSection({
             </div>
           ) : null}
 
-          {abierto && generando ? (
-            <div className="flex items-start gap-3 surface-card p-4">
-              <span className="inline-flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-                <Loader2 className="size-5 animate-spin" strokeWidth={1.75} />
-              </span>
-              <div>
-                <p className="text-section">Generando el borrador</p>
-                <p className="mt-1 text-kicker">
-                  Suele tardar entre 10 y 20 segundos. No cierra esta pantalla.
-                </p>
-              </div>
-            </div>
-          ) : null}
-
-          {abierto && abierto.generacion_ia_estado === "fallido" ? (
-            <div className="surface-card p-4">
-              <p className="text-ui-medium">La generación falló</p>
-              <p className="mt-1 text-kicker">
-                {abierto.generacion_ia_error ?? "El proveedor de IA no devolvió el borrador."}
-              </p>
-              <Button type="button" size="sm" className="mt-3" disabled={creando} onClick={() => void generar()}>
-                Reintentar
-              </Button>
-            </div>
-          ) : null}
-
-          {abierto && !generando && abierto.generacion_ia_estado !== "fallido" && draft ? (
+          {abierto && draft ? (
             <>
               <div className="flex flex-wrap items-center gap-2">
                 <DocumentoAlcanceEstadoBadge estado={abierto.estado} />
@@ -370,19 +325,15 @@ export function DocumentoAlcanceSection({
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {editable ? (
-                  <Button type="button" size="sm" disabled={guardando} onClick={() => void guardar()}>
-                    {guardando ? <Loader2 className="size-4 animate-spin" /> : null}
-                    Guardar
-                  </Button>
-                ) : null}
-                {acciones.map((accion) => (
+                {acciones
+                  .filter((accion) => accion !== "enviar")
+                  .map((accion) => (
                   <Button
                     key={accion}
                     type="button"
                     size="sm"
                     variant={accion === "rechazar" || accion === "reabrir" ? "outline" : "default"}
-                    disabled={accionPendiente != null || guardando}
+                    disabled={accionPendiente != null}
                     onClick={() => void ejecutar(accion)}
                   >
                     {accionPendiente === accion ? <Loader2 className="size-4 animate-spin" /> : null}
@@ -395,16 +346,45 @@ export function DocumentoAlcanceSection({
               {acciones.length === 0 ? (
                 <p className="text-kicker">{mensajeSinAccionDocumento(abierto, perfil)}</p>
               ) : null}
-              <DocumentoAlcanceEditor
+              <DocumentoAlcanceWizard
                 key={abierto.id}
+                documento={abierto}
                 draft={draft}
-                disabled={!editable}
-                defaultsCapa2={{
-                  exclusiones: config?.exclusiones_default_texto ?? null,
-                  consideraciones: config?.consideraciones_default_texto ?? null,
-                  porQueGeeks: config?.por_que_geeks_default_texto ?? null,
+                editable={editable}
+                clienteNombre={clienteNombre ?? "tu cliente"}
+                lineas={lineasResumen ?? []}
+                config={config}
+                onDraftChange={setDraft}
+                onDocumentoChange={(row) => {
+                  setAbierto(row)
+                  setDocs((prev) => {
+                    if (!prev) {
+                      return prev
+                    }
+                    const next = prev.map((item) => (item.id === row.id ? row : item))
+                    onListaChange?.(next)
+                    return next
+                  })
                 }}
-                onChange={setDraft}
+                onGuardado={(row) => {
+                  void reloadLista(row.id)
+                }}
+                onNuevaVersionTrasWord={(nueva) => {
+                  setAbiertoId(nueva.id)
+                  void reloadLista(nueva.id)
+                }}
+                onSolicitarGeneracion={async () => {
+                  if (generacionEnCurso(abierto)) {
+                    return
+                  }
+                  if (
+                    abierto.generacion_ia_estado === "fallido" &&
+                    !abierto.objetivo &&
+                    !abierto.alcance_funcional?.length
+                  ) {
+                    await generar()
+                  }
+                }}
               />
             </>
           ) : null}
@@ -438,37 +418,3 @@ export function DocumentoAlcanceSection({
   )
 }
 
-function patchDesdeDraft(draft: DocumentoAlcanceDraft): DocumentoAlcanceUpdate {
-  return {
-    objetivo: draft.objetivo,
-    alcance_funcional: limpiarSecciones(draft.alcance_funcional),
-    alcance_tecnico_incluido: draft.alcance_tecnico_incluido,
-    alcance_tecnico_no_incluido: draft.alcance_tecnico_no_incluido,
-    metodologia: draft.metodologia,
-    tiempos: draft.tiempos,
-    modelo_inversion: draft.modelo_inversion,
-    supuestos: draft.supuestos,
-    entregables: limpiarEntregables(draft.entregables),
-    condiciones_pago_texto: draft.condiciones_pago_texto,
-    exclusiones_texto: draft.exclusiones_texto,
-    consideraciones_texto: draft.consideraciones_texto,
-    por_que_geeks_texto: draft.por_que_geeks_texto,
-  }
-}
-
-function limpiarSecciones(rows: DocumentoAlcanceDraft["alcance_funcional"]) {
-  const next = rows
-    .map((row) => ({
-      seccion: row.seccion.trim(),
-      entregables: row.entregables.map((item) => item.trim()).filter(Boolean),
-    }))
-    .filter((row) => row.seccion || row.entregables.length > 0)
-  return next.length > 0 ? next : null
-}
-
-function limpiarEntregables(rows: DocumentoAlcanceDraft["entregables"]) {
-  const next = rows
-    .map((row) => ({ nombre: row.nombre.trim(), descripcion: row.descripcion.trim() }))
-    .filter((row) => row.nombre || row.descripcion)
-  return next.length > 0 ? next : null
-}

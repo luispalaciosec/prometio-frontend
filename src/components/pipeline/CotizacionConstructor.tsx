@@ -65,6 +65,7 @@ function mensajeError(error: unknown, fallback: string): string {
 
 export function CotizacionConstructor({
   cotizacion,
+  clienteNombre,
   perfil,
   ejecutivoId,
   servicios,
@@ -78,6 +79,7 @@ export function CotizacionConstructor({
   onDocumentosChange,
 }: {
   cotizacion: CotizacionConLineas
+  clienteNombre?: string
   perfil: Perfil
   ejecutivoId: string
   servicios: Servicio[]
@@ -405,6 +407,11 @@ export function CotizacionConstructor({
         requiereDocumento={cotizacion.requiere_documento_alcance === true}
         documentoIdInicial={documentoIdInicial}
         onListaChange={onDocumentosChange}
+        clienteNombre={clienteNombre}
+        lineasResumen={cotizacion.lineas.map((linea) => ({
+          titulo: tituloLinea(linea, servicios),
+          monto: formatMoney(linea.precio_venta_base),
+        }))}
       />
     </div>
   )

@@ -5,6 +5,11 @@ export function generacionEnCurso(doc: DocumentoAlcance | null | undefined): boo
   return estado === "pendiente" || estado === "generando"
 }
 
+/** Backend deja `null` cuando el documento se creó con `generar_ia=false`. */
+export function documentoSinGeneracionIa(doc: DocumentoAlcance | null | undefined): boolean {
+  return doc?.generacion_ia_estado === null
+}
+
 export function documentoEditable(doc: DocumentoAlcance | null | undefined): boolean {
   if (!doc || generacionEnCurso(doc)) {
     return false

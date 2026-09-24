@@ -53,9 +53,71 @@ export type DocumentoAlcance = {
   aprobado_por: string | null
   aprobado_en: string | null
   pdf_url: string | null
+  docx_subido_url: string | null
+  resumen_cambios: ResumenCambiosDocx | null
+  auditoria_ia: AuditoriaIaGuardada | null
+  auditoria_ia_en: string | null
   creado_por: string | null
   creado_por_nombre: string | null
   created_at: string
+}
+
+export type SeccionRegenerable =
+  | "objetivo"
+  | "alcance_funcional"
+  | "alcance_tecnico_incluido"
+  | "alcance_tecnico_no_incluido"
+  | "metodologia"
+  | "tiempos"
+  | "modelo_inversion"
+  | "supuestos"
+  | "entregables"
+  | "condiciones_pago_texto"
+  | "exclusiones_texto"
+  | "consideraciones_texto"
+  | "por_que_geeks_texto"
+
+export type CambioDocxResumen = {
+  seccion: string
+  tipo: string
+  detalle: string
+}
+
+export type ResumenCambiosDocx = {
+  resumen: string
+  cambios: CambioDocxResumen[]
+  secciones_no_encontradas?: string[]
+  titulos_no_reconocidos?: string[]
+  ia_disponible?: boolean
+  archivo_original_guardado?: boolean
+}
+
+export type SeveridadAuditoria = "alta" | "media" | "baja"
+
+export type AdvertenciaAuditoria = {
+  severidad: SeveridadAuditoria
+  seccion: string
+  mensaje: string
+  cita: string | null
+  cita_verificada: boolean
+}
+
+export type AuditoriaIaResultado = {
+  resumen: string
+  advertencias: AdvertenciaAuditoria[]
+  auditado_en: string
+}
+
+export type AuditoriaIaGuardada = AuditoriaIaResultado
+
+export type RegenerarSeccionBody = {
+  seccion: SeccionRegenerable
+  instruccion?: string | null
+}
+
+export type RegenerarSeccionResponse = {
+  seccion: SeccionRegenerable
+  valor: unknown
 }
 
 export type DocumentoAlcanceUpdate = {

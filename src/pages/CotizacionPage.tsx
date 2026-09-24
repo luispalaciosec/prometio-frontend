@@ -178,6 +178,7 @@ export function CotizacionPage() {
         {perfil ? (
           <CotizacionConstructor
             cotizacion={cotizacion}
+            clienteNombre={oportunidad.contacto.nombre_completo}
             perfil={perfil}
             ejecutivoId={oportunidad.ejecutivo.id}
             servicios={servicios}

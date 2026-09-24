@@ -191,7 +191,7 @@ function CampoRich({
   )
 }
 
-function AlcanceFuncionalEditor({
+export function AlcanceFuncionalEditor({
   value,
   disabled,
   onChange,
@@ -288,7 +288,7 @@ function AlcanceFuncionalEditor({
   )
 }
 
-function EntregablesEditor({
+export function EntregablesEditor({
   value,
   disabled,
   onChange,
