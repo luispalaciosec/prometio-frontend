@@ -116,7 +116,7 @@ export function DocumentoAlcanceEditorModal({
 
         <div className="grid min-h-0 flex-1 gap-0 lg:grid-cols-[1fr_minmax(240px,300px)]">
           <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4 py-4 sm:px-6">
-            <DocumentoAlcanceEditorToolbar editor={editor} disabled={disabled} />
+            <DocumentoAlcanceEditorToolbar editor={editor} disabled={disabled} showLabels />
             <div
               className={cn(
                 editorSurfaceClassName,

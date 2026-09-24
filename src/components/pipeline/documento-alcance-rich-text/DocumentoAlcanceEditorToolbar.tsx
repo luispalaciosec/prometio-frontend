@@ -1,13 +1,19 @@
 import type { ReactNode } from "react"
 import type { Editor } from "@tiptap/react"
 import {
+  AlignCenter,
+  AlignJustify,
+  AlignLeft,
+  AlignRight,
   Bold,
   Eraser,
   Heading2,
   Heading3,
+  Italic,
   List,
   ListOrdered,
   Redo2,
+  Table2,
   Undo2,
 } from "lucide-react"
 
@@ -18,12 +24,16 @@ export function DocumentoAlcanceEditorToolbar({
   editor,
   disabled,
   className,
+  showLabels = false,
 }: {
   editor: Editor | null
   disabled?: boolean
   className?: string
+  /** En modal ampliado: etiquetas visibles en todos los anchos. */
+  showLabels?: boolean
 }) {
   const off = disabled || !editor
+  const lbl = showLabels ? "inline" : "hidden sm:inline"
 
   return (
     <div
@@ -38,7 +48,7 @@ export function DocumentoAlcanceEditorToolbar({
         onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         <Heading2 className="size-3.5" strokeWidth={1.75} aria-hidden />
-        <span className="hidden sm:inline">Título</span>
+        <span className={lbl}>Título</span>
       </ToolbarButton>
       <ToolbarButton
         label="Subtítulo"
@@ -47,7 +57,7 @@ export function DocumentoAlcanceEditorToolbar({
         onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
       >
         <Heading3 className="size-3.5" strokeWidth={1.75} aria-hidden />
-        <span className="hidden sm:inline">Subtítulo</span>
+        <span className={lbl}>Subtítulo</span>
       </ToolbarButton>
       <ToolbarButton
         label="Negrita"
@@ -56,9 +66,18 @@ export function DocumentoAlcanceEditorToolbar({
         onClick={() => editor?.chain().focus().toggleBold().run()}
       >
         <Bold className="size-3.5" strokeWidth={1.75} aria-hidden />
-        <span className="hidden sm:inline">Negrita</span>
+        <span className={lbl}>Negrita</span>
       </ToolbarButton>
-      <span className="mx-0.5 hidden h-5 w-px bg-border sm:block" aria-hidden />
+      <ToolbarButton
+        label="Cursiva"
+        disabled={off}
+        pressed={editor?.isActive("italic")}
+        onClick={() => editor?.chain().focus().toggleItalic().run()}
+      >
+        <Italic className="size-3.5" strokeWidth={1.75} aria-hidden />
+        <span className={lbl}>Cursiva</span>
+      </ToolbarButton>
+      <span className="mx-0.5 hidden h-5 w-px bg-border md:block" aria-hidden />
       <ToolbarButton
         label="Lista con viñetas"
         disabled={off}
@@ -66,6 +85,7 @@ export function DocumentoAlcanceEditorToolbar({
         onClick={() => editor?.chain().focus().toggleBulletList().run()}
       >
         <List className="size-3.5" strokeWidth={1.75} aria-hidden />
+        <span className={lbl}>Viñetas</span>
       </ToolbarButton>
       <ToolbarButton
         label="Lista numerada"
@@ -74,8 +94,52 @@ export function DocumentoAlcanceEditorToolbar({
         onClick={() => editor?.chain().focus().toggleOrderedList().run()}
       >
         <ListOrdered className="size-3.5" strokeWidth={1.75} aria-hidden />
+        <span className={lbl}>Numerada</span>
       </ToolbarButton>
-      <span className="mx-0.5 hidden h-5 w-px bg-border sm:block" aria-hidden />
+      <ToolbarButton
+        label="Insertar tabla 3×3"
+        disabled={off}
+        onClick={() =>
+          editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+        }
+      >
+        <Table2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+        <span className={lbl}>Tabla</span>
+      </ToolbarButton>
+      <span className="mx-0.5 hidden h-5 w-px bg-border md:block" aria-hidden />
+      <ToolbarButton
+        label="Alinear a la izquierda"
+        disabled={off}
+        pressed={editor?.isActive({ textAlign: "left" })}
+        onClick={() => editor?.chain().focus().setTextAlign("left").run()}
+      >
+        <AlignLeft className="size-3.5" strokeWidth={1.75} aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Centrar"
+        disabled={off}
+        pressed={editor?.isActive({ textAlign: "center" })}
+        onClick={() => editor?.chain().focus().setTextAlign("center").run()}
+      >
+        <AlignCenter className="size-3.5" strokeWidth={1.75} aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Alinear a la derecha"
+        disabled={off}
+        pressed={editor?.isActive({ textAlign: "right" })}
+        onClick={() => editor?.chain().focus().setTextAlign("right").run()}
+      >
+        <AlignRight className="size-3.5" strokeWidth={1.75} aria-hidden />
+      </ToolbarButton>
+      <ToolbarButton
+        label="Justificar"
+        disabled={off}
+        pressed={editor?.isActive({ textAlign: "justify" })}
+        onClick={() => editor?.chain().focus().setTextAlign("justify").run()}
+      >
+        <AlignJustify className="size-3.5" strokeWidth={1.75} aria-hidden />
+      </ToolbarButton>
+      <span className="mx-0.5 hidden h-5 w-px bg-border md:block" aria-hidden />
       <ToolbarButton
         label="Deshacer"
         disabled={off || !editor?.can().undo()}
@@ -93,10 +157,10 @@ export function DocumentoAlcanceEditorToolbar({
       <ToolbarButton
         label="Limpiar formato"
         disabled={off}
-        onClick={() => editor?.chain().focus().clearNodes().unsetAllMarks().run()}
+        onClick={() => editor?.chain().focus().clearNodes().unsetAllMarks().unsetTextAlign().run()}
       >
         <Eraser className="size-3.5" strokeWidth={1.75} aria-hidden />
-        <span className="hidden sm:inline">Limpiar</span>
+        <span className={lbl}>Limpiar</span>
       </ToolbarButton>
     </div>
   )
