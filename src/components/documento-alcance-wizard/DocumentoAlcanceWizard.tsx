@@ -299,6 +299,11 @@ export function DocumentoAlcanceWizard({
     porQueGeeks: config?.por_que_geeks_default_texto ?? null,
   }
 
+  const copilotoCampo = {
+    documentoId: documento.id,
+    onCopilotoAceptar: aceptarPropuesta,
+  }
+
   const showStepper = paso !== "arranque" && paso !== "generando"
 
   return (
@@ -378,6 +383,8 @@ export function DocumentoAlcanceWizard({
                 label="Objetivo"
                 value={draft.objetivo}
                 disabled={!editable}
+                copilotoSeccion="objetivo"
+                {...copilotoCampo}
                 onFocus={() => setCopilotoSeccion("objetivo")}
                 onChange={(objetivo) => marcarDirty({ ...draft, objetivo })}
               />
@@ -396,6 +403,8 @@ export function DocumentoAlcanceWizard({
                   label="Alcance técnico incluido"
                   value={draft.alcance_tecnico_incluido}
                   disabled={!editable}
+                  copilotoSeccion="alcance_tecnico_incluido"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("alcance_tecnico_incluido")}
                   onChange={(alcance_tecnico_incluido) => marcarDirty({ ...draft, alcance_tecnico_incluido })}
                 />
@@ -403,6 +412,8 @@ export function DocumentoAlcanceWizard({
                   label="Alcance técnico no incluido"
                   value={draft.alcance_tecnico_no_incluido}
                   disabled={!editable}
+                  copilotoSeccion="alcance_tecnico_no_incluido"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("alcance_tecnico_no_incluido")}
                   onChange={(alcance_tecnico_no_incluido) =>
                     marcarDirty({ ...draft, alcance_tecnico_no_incluido })
@@ -412,6 +423,8 @@ export function DocumentoAlcanceWizard({
                   label="Metodología"
                   value={draft.metodologia}
                   disabled={!editable}
+                  copilotoSeccion="metodologia"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("metodologia")}
                   onChange={(metodologia) => marcarDirty({ ...draft, metodologia })}
                 />
@@ -431,6 +444,8 @@ export function DocumentoAlcanceWizard({
                   label="Tiempos"
                   value={draft.tiempos}
                   disabled={!editable}
+                  copilotoSeccion="tiempos"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("tiempos")}
                   onChange={(tiempos) => marcarDirty({ ...draft, tiempos })}
                 />
@@ -438,6 +453,8 @@ export function DocumentoAlcanceWizard({
                   label="Supuestos"
                   value={draft.supuestos}
                   disabled={!editable}
+                  copilotoSeccion="supuestos"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("supuestos")}
                   onChange={(supuestos) => marcarDirty({ ...draft, supuestos })}
                 />
@@ -445,6 +462,8 @@ export function DocumentoAlcanceWizard({
                   label="Modelo de inversión"
                   value={draft.modelo_inversion}
                   disabled={!editable}
+                  copilotoSeccion="modelo_inversion"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("modelo_inversion")}
                   onChange={(modelo_inversion) => marcarDirty({ ...draft, modelo_inversion })}
                 />
@@ -457,6 +476,8 @@ export function DocumentoAlcanceWizard({
                   label="Condiciones de pago"
                   value={draft.condiciones_pago_texto}
                   disabled={!editable}
+                  copilotoSeccion="condiciones_pago_texto"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("condiciones_pago_texto")}
                   onChange={(condiciones_pago_texto) => marcarDirty({ ...draft, condiciones_pago_texto })}
                 />
@@ -465,6 +486,8 @@ export function DocumentoAlcanceWizard({
                   value={draft.exclusiones_texto}
                   disabled={!editable}
                   placeholder={placeholderDefault(defaultsCapa2.exclusiones)}
+                  copilotoSeccion="exclusiones_texto"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("exclusiones_texto")}
                   onChange={(exclusiones_texto) => marcarDirty({ ...draft, exclusiones_texto })}
                 />
@@ -473,6 +496,8 @@ export function DocumentoAlcanceWizard({
                   value={draft.consideraciones_texto}
                   disabled={!editable}
                   placeholder={placeholderDefault(defaultsCapa2.consideraciones)}
+                  copilotoSeccion="consideraciones_texto"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("consideraciones_texto")}
                   onChange={(consideraciones_texto) => marcarDirty({ ...draft, consideraciones_texto })}
                 />
@@ -481,6 +506,8 @@ export function DocumentoAlcanceWizard({
                   value={draft.por_que_geeks_texto}
                   disabled={!editable}
                   placeholder={placeholderDefault(defaultsCapa2.porQueGeeks)}
+                  copilotoSeccion="por_que_geeks_texto"
+                  {...copilotoCampo}
                   onFocus={() => setCopilotoSeccion("por_que_geeks_texto")}
                   onChange={(por_que_geeks_texto) => marcarDirty({ ...draft, por_que_geeks_texto })}
                 />
@@ -648,6 +675,9 @@ function CampoWizard({
   placeholder,
   onChange,
   onFocus,
+  copilotoSeccion,
+  documentoId,
+  onCopilotoAceptar,
 }: {
   label: string
   value: string | null
@@ -655,15 +685,26 @@ function CampoWizard({
   placeholder?: string
   onChange: (next: string | null) => void
   onFocus?: () => void
+  copilotoSeccion?: SeccionRegenerable
+  documentoId?: string
+  onCopilotoAceptar?: (propuesta: RegenerarSeccionResponse) => void
 }) {
   return (
     <div className="space-y-2" onFocus={onFocus}>
       <p className="text-kicker text-muted-foreground">{label}</p>
       <DocumentoAlcanceRichText
+        label={label}
         value={value}
         disabled={disabled}
         placeholder={placeholder}
         onChange={onChange}
+        copilotoSeccion={copilotoSeccion}
+        onAmpliar={onFocus}
+        copiloto={
+          documentoId && onCopilotoAceptar && copilotoSeccion
+            ? { documentoId, onAceptar: onCopilotoAceptar, disabled }
+            : undefined
+        }
       />
     </div>
   )

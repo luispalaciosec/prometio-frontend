@@ -93,6 +93,42 @@ export function textoDocumentoAHtml(value: string | null | undefined): string {
     .join("")
 }
 
+function inlineHtml(node: Node): string {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent ?? ""
+  }
+  if (!(node instanceof HTMLElement)) {
+    return Array.from(node.childNodes).map(inlineHtml).join("")
+  }
+  const inner = Array.from(node.childNodes).map(inlineHtml).join("")
+  switch (node.tagName.toLowerCase()) {
+    case "strong":
+    case "b":
+      return inner ? `**${inner}**` : ""
+    case "br":
+      return "\n"
+    case "p":
+      return inner
+    default:
+      return inner
+  }
+}
+
+function serializarLista(el: HTMLElement, numerada: boolean): string {
+  const items = Array.from(el.children).filter(
+    (n): n is HTMLElement => n instanceof HTMLElement && n.tagName.toLowerCase() === "li",
+  )
+  if (items.length === 0) {
+    return ""
+  }
+  const lineas = items.map((li, index) => {
+    const texto = Array.from(li.childNodes).map(inlineHtml).join("").replace(/\n+/g, " ").trim()
+    const prefijo = numerada ? `${index + 1}. ` : "• "
+    return `${prefijo}${texto}`
+  })
+  return `${lineas.join("\n")}\n\n`
+}
+
 function walkHtml(node: Node): string {
   if (node.nodeType === Node.TEXT_NODE) {
     return node.textContent ?? ""
@@ -100,24 +136,30 @@ function walkHtml(node: Node): string {
   if (!(node instanceof HTMLElement)) {
     return Array.from(node.childNodes).map(walkHtml).join("")
   }
+  const tag = node.tagName.toLowerCase()
   const inner = Array.from(node.childNodes).map(walkHtml).join("")
-  switch (node.tagName.toLowerCase()) {
+  switch (tag) {
     case "strong":
     case "b":
       return inner ? `**${inner}**` : ""
     case "h1":
     case "h2":
-    case "h3":
-      return inner.trim() ? `# ${inner.trim()}\n\n` : ""
-    case "p":
-      return inner.trim() ? `${inner.trim()}\n\n` : ""
+    case "h3": {
+      const titulo = Array.from(node.childNodes).map(inlineHtml).join("").trim()
+      return titulo ? `# ${titulo}\n\n` : ""
+    }
+    case "p": {
+      const parrafo = Array.from(node.childNodes).map(inlineHtml).join("").trim()
+      return parrafo ? `${parrafo}\n\n` : ""
+    }
     case "br":
       return "\n"
-    case "li":
-      return `• ${inner.trim()}\n`
     case "ul":
+      return serializarLista(node, false)
     case "ol":
-      return `\n${inner}`
+      return serializarLista(node, true)
+    case "li":
+      return Array.from(node.childNodes).map(inlineHtml).join("").trim()
     default:
       return inner
   }

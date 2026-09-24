@@ -182,6 +182,7 @@ function CampoRich({
     <div className="space-y-1.5">
       <Label>{label}</Label>
       <DocumentoAlcanceRichText
+        label={label}
         value={value}
         disabled={disabled}
         placeholder={placeholder}
