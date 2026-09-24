@@ -4,6 +4,7 @@
 import { ApiError, apiFetch } from "@/lib/api-client"
 import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { CausaPerdida } from "@/types/causa-perdida"
+import type { ClienteMedios, ClienteMediosCreate } from "@/types/cliente-medios"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
 import type { Servicio } from "@/types/servicio"
@@ -313,4 +314,19 @@ export function updateConfiguracionGeneral(
     method: "PATCH",
     body: JSON.stringify(cuerpoConfig(patch)),
   })
+}
+
+export function listClientesMedios(): Promise<ClienteMedios[]> {
+  return apiFetch("/config/clientes-medios")
+}
+
+export function createClienteMedios(body: ClienteMediosCreate): Promise<ClienteMedios> {
+  return apiFetch("/config/clientes-medios", {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+}
+
+export function deleteClienteMedios(id: string): Promise<void> {
+  return apiFetch(`/config/clientes-medios/${id}`, { method: "DELETE" })
 }

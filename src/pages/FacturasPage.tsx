@@ -1,17 +1,28 @@
 import { useEffect, useRef, useState } from "react"
-import { ArrowDown, ArrowUp, ArrowUpDown, Receipt, TriangleAlert } from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Receipt, Settings2, TriangleAlert } from "lucide-react"
+import { toast } from "sonner"
 
+import { ClientesMediosDialog } from "@/components/facturas/ClientesMediosDialog"
+import { FacturasResumenPanel } from "@/components/facturas/FacturasResumenPanel"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
 import { ApiError } from "@/lib/api-client"
-import { FACTURAS_PAGE_SIZE, listFacturas } from "@/lib/api/factura"
+import {
+  FACTURAS_PAGE_SIZE,
+  facturasPeriodoBounds,
+  getFacturasResumen,
+  listFacturas,
+} from "@/lib/api/factura"
+import { createClienteMedios, listClientesMedios } from "@/lib/config-api"
 import { formatMoney } from "@/lib/costo-interno"
 import { cn } from "@/lib/utils"
+import { useAuthStore } from "@/store/auth-store"
 import type {
   FacturaContifico,
   FacturaOrdenDireccion,
   FacturaOrdenPor,
+  FacturasResumen,
 } from "@/types/factura"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -71,6 +82,9 @@ function SortableHead({
 }
 
 export function FacturasPage() {
+  const perfil = useAuthStore((state) => state.perfil)
+  const esAdmin = perfil?.equipo === "administrativo"
+
   const [meses, setMeses] = useState<number>(6)
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
@@ -84,10 +98,44 @@ export function FacturasPage() {
   const [cuentaVerificada, setCuentaVerificada] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const [resumen, setResumen] = useState<FacturasResumen | null>(null)
+  const [resumenError, setResumenError] = useState<string | null>(null)
+  const [mediosRucs, setMediosRucs] = useState<Set<string>>(new Set())
+  const [marcandoRuc, setMarcandoRuc] = useState<string | null>(null)
+  const [mediosDialogOpen, setMediosDialogOpen] = useState(false)
+
   const modoRango = Boolean(desde && hasta)
   const periodoSig = modoRango ? `rango|${desde}|${hasta}` : `meses|${meses}`
   const filterSig = `${periodoSig}|${clienteDebounced}|${ordenPor}|${ordenDireccion}`
   const prevFilterSig = useRef(filterSig)
+
+  const bounds = facturasPeriodoBounds(modoRango ? { desde, hasta } : { meses })
+
+  useEffect(() => {
+    setResumen(null)
+    setResumenError(null)
+    void getFacturasResumen(bounds)
+      .then((data) => {
+        setResumen(data)
+        setCuentaVerificada(data.cuenta_verificada)
+      })
+      .catch((err: unknown) => {
+        const mensaje =
+          err instanceof ApiError
+            ? err.detail
+            : err instanceof Error
+              ? err.message
+              : "No se pudo cargar el resumen."
+        setResumenError(mensaje)
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [periodoSig])
+
+  useEffect(() => {
+    void listClientesMedios()
+      .then((items) => setMediosRucs(new Set(items.map((row) => row.ruc))))
+      .catch(() => setMediosRucs(new Set()))
+  }, [resumen?.clientes_medios_configurados, mediosDialogOpen])
 
   useEffect(() => {
     const filtrosCambiaron = prevFilterSig.current !== filterSig
@@ -138,6 +186,27 @@ export function FacturasPage() {
     setOrdenDireccion(campo === "cliente" ? "asc" : "desc")
   }
 
+  async function marcarComoMedios(row: FacturaContifico) {
+    if (!row.cliente_ruc?.trim()) {
+      toast.error("Esta factura no trae RUC del cliente.")
+      return
+    }
+    setMarcandoRuc(row.cliente_ruc)
+    try {
+      await createClienteMedios({
+        ruc: row.cliente_ruc.trim(),
+        nombre: (row.cliente ?? row.cliente_ruc).trim(),
+      })
+      toast.success("Cliente marcado como medios.")
+      setMediosRucs((prev) => new Set(prev).add(row.cliente_ruc!.trim()))
+      void getFacturasResumen(bounds).then(setResumen)
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.detail : "No se pudo marcar como medios.")
+    } finally {
+      setMarcandoRuc(null)
+    }
+  }
+
   const hayFiltroCliente = clienteDebounced.trim().length > 0
   const paginaDesde = total === 0 ? 0 : offset + 1
   const paginaHasta = Math.min(offset + FACTURAS_PAGE_SIZE, total)
@@ -157,24 +226,24 @@ export function FacturasPage() {
     return `No hay facturas FAC en Contífico en los últimos ${meses} meses.`
   }
 
+  const avisoMediosSinConfig = (resumen?.clientes_medios_configurados ?? 0) === 0
+
   return (
     <>
       <PageHeader
         title="Facturas"
-        description="Facturas electrónicas (FAC) emitidas en Contífico. Solo lectura — la emisión desde prometIO sigue diferida."
+        description="Facturas electrónicas (FAC) emitidas en Contífico. Montos sin IVA. Solo lectura — la emisión desde prometIO sigue diferida."
+        action={
+          esAdmin ? (
+            <Button type="button" variant="outline" size="sm" onClick={() => setMediosDialogOpen(true)}>
+              <Settings2 className="size-4" strokeWidth={1.75} />
+              Clientes de medios
+            </Button>
+          ) : null
+        }
       />
 
       <div className="filter-bar mb-4">
-        <div className="filter-field sm:min-w-56 sm:flex-1">
-          <Label htmlFor="facturas-cliente">Cliente</Label>
-          <Input
-            id="facturas-cliente"
-            value={cliente}
-            onChange={(event) => setCliente(event.target.value)}
-            placeholder="Nombre o razón social"
-            className="h-9"
-          />
-        </div>
         <div className="filter-field sm:max-w-xs">
           <Label htmlFor="facturas-meses">Período</Label>
           <Select
@@ -220,14 +289,43 @@ export function FacturasPage() {
         </div>
         {modoRango ? (
           <p className="text-kicker text-muted-foreground sm:basis-full">
-            Si elegís fechas, el rango por meses no aplica.
+            Si elegís fechas, el rango por meses no aplica. El resumen y la lista usan el mismo rango.
           </p>
         ) : null}
         {!cuentaVerificada ? (
-          <p className="text-kicker text-warning">
+          <p className="text-kicker text-warning sm:basis-full">
             La cuenta de Contífico todavía no fue verificada como la de Geeks.
           </p>
         ) : null}
+      </div>
+
+      {resumen ? (
+        <FacturasResumenPanel resumen={resumen} avisoMediosSinConfig={avisoMediosSinConfig} />
+      ) : resumenError ? (
+        <div className="mb-6 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
+          <TriangleAlert className="size-5 shrink-0 text-destructive" strokeWidth={1.75} />
+          <p className="text-kicker">{resumenError}</p>
+        </div>
+      ) : (
+        <div className="mb-6 grid gap-4 sm:grid-cols-3">
+          {[1, 2, 3].map((key) => (
+            <div key={key} className="surface-card h-28 animate-pulse bg-muted/40" />
+          ))}
+        </div>
+      )}
+
+      <h2 className="text-section mb-3">Detalle de facturas</h2>
+      <div className="filter-bar mb-4">
+        <div className="filter-field min-w-0 flex-1 sm:max-w-md">
+          <Label htmlFor="facturas-cliente">Filtrar por cliente</Label>
+          <Input
+            id="facturas-cliente"
+            value={cliente}
+            onChange={(event) => setCliente(event.target.value)}
+            placeholder="Nombre o razón social"
+            className="h-9"
+          />
+        </div>
       </div>
 
       {rows == null && !error ? (
@@ -241,11 +339,7 @@ export function FacturasPage() {
           <p className="mt-1 max-w-lg text-kicker">{error}</p>
         </div>
       ) : total === 0 ? (
-        <EmptyState
-          icon={Receipt}
-          title="Sin facturas"
-          body={emptyBody()}
-        />
+        <EmptyState icon={Receipt} title="Sin facturas" body={emptyBody()} />
       ) : (
         <div className="space-y-4">
           <Table>
@@ -266,52 +360,78 @@ export function FacturasPage() {
                 />
                 <TableHead>Qué se vendió</TableHead>
                 <SortableHead
-                  label="Total"
+                  label="Subtotal"
                   active={ordenPor === "valor"}
                   direction={ordenDireccion}
                   align="right"
                   onClick={() => toggleSort("valor")}
                 />
                 <TableHead>Estado</TableHead>
-                <TableHead className="w-32" />
+                <TableHead className="text-right" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows!.map((row) => (
-                <TableRow key={`${row.numero}-${row.fecha_emision}`}>
-                  <TableCell className="text-ui-medium">{row.numero}</TableCell>
-                  <TableCell className="text-muted-foreground">{row.fecha_emision}</TableCell>
-                  <TableCell>{row.cliente ?? "—"}</TableCell>
-                  <TableCell
-                    className="max-w-[240px] truncate text-kicker"
-                    title={row.resumen_productos ?? undefined}
-                  >
-                    {row.resumen_productos ?? "—"}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">{formatMoney(row.total)}</TableCell>
-                  <TableCell>
-                    <Badge variant={row.anulado ? "destructive" : "success"}>
-                      {row.anulado ? "Anulada" : "Vigente"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {row.url_ride ? (
-                      <Button variant="ghost" size="sm" asChild>
-                        <a href={row.url_ride} target="_blank" rel="noreferrer">
-                          RIDE
-                        </a>
-                      </Button>
-                    ) : null}
-                    {row.url_xml ? (
-                      <Button variant="ghost" size="sm" asChild>
-                        <a href={row.url_xml} target="_blank" rel="noreferrer">
-                          XML
-                        </a>
-                      </Button>
-                    ) : null}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {rows!.map((row) => {
+                const ruc = row.cliente_ruc?.trim() ?? ""
+                const yaMedios = ruc !== "" && mediosRucs.has(ruc)
+                return (
+                  <TableRow key={`${row.numero}-${row.fecha_emision}`}>
+                    <TableCell className="text-ui-medium">{row.numero}</TableCell>
+                    <TableCell className="text-muted-foreground">{row.fecha_emision}</TableCell>
+                    <TableCell>
+                      <div className="min-w-0">
+                        <p>{row.cliente ?? "—"}</p>
+                        {ruc ? <p className="text-micro text-muted-foreground">{ruc}</p> : null}
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      className="max-w-[240px] truncate text-kicker"
+                      title={row.resumen_productos ?? undefined}
+                    >
+                      {row.resumen_productos ?? "—"}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{formatMoney(row.subtotal)}</TableCell>
+                    <TableCell>
+                      <Badge variant={row.anulado ? "destructive" : "success"}>
+                        {row.anulado ? "Anulada" : "Vigente"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex flex-wrap items-center justify-end gap-1">
+                        {esAdmin && ruc && !yaMedios ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="xs"
+                            disabled={marcandoRuc === ruc}
+                            onClick={() => void marcarComoMedios(row)}
+                          >
+                            {marcandoRuc === ruc ? (
+                              <Loader2 className="size-3.5 animate-spin" />
+                            ) : (
+                              "Marcar medios"
+                            )}
+                          </Button>
+                        ) : null}
+                        {row.url_ride ? (
+                          <Button variant="ghost" size="sm" asChild>
+                            <a href={row.url_ride} target="_blank" rel="noreferrer">
+                              RIDE
+                            </a>
+                          </Button>
+                        ) : null}
+                        {row.url_xml ? (
+                          <Button variant="ghost" size="sm" asChild>
+                            <a href={row.url_xml} target="_blank" rel="noreferrer">
+                              XML
+                            </a>
+                          </Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -341,6 +461,17 @@ export function FacturasPage() {
           </div>
         </div>
       )}
+
+      {esAdmin ? (
+        <ClientesMediosDialog
+          open={mediosDialogOpen}
+          onOpenChange={setMediosDialogOpen}
+          onChange={() => {
+            void getFacturasResumen(bounds).then(setResumen)
+            void listClientesMedios().then((items) => setMediosRucs(new Set(items.map((row) => row.ruc))))
+          }}
+        />
+      ) : null}
     </>
   )
 }
