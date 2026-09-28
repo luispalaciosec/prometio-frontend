@@ -35,41 +35,66 @@
     sistema: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
     inter: '"Inter", ui-sans-serif, system-ui, sans-serif',
     poppins: '"Poppins", ui-sans-serif, system-ui, sans-serif',
+    outfit: '"Outfit", ui-sans-serif, system-ui, sans-serif',
+    dm_sans: '"DM Sans", ui-sans-serif, system-ui, sans-serif',
   };
 
   const FONT_LINKS = {
     inter: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap",
     poppins: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap",
+    outfit: "https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap",
+    dm_sans: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap",
   };
 
   const CSS = `
     :host {
       display: block;
-      max-width: 26rem;
+      max-width: var(--pf-ancho-max, 26rem);
       font-family: var(--pf-font-family, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif);
-      color: #06080b;
-      line-height: 1.4;
+      color: var(--pf-texto, #06080b);
+      line-height: 1.45;
       --pf-primario: #05729f;
       --pf-acento: #05c7e8;
       --pf-radio: 0.5rem;
+      --pf-fondo: #ffffff;
+      --pf-fondo-input: #ffffff;
+      --pf-texto: #06080b;
+      --pf-texto-muted: #5c6b78;
+      --pf-borde: #e4eaed;
+      --pf-borde-input: #e4eaed;
+    }
+    :host([data-tema="oscuro"]) {
+      color-scheme: dark;
+      --pf-fondo: #0a0a0a;
+      --pf-fondo-input: #000000;
+      --pf-texto: #f5f5f4;
+      --pf-texto-muted: #a1a1aa;
+      --pf-borde: color-mix(in srgb, var(--pf-acento) 22%, #27272a);
+      --pf-borde-input: #3f3f46;
     }
     * { box-sizing: border-box; }
     .loading, form, .ok {
       margin: 0;
-      padding: 1.25rem;
-      background: #ffffff;
-      border: 1px solid #e4eaed;
+      padding: 1.35rem 1.25rem;
+      background: var(--pf-fondo);
+      border: 1px solid var(--pf-borde);
       border-radius: var(--pf-radio);
     }
     .loading {
-      color: #5c6b78;
+      color: var(--pf-texto-muted);
       font-size: 0.9rem;
     }
     .titulo {
-      margin: 0 0 1rem;
-      font-size: 1.05rem;
+      margin: 0 0 0.35rem;
+      font-size: 1.35rem;
       font-weight: 600;
-      color: var(--pf-primario);
+      letter-spacing: -0.02em;
+      color: var(--pf-acento);
+    }
+    .subtitulo {
+      margin: 0 0 1.1rem;
+      font-size: 0.85rem;
+      color: var(--pf-texto-muted);
     }
     .logo-wrap {
       margin: 0 0 1rem;
@@ -85,21 +110,25 @@
     label {
       display: block;
       margin-bottom: 0.35rem;
-      font-size: 0.8rem;
+      font-size: 0.8125rem;
       font-weight: 500;
-      color: var(--pf-primario);
+      color: var(--pf-texto);
     }
     .req { color: var(--pf-acento); }
     input, select, textarea {
       width: 100%;
       padding: 0 0.7rem;
-      border: 1px solid #e4eaed;
+      border: 1px solid var(--pf-borde-input);
       border-radius: var(--pf-radio);
-      background: #ffffff;
-      color: #06080b;
+      background: var(--pf-fondo-input);
+      color: var(--pf-texto);
       font: inherit;
       font-size: 0.9rem;
       outline: none;
+    }
+    input::placeholder, textarea::placeholder {
+      color: var(--pf-texto-muted);
+      opacity: 0.85;
     }
     input, select {
       height: 2.25rem;
@@ -153,23 +182,49 @@
       font-size: 0.9rem;
     }
     .ok {
-      background: #f2f6f8;
-      color: var(--pf-primario);
-      border: 1px solid #e4eaed;
+      background: color-mix(in srgb, var(--pf-acento) 8%, var(--pf-fondo));
+      color: var(--pf-texto);
+      border: 1px solid var(--pf-borde);
     }
     .fatal {
-      background: #f2f6f8;
-      color: #9b2c2c;
-      border: 1px solid #e4eaed;
+      background: color-mix(in srgb, #c0392b 10%, var(--pf-fondo));
+      color: #fca5a5;
+      border: 1px solid var(--pf-borde);
     }
     .err {
       margin: 0 0 0.85rem;
       padding: 0.55rem 0.7rem;
-      background: color-mix(in srgb, #c0392b 8%, #ffffff);
-      color: #9b2c2c;
+      background: color-mix(in srgb, #c0392b 12%, var(--pf-fondo));
+      color: #fca5a5;
       font-size: 0.8rem;
+      border-radius: calc(var(--pf-radio) * 0.75);
+    }
+    :host([data-tema="claro"]) .err {
+      color: #9b2c2c;
+    }
+    :host([data-tema="claro"]) .fatal {
+      color: #9b2c2c;
     }
   `;
+
+  function temaEfectivo(element, marca) {
+    const attr = element.getAttribute("tema");
+    if (attr === "claro" || attr === "oscuro") {
+      return attr;
+    }
+    if (marca?.formulario_tema === "oscuro") {
+      return "oscuro";
+    }
+    return "claro";
+  }
+
+  function anchoMaxRem(marca) {
+    const rem = marca?.formulario_ancho_max_rem;
+    if (typeof rem === "number" && Number.isFinite(rem) && rem >= 16 && rem <= 48) {
+      return `${rem}rem`;
+    }
+    return null;
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -202,7 +257,7 @@
 
   function cargarTipografia(tipo) {
     const key = typeof tipo === "string" ? tipo.trim().toLowerCase() : "sistema";
-    if (key === "inter" || key === "poppins") {
+    if (key === "inter" || key === "poppins" || key === "outfit" || key === "dm_sans") {
       const id = `prometio-font-${key}`;
       if (!document.getElementById(id)) {
         const link = document.createElement("link");
@@ -611,6 +666,10 @@
         typeof this.marca.formulario_titulo === "string" && this.marca.formulario_titulo.trim()
           ? `<h2 class="titulo">${escapeHtml(this.marca.formulario_titulo.trim())}</h2>`
           : "";
+      const subtituloHtml =
+        typeof this.marca.formulario_subtitulo === "string" && this.marca.formulario_subtitulo.trim()
+          ? `<p class="subtitulo">${escapeHtml(this.marca.formulario_subtitulo.trim())}</p>`
+          : "";
 
       this.shadowRoot.innerHTML = `
         <style>${CSS}</style>
@@ -619,6 +678,7 @@
             <img class="logo" alt="" />
           </div>
           ${tituloHtml}
+          ${subtituloHtml}
           <p class="err" hidden></p>
           ${htmlNombreCompleto()}
           ${camposHtml}
@@ -639,6 +699,9 @@
     }
 
     pintarMarca(marca) {
+      const tema = temaEfectivo(this, marca);
+      this.setAttribute("data-tema", tema);
+
       if (esHex(marca.color_primario)) {
         this.style.setProperty("--pf-primario", marca.color_primario.trim());
       }
@@ -653,9 +716,18 @@
         this.style.setProperty("--pf-acento", acento);
       }
 
+      if (tema === "oscuro" && esHex(marca.color_cuaternario)) {
+        this.style.setProperty("--pf-fondo", marca.color_cuaternario.trim());
+      }
+
       const radio = radioBordesPx(marca);
       if (radio) {
         this.style.setProperty("--pf-radio", radio);
+      }
+
+      const ancho = anchoMaxRem(marca);
+      if (ancho) {
+        this.style.setProperty("--pf-ancho-max", ancho);
       }
 
       const fontFamily = cargarTipografia(marca.formulario_tipografia);
@@ -664,8 +736,11 @@
       const wrap = this.shadowRoot.querySelector(".logo-wrap");
       const img = this.shadowRoot.querySelector(".logo");
       if (wrap && img) {
-        if (esUrlHttp(marca.logo_url)) {
-          img.src = marca.logo_url.trim();
+        const logoOscuro = esUrlHttp(marca.logo_url_oscuro) ? marca.logo_url_oscuro.trim() : null;
+        const logoClaro = esUrlHttp(marca.logo_url) ? marca.logo_url.trim() : null;
+        const src = tema === "oscuro" ? logoOscuro ?? logoClaro : logoClaro ?? logoOscuro;
+        if (src) {
+          img.src = src;
           wrap.hidden = false;
         } else {
           img.removeAttribute("src");

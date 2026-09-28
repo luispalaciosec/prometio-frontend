@@ -193,7 +193,7 @@ export function MarcaPage() {
           <p className="text-kicker text-muted-foreground">
             Logo y colores también alimentan el widget público del formulario web (
             <a href="/configuracion/formulario-web?tab=apariencia" className="underline-offset-4 hover:underline">
-              textos y tipografía del formulario
+              look & feel del formulario
             </a>
             ).
           </p>

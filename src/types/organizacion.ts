@@ -1,4 +1,6 @@
-export type TipografiaFormulario = "sistema" | "inter" | "poppins"
+export type TipografiaFormulario = "sistema" | "inter" | "poppins" | "outfit" | "dm_sans"
+
+export type TemaFormulario = "claro" | "oscuro"
 
 export type Organizacion = {
   id: string
@@ -14,6 +16,9 @@ export type Organizacion = {
   telefono: string | null
   formulario_radio_bordes_px: number
   formulario_tipografia: TipografiaFormulario
+  formulario_tema: TemaFormulario
+  formulario_subtitulo: string | null
+  formulario_ancho_max_rem: number
   formulario_titulo: string | null
   formulario_texto_boton: string
   formulario_texto_exito: string
@@ -31,6 +36,9 @@ export type OrganizacionUpdate = {
   telefono?: string | null
   formulario_radio_bordes_px?: number | null
   formulario_tipografia?: TipografiaFormulario | null
+  formulario_tema?: TemaFormulario | null
+  formulario_subtitulo?: string | null
+  formulario_ancho_max_rem?: number | null
   formulario_titulo?: string | null
   formulario_texto_boton?: string | null
   formulario_texto_exito?: string | null

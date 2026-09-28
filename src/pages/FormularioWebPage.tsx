@@ -34,7 +34,7 @@ export function FormularioWebPage() {
     <>
       <PageHeader
         title="Formulario web"
-        description="Widget público: snippet, campos, apariencia, webhooks y medición."
+        description="Widget público: snippet, campos, look & feel, webhooks y medición."
         action={
           <Button type="button" variant="outline" asChild>
             <a href={formularioDemoUrl()} target="_blank" rel="noreferrer">
@@ -48,7 +48,7 @@ export function FormularioWebPage() {
         <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="embed">Embed</TabsTrigger>
           <TabsTrigger value="campos">Campos</TabsTrigger>
-          <TabsTrigger value="apariencia">Apariencia</TabsTrigger>
+          <TabsTrigger value="apariencia">Look & feel</TabsTrigger>
           <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
           <TabsTrigger value="medicion">Medición</TabsTrigger>
         </TabsList>
