@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
 import { DashboardDetalleModal } from "@/components/dashboard/DashboardDetalleModal"
 import { DashboardKpiTrigger } from "@/components/dashboard/DashboardKpiTrigger"
+import { DashboardFacturacionResumen } from "@/components/dashboard/DashboardFacturacionResumen"
 import { DashboardMetas } from "@/components/dashboard/DashboardMetas"
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
@@ -209,6 +210,7 @@ export function DashboardPage() {
               }
             />
           ) : null}
+          <DashboardFacturacionResumen />
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>
             <PipelineBarras rows={kpis.pipeline_por_etapa} />

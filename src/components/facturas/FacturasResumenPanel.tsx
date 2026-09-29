@@ -1,16 +1,20 @@
-import { Building2, Megaphone, Receipt, TriangleAlert } from "lucide-react"
+import { TriangleAlert } from "lucide-react"
 
 import { FacturasCategoriaBarras } from "@/components/facturas/FacturasCategoriaBarras"
-import { KpiCard } from "@/components/kpi-card"
-import { formatMoney } from "@/lib/costo-interno"
+import {
+  FacturasResumenKpis,
+  type FacturasResumenKpiTipo,
+} from "@/components/facturas/FacturasResumenKpis"
 import type { FacturasResumen } from "@/types/factura"
 
 export function FacturasResumenPanel({
   resumen,
   avisoMediosSinConfig,
+  onKpiClick,
 }: {
   resumen: FacturasResumen
   avisoMediosSinConfig: boolean
+  onKpiClick?: (tipo: FacturasResumenKpiTipo) => void
 }) {
   return (
     <div className="mb-6 space-y-4">
@@ -30,33 +34,7 @@ export function FacturasResumenPanel({
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard
-          title="Total facturado"
-          value={formatMoney(resumen.total_facturado)}
-          hint={`${resumen.cantidad_facturas} facturas · sin IVA · ${resumen.desde} → ${resumen.hasta}`}
-          icon={Receipt}
-          tone="bg-primary/10 text-primary"
-        />
-        <KpiCard
-          title="Facturación agencia"
-          value={formatMoney(resumen.facturacion_agencia)}
-          hint="Clientes fuera de la lista de medios"
-          icon={Building2}
-          tone="bg-success/10 text-success"
-        />
-        <KpiCard
-          title="Facturación medios"
-          value={formatMoney(resumen.facturacion_medios)}
-          hint={
-            resumen.clientes_medios_configurados > 0
-              ? `${resumen.clientes_medios_configurados} cliente(s) de medios`
-              : "Sin clientes de medios"
-          }
-          icon={Megaphone}
-          tone="bg-highlight/15 text-highlight"
-        />
-      </div>
+      <FacturasResumenKpis resumen={resumen} clickable={Boolean(onKpiClick)} onKpiClick={onKpiClick} />
 
       <div className="surface-card p-5">
         <h2 className="text-section">Por categoría (Contífico)</h2>

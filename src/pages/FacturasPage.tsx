@@ -149,6 +149,18 @@ export function FacturasPage() {
   }, [resumen?.clientes_medios_configurados, mediosDialogOpen])
 
   useEffect(() => {
+    if (window.location.hash !== "#lista-facturas") {
+      return
+    }
+    window.requestAnimationFrame(() => {
+      document.getElementById("lista-facturas")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      })
+    })
+  }, [resumen])
+
+  useEffect(() => {
     if (periodoRangoIncompleto) {
       setRows([])
       setTotal(0)
@@ -359,7 +371,16 @@ export function FacturasPage() {
       </div>
 
       {resumen ? (
-        <FacturasResumenPanel resumen={resumen} avisoMediosSinConfig={avisoMediosSinConfig} />
+        <FacturasResumenPanel
+          resumen={resumen}
+          avisoMediosSinConfig={avisoMediosSinConfig}
+          onKpiClick={() => {
+            document.getElementById("lista-facturas")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            })
+          }}
+        />
       ) : resumenError ? (
         <div className="mb-6 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
           <TriangleAlert className="size-5 shrink-0 text-destructive" strokeWidth={1.75} />
@@ -373,7 +394,9 @@ export function FacturasPage() {
         </div>
       )}
 
-      <h2 className="text-section mb-3">Detalle de facturas</h2>
+      <h2 id="lista-facturas" className="text-section mb-3 scroll-mt-4">
+        Detalle de facturas
+      </h2>
       <div className="filter-bar mb-4">
         <div className="filter-field min-w-0 flex-1 sm:max-w-md">
           <Label htmlFor="facturas-cliente">Filtrar por cliente</Label>
