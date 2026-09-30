@@ -6,6 +6,7 @@ import { ProveedorQuickCreateDialog } from "@/components/proveedores/ProveedorQu
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { SearchCombobox } from "@/components/ui/search-combobox"
 import {
   addLineaCosto,
@@ -84,6 +85,13 @@ function payloadDe(borrador: BorradorCosto): {
   return { proveedor_id: null, descripcion, monto }
 }
 
+function mensajeValidacionBorrador(borrador: BorradorCosto): string {
+  if (borrador.modo === "proveedor") {
+    return "Elegí un proveedor y un monto válido."
+  }
+  return "Escribí una descripción y un monto válido."
+}
+
 export function LineaCostosDesglose({
   cotizacionId,
   linea,
@@ -124,7 +132,7 @@ export function LineaCostosDesglose({
   async function guardarNuevo() {
     const body = payloadDe(borrador)
     if (!body) {
-      toast.error("Completá proveedor o descripción y un monto válido.")
+      toast.error(mensajeValidacionBorrador(borrador))
       return
     }
     setGuardando(true)
@@ -144,7 +152,7 @@ export function LineaCostosDesglose({
   async function guardarEdicion(costoId: string) {
     const body = payloadDe(borrador)
     if (!body) {
-      toast.error("Completá proveedor o descripción y un monto válido.")
+      toast.error(mensajeValidacionBorrador(borrador))
       return
     }
     setGuardando(true)
@@ -183,23 +191,47 @@ export function LineaCostosDesglose({
   }) {
     return (
       <div className="space-y-3 rounded-lg border border-border bg-background p-3">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant={borrador.modo === "proveedor" ? "default" : "outline"}
-            onClick={() => setBorrador((prev) => ({ ...prev, modo: "proveedor" }))}
+        <div className="flex flex-col gap-2">
+          <Label>Tipo de costo</Label>
+          <RadioGroup
+            value={borrador.modo}
+            onValueChange={(value) =>
+              setBorrador((prev) => ({
+                ...prev,
+                modo: value as ModoCosto,
+              }))
+            }
+            className="gap-2.5"
           >
-            Proveedor
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={borrador.modo === "texto" ? "default" : "outline"}
-            onClick={() => setBorrador((prev) => ({ ...prev, modo: "texto" }))}
-          >
-            Descripción libre
-          </Button>
+            <label
+              htmlFor={`costo-modo-proveedor-${linea.id}`}
+              className="flex cursor-pointer items-start gap-2 rounded-lg border border-border px-3 py-2.5 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
+            >
+              <RadioGroupItem
+                value="proveedor"
+                id={`costo-modo-proveedor-${linea.id}`}
+                className="mt-0.5"
+              />
+              <span className="text-ui">
+                Con proveedor
+                <span className="mt-0.5 block text-kicker text-muted-foreground">
+                  Proveedor externo de la lista + monto.
+                </span>
+              </span>
+            </label>
+            <label
+              htmlFor={`costo-modo-otro-${linea.id}`}
+              className="flex cursor-pointer items-start gap-2 rounded-lg border border-border px-3 py-2.5 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
+            >
+              <RadioGroupItem value="texto" id={`costo-modo-otro-${linea.id}`} className="mt-0.5" />
+              <span className="text-ui">
+                Otro costo
+                <span className="mt-0.5 block text-kicker text-muted-foreground">
+                  Gasto interno sin proveedor: software, alimentación, movilización, etc.
+                </span>
+              </span>
+            </label>
+          </RadioGroup>
         </div>
         {borrador.modo === "proveedor" ? (
           <SearchCombobox
@@ -223,7 +255,7 @@ export function LineaCostosDesglose({
               onChange={(event) =>
                 setBorrador((prev) => ({ ...prev, descripcion: event.target.value }))
               }
-              placeholder="Ej. Transporte, fee plataforma…"
+              placeholder="Ej. Alimentación del equipo, Licencia Adobe…"
             />
           </div>
         )}
