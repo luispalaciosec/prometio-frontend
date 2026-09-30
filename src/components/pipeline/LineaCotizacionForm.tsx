@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import { CategoriaServicioPicker } from "@/components/pipeline/CategoriaServicioPicker"
 import { HistorialPreciosDialog } from "@/components/pipeline/HistorialPreciosDialog"
 import { LineaCalculoVivo } from "@/components/pipeline/LineaCalculoVivo"
+import { LineaCostosDesglose } from "@/components/pipeline/LineaCostosDesglose"
 import { SugerenciaPrecioPanel } from "@/components/pipeline/SugerenciaPrecioPanel"
 import { ProveedorQuickCreateDialog } from "@/components/proveedores/ProveedorQuickCreateDialog"
 import { Button } from "@/components/ui/button"
@@ -17,7 +18,8 @@ import {
   precioDirectoServicio,
 } from "@/lib/calculo-cotizacion"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
-import type { LineaCotizacion } from "@/types/linea-cotizacion"
+import { lineaTieneDesgloseCostos } from "@/lib/linea-cotizacion-costos"
+import type { LineaCotizacionCalculada } from "@/types/linea-cotizacion"
 import type { Proveedor } from "@/types/proveedor"
 import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { Servicio } from "@/types/servicio"
@@ -31,8 +33,9 @@ type ModoCobro = "directo" | "proveedor"
 
 export type LineaCotizacionFormInput = {
   servicio_id: string | null
-  proveedor_id: string | null
-  costo_proveedor: number | null
+  /** Omitir en PATCH cuando la línea ya tiene desglose en .../costos. */
+  proveedor_id?: string | null
+  costo_proveedor?: number | null
   margen_pct: number | null
   comision_agencia_pct: number | null
   cantidad: number
@@ -122,9 +125,13 @@ export function LineaCotizacionForm({
   onSubmit,
   onCancel,
   onProveedorCreated,
+  cotizacionId,
+  onLineaCostosActualizada,
 }: {
   modo: "alta" | "edicion"
-  linea?: LineaCotizacion
+  linea?: LineaCotizacionCalculada
+  cotizacionId?: string
+  onLineaCostosActualizada?: (linea: LineaCotizacionCalculada) => void
   prefillAlta?: LineaFormPrefillAlta
   notaContexto?: string
   servicios: Servicio[]
@@ -146,6 +153,11 @@ export function LineaCotizacionForm({
   )
   const caminoFijoConProveedor =
     modo === "edicion" ? linea?.costo_proveedor != null : null
+  const usaDesgloseCostosApi =
+    modo === "edicion" &&
+    Boolean(cotizacionId) &&
+    linea != null &&
+    lineaTieneDesgloseCostos(linea)
   const [servicioId, setServicioId] = useState(
     linea?.servicio_id ?? prefillAlta?.servicio_id ?? "",
   )
@@ -156,6 +168,15 @@ export function LineaCotizacionForm({
   const [costoRaw, setCostoRaw] = useState(
     linea?.costo_proveedor != null ? String(linea.costo_proveedor) : "",
   )
+
+  useEffect(() => {
+    if (modo !== "edicion" || !linea) {
+      return
+    }
+    if (linea.costo_proveedor != null) {
+      setCostoRaw(String(linea.costo_proveedor))
+    }
+  }, [modo, linea?.id, linea?.costo_proveedor, linea?.costos])
   const [margenRaw, setMargenRaw] = useState(
     linea?.margen_pct != null ? String(linea.margen_pct) : "",
   )
@@ -261,7 +282,9 @@ export function LineaCotizacionForm({
       return null
     }
     if (conProveedor) {
-      const costo = parseOptionalNumber(costoRaw)
+      const costo = usaDesgloseCostosApi
+        ? linea?.costo_proveedor ?? null
+        : parseOptionalNumber(costoRaw)
       const margen = parseOptionalNumber(margenRaw)
       const comision = parseOptionalNumber(comisionRaw)
       if (costo == null || costo === "invalid") {
@@ -280,7 +303,16 @@ export function LineaCotizacionForm({
       return null
     }
     return calcularLineaSinProveedor(precioSinProveedor, config.tasa_impuesto_pct)
-  }, [config, conProveedor, costoRaw, margenRaw, comisionRaw, precioSinProveedor])
+  }, [
+    config,
+    conProveedor,
+    costoRaw,
+    margenRaw,
+    comisionRaw,
+    precioSinProveedor,
+    usaDesgloseCostosApi,
+    linea?.costo_proveedor,
+  ])
 
   function submit() {
     const cantidad = parseOptionalNumber(cantidadRaw)
@@ -299,14 +331,20 @@ export function LineaCotizacionForm({
     const categoriaPayload = sinCatalogo ? categoriaId : null
 
     if (conProveedor) {
-      const costo = parseOptionalNumber(costoRaw)
+      const costo = usaDesgloseCostosApi
+        ? linea?.costo_proveedor ?? null
+        : parseOptionalNumber(costoRaw)
       if (costo == null || costo === "invalid") {
         return
       }
       onSubmit({
         servicio_id: sinCatalogo ? null : servicioId || null,
-        proveedor_id: proveedorId === SIN_PROVEEDOR ? null : proveedorId,
-        costo_proveedor: costo,
+        proveedor_id: usaDesgloseCostosApi
+          ? undefined
+          : proveedorId === SIN_PROVEEDOR
+            ? null
+            : proveedorId,
+        costo_proveedor: usaDesgloseCostosApi ? undefined : costo,
         margen_pct: numeroOpcional(margenRaw),
         comision_agencia_pct: numeroOpcional(comisionRaw),
         cantidad,
@@ -350,7 +388,9 @@ export function LineaCotizacionForm({
     parseOptionalNumber(cantidadRaw) !== "invalid" &&
     parseOptionalNumber(cantidadRaw) != null &&
     (conProveedor
-      ? parseOptionalNumber(costoRaw) != null && parseOptionalNumber(costoRaw) !== "invalid"
+      ? usaDesgloseCostosApi
+        ? linea?.costo_proveedor != null
+        : parseOptionalNumber(costoRaw) != null && parseOptionalNumber(costoRaw) !== "invalid"
       : precioSinProveedor != null) &&
     config != null
 
@@ -365,7 +405,7 @@ export function LineaCotizacionForm({
 
   const camposMontos = (
     <>
-      {caminoFijoConProveedor === false ? null : (
+      {caminoFijoConProveedor === false || usaDesgloseCostosApi ? null : (
         <div className="flex flex-col gap-2">
           <Label htmlFor="linea-costo">Costo del proveedor</Label>
           <Input
@@ -392,20 +432,30 @@ export function LineaCotizacionForm({
 
       {conProveedor ? (
         <>
-          <SearchCombobox
-            id="linea-proveedor"
-            label="Proveedor"
-            placeholder="Buscar proveedor…"
-            value={proveedorId}
-            onChange={setProveedorId}
-            options={proveedorOptions}
-            pinnedOptions={proveedorPinned}
-            clearSelectionValue={SIN_PROVEEDOR}
-            showClearSelection={proveedorId !== SIN_PROVEEDOR}
-            emptyQueryMessage={(q) => `Ninguno coincide con «${q}»`}
-            onCreateNew={(q) => setCrearProveedorQuery(q)}
-            createNewLabel={(q) => `Crear proveedor «${q}»`}
-          />
+          {usaDesgloseCostosApi && linea && cotizacionId && onLineaCostosActualizada ? (
+            <LineaCostosDesglose
+              cotizacionId={cotizacionId}
+              linea={linea}
+              proveedores={proveedores}
+              onLineaActualizada={onLineaCostosActualizada}
+              onProveedorCreated={onProveedorCreated}
+            />
+          ) : (
+            <SearchCombobox
+              id="linea-proveedor"
+              label="Proveedor"
+              placeholder="Buscar proveedor…"
+              value={proveedorId}
+              onChange={setProveedorId}
+              options={proveedorOptions}
+              pinnedOptions={proveedorPinned}
+              clearSelectionValue={SIN_PROVEEDOR}
+              showClearSelection={proveedorId !== SIN_PROVEEDOR}
+              emptyQueryMessage={(q) => `Ninguno coincide con «${q}»`}
+              onCreateNew={(q) => setCrearProveedorQuery(q)}
+              createNewLabel={(q) => `Crear proveedor «${q}»`}
+            />
+          )}
           <div className="flex flex-col gap-2">
             <Label htmlFor="linea-margen">Margen de agencia (%)</Label>
             <Input

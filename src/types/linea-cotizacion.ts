@@ -1,9 +1,19 @@
+export type LineaCotizacionCosto = {
+  id: string
+  linea_cotizacion_id: string
+  proveedor_id: string | null
+  proveedor_nombre: string | null
+  descripcion: string | null
+  monto: number
+}
+
 export type LineaCotizacion = {
   id: string
   cotizacion_id: string
   servicio_id: string | null
   proveedor_id: string | null
   costo_proveedor: number | null
+  costos?: LineaCotizacionCosto[]
   margen_pct: number | null
   comision_agencia_pct: number | null
   cantidad: number

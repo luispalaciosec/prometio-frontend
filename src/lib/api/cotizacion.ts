@@ -117,6 +117,51 @@ export function createLinea(input: CrearLineaInput): Promise<LineaCotizacionCalc
   })
 }
 
+export type LineaCostoWrite = {
+  proveedor_id?: string | null
+  descripcion?: string | null
+  monto: number
+}
+
+export type LineaCostoPatch = {
+  proveedor_id?: string | null
+  descripcion?: string | null
+  monto?: number
+}
+
+export function addLineaCosto(
+  cotizacionId: string,
+  lineaId: string,
+  body: LineaCostoWrite,
+): Promise<LineaCotizacionCalculada> {
+  return apiFetch(`/cotizaciones/${cotizacionId}/lineas/${lineaId}/costos`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  })
+}
+
+export function updateLineaCosto(
+  cotizacionId: string,
+  lineaId: string,
+  costoId: string,
+  body: LineaCostoPatch,
+): Promise<LineaCotizacionCalculada> {
+  return apiFetch(`/cotizaciones/${cotizacionId}/lineas/${lineaId}/costos/${costoId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  })
+}
+
+export function deleteLineaCosto(
+  cotizacionId: string,
+  lineaId: string,
+  costoId: string,
+): Promise<LineaCotizacionCalculada> {
+  return apiFetch(`/cotizaciones/${cotizacionId}/lineas/${lineaId}/costos/${costoId}`, {
+    method: "DELETE",
+  })
+}
+
 export function updateLinea(input: ActualizarLineaInput): Promise<LineaCotizacionCalculada> {
   const body: Record<string, unknown> = {}
   if ("proveedor_id" in input) {

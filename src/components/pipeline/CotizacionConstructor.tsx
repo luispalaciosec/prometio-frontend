@@ -8,6 +8,7 @@ import { CotizacionTransiciones } from "@/components/pipeline/CotizacionTransici
 import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
 import { DocumentoAlcanceRequisitoAviso } from "@/components/pipeline/DocumentoAlcanceRequisitoAviso"
 import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
+import { LineaCostosDesglose } from "@/components/pipeline/LineaCostosDesglose"
 import {
   LineaCotizacionForm,
   prefillDesdeSugerencia,
@@ -30,7 +31,8 @@ import {
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas, SugerenciaLineaAsistente } from "@/types/cotizacion"
 import type { DocumentoAlcance } from "@/types/documento-alcance"
-import type { LineaCotizacion } from "@/types/linea-cotizacion"
+import { lineaTieneDesgloseCostos } from "@/lib/linea-cotizacion-costos"
+import type { LineaCotizacion, LineaCotizacionCalculada } from "@/types/linea-cotizacion"
 import type { Perfil } from "@/types/perfil"
 import type { Proveedor } from "@/types/proveedor"
 import type { CategoriaServicio } from "@/types/categoria-servicio"
@@ -161,27 +163,47 @@ export function CotizacionConstructor({
     }
   }
 
+  async function refrescarTrasCostos(_linea: LineaCotizacionCalculada) {
+    await onChange()
+  }
+
   async function guardar(linea: LineaCotizacion, input: LineaCotizacionFormInput) {
     try {
       if (linea.costo_proveedor != null) {
-        if (input.costo_proveedor == null) {
-          toast.error("Esta línea es con proveedor: no se puede vaciar el costo.")
-          return
+        const desglose = lineaTieneDesgloseCostos(linea)
+        if (desglose) {
+          await updateLinea({
+            perfil,
+            cotizacion_id: cotizacion.id,
+            id: linea.id,
+            margen_pct: input.margen_pct,
+            comision_agencia_pct: input.comision_agencia_pct,
+            cantidad: input.cantidad,
+            descripcion: input.descripcion,
+            ...(linea.servicio_id == null
+              ? { categoria_servicio_id: input.categoria_servicio_id }
+              : {}),
+          })
+        } else {
+          if (input.costo_proveedor == null) {
+            toast.error("Esta línea es con proveedor: no se puede vaciar el costo.")
+            return
+          }
+          await updateLinea({
+            perfil,
+            cotizacion_id: cotizacion.id,
+            id: linea.id,
+            proveedor_id: input.proveedor_id,
+            costo_proveedor: input.costo_proveedor,
+            margen_pct: input.margen_pct,
+            comision_agencia_pct: input.comision_agencia_pct,
+            cantidad: input.cantidad,
+            descripcion: input.descripcion,
+            ...(linea.servicio_id == null
+              ? { categoria_servicio_id: input.categoria_servicio_id }
+              : {}),
+          })
         }
-        await updateLinea({
-          perfil,
-          cotizacion_id: cotizacion.id,
-          id: linea.id,
-          proveedor_id: input.proveedor_id,
-          costo_proveedor: input.costo_proveedor,
-          margen_pct: input.margen_pct,
-          comision_agencia_pct: input.comision_agencia_pct,
-          cantidad: input.cantidad,
-          descripcion: input.descripcion,
-          ...(linea.servicio_id == null
-            ? { categoria_servicio_id: input.categoria_servicio_id }
-            : {}),
-        })
       } else {
         await updateLinea({
           perfil,
@@ -321,6 +343,7 @@ export function CotizacionConstructor({
                 <LineaCotizacionForm
                   modo="edicion"
                   linea={linea}
+                  cotizacionId={cotizacion.id}
                   servicios={servicios}
                   proveedores={proveedores}
                   categorias={categorias}
@@ -329,6 +352,7 @@ export function CotizacionConstructor({
                   onSubmit={(input) => void guardar(linea, input)}
                   onCancel={() => setEditandoId(null)}
                   onProveedorCreated={onProveedorCreated}
+                  onLineaCostosActualizada={(next) => void refrescarTrasCostos(next)}
                 />
               </li>
             )
@@ -359,6 +383,18 @@ export function CotizacionConstructor({
                 </p>
                 {linea.justificacion_precio ? (
                   <p className="text-micro text-muted-foreground">{linea.justificacion_precio}</p>
+                ) : null}
+                {esBorrador &&
+                linea.costo_proveedor != null &&
+                lineaTieneDesgloseCostos(linea) ? (
+                  <LineaCostosDesglose
+                    compacto
+                    cotizacionId={cotizacion.id}
+                    linea={linea}
+                    proveedores={proveedores}
+                    onLineaActualizada={(next) => void refrescarTrasCostos(next)}
+                    onProveedorCreated={onProveedorCreated}
+                  />
                 ) : null}
               </div>
               {esBorrador ? (
