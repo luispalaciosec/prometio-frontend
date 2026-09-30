@@ -11,6 +11,8 @@ export type LeadScoreDesglose = {
 export type Oportunidad = {
   id: string
   organizacion_id: string
+  /** Etiqueta libre para distinguir deals del mismo contacto/empresa. */
+  nombre: string | null
   contacto_id: string
   empresa_id: string
   ejecutivo_id: string
@@ -41,6 +43,7 @@ export type OportunidadKanban = Oportunidad & {
 export type PipelineScope = "mio" | "equipo"
 
 export type OportunidadCreate = {
+  nombre?: string | null
   contacto_id: string
   empresa_id: string
   valor_referencial?: number | null
@@ -49,6 +52,7 @@ export type OportunidadCreate = {
 }
 
 export type OportunidadUpdate = {
+  nombre?: string | null
   contacto_id?: string
   empresa_id?: string
   valor_referencial?: number | null

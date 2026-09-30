@@ -163,7 +163,12 @@ export function PipelinePage() {
       if (ejecutivoId && row.ejecutivo.id !== ejecutivoId) {
         return false
       }
-      return coincideTexto(busqueda, row.contacto.nombre_completo, row.empresa.nombre)
+      return coincideTexto(
+        busqueda,
+        row.nombre,
+        row.contacto.nombre_completo,
+        row.empresa.nombre,
+      )
     })
   }, [items, etapaId, ejecutivoId, busqueda])
 

@@ -162,6 +162,7 @@ function row(
 ): Omit<Oportunidad, "organizacion_id" | "created_at"> {
   return {
     id,
+    nombre: extra?.nombre ?? null,
     contacto_id,
     empresa_id,
     ejecutivo_id,

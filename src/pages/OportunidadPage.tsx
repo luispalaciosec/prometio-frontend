@@ -29,6 +29,11 @@ import {
   listServicios,
 } from "@/lib/config-api"
 import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
+import {
+  oportunidadNombreLibre,
+  subtituloContactoEmpresa,
+  tituloOportunidadLegacyContacto,
+} from "@/lib/oportunidad-presentacion"
 import { useAuthStore } from "@/store/auth-store"
 import type { Contacto } from "@/types/contacto"
 import type { Empresa } from "@/types/empresa"
@@ -218,13 +223,24 @@ export function OportunidadPage() {
     }
   }
 
+  const nombreLibre = oportunidadNombreLibre(state.oportunidad.nombre)
+
   return (
     <>
       <PageHeader
-        title={state.oportunidad.contacto.nombre_completo}
+        title={nombreLibre ?? tituloOportunidadLegacyContacto(state.oportunidad)}
         description={
           <>
-            <span>{state.oportunidad.empresa.nombre}</span>
+            {nombreLibre ? (
+              <span>
+                {subtituloContactoEmpresa(
+                  state.oportunidad.contacto.nombre_completo,
+                  state.oportunidad.empresa.nombre,
+                )}
+              </span>
+            ) : (
+              <span>{state.oportunidad.empresa.nombre}</span>
+            )}
             {!state.oportunidad.activo ? <span>Inactiva</span> : null}
           </>
         }

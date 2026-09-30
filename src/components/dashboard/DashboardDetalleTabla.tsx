@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { formatMoney } from "@/lib/costo-interno"
+import { oportunidadNombreLibre, subtituloContactoEmpresa } from "@/lib/oportunidad-presentacion"
 import { cn } from "@/lib/utils"
 import type { DashboardDetalleFila } from "@/types/dashboard-detalle"
 
@@ -70,7 +71,9 @@ export function DashboardDetalleTabla({
       let cmp = 0
       switch (sortKey) {
         case "empresa":
-          cmp = (a.empresa ?? "").localeCompare(b.empresa ?? "")
+          cmp = (oportunidadNombreLibre(a.nombre) ?? a.empresa ?? "").localeCompare(
+            oportunidadNombreLibre(b.nombre) ?? b.empresa ?? "",
+          )
           break
         case "ejecutivo":
           cmp = (a.ejecutivo ?? "").localeCompare(b.ejecutivo ?? "")
@@ -148,6 +151,7 @@ export function DashboardDetalleTabla({
           {ordenadas.map((row) => {
             const alerta =
               row.dias_sin_actividad != null && row.dias_sin_actividad >= DIAS_SIN_ACTIVIDAD_ALERTA
+            const nombreLibre = oportunidadNombreLibre(row.nombre)
             return (
               <TableRow
                 key={row.oportunidad_id}
@@ -163,8 +167,17 @@ export function DashboardDetalleTabla({
                 }}
                 tabIndex={0}
               >
-                <TableCell className="text-ui-medium">{row.empresa ?? "—"}</TableCell>
-                <TableCell className="text-kicker">{row.contacto ?? "—"}</TableCell>
+                <TableCell className="text-ui-medium">
+                  {nombreLibre ?? row.empresa ?? "—"}
+                  {nombreLibre && row.contacto && row.empresa ? (
+                    <p className="mt-0.5 text-kicker font-normal text-muted-foreground">
+                      {subtituloContactoEmpresa(row.contacto, row.empresa)}
+                    </p>
+                  ) : null}
+                </TableCell>
+                <TableCell className="text-kicker">
+                  {nombreLibre ? "—" : (row.contacto ?? "—")}
+                </TableCell>
                 <TableCell className="text-kicker">{row.ejecutivo ?? "—"}</TableCell>
                 <TableCell className="text-kicker">{row.etapa_nombre}</TableCell>
                 <TableCell className="text-right tabular-nums">{formatMoney(row.valor)}</TableCell>

@@ -9,6 +9,8 @@ export type DashboardDetalleResultado = "abierta" | "ganada" | "perdida"
 
 export type DashboardDetalleFila = {
   oportunidad_id: string
+  /** Nombre libre de la oportunidad; si viene, va como título principal en la fila. */
+  nombre: string | null
   empresa: string | null
   contacto: string | null
   ejecutivo: string | null

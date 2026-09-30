@@ -18,6 +18,7 @@ export function OportunidadDetalle({
 
   return (
     <dl className="grid gap-4 sm:grid-cols-2">
+      <Field label="Nombre" value={oportunidad.nombre?.trim() || "Sin nombre"} />
       <Field label="Contacto" value={oportunidad.contacto.nombre_completo} />
       <Field label="Empresa" value={oportunidad.empresa.nombre} />
       <Field label="Ejecutivo" value={oportunidad.ejecutivo.nombre_completo} />

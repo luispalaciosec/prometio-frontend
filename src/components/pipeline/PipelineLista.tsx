@@ -12,6 +12,11 @@ import {
 } from "@/components/ui/table"
 import type { EstadoAlerta } from "@/types/alerta"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
+import {
+  oportunidadNombreLibre,
+  subtituloContactoEmpresa,
+  tituloOportunidadLegacyContacto,
+} from "@/lib/oportunidad-presentacion"
 import type { OportunidadKanban } from "@/types/oportunidad"
 
 export function PipelineLista({
@@ -50,6 +55,7 @@ export function PipelineLista({
       <TableBody>
         {items.map((row) => {
           const alerta = alertasPorId?.get(row.id)
+          const nombreLibre = oportunidadNombreLibre(row.nombre)
           return (
             <TableRow
               key={row.id}
@@ -57,13 +63,20 @@ export function PipelineLista({
               onClick={() => onAbrir(row.id)}
             >
               <TableCell className="text-ui-medium">
-                <span className="inline-flex items-center gap-2">
-                  {row.contacto.nombre_completo}
+                <span className="inline-flex flex-wrap items-center gap-2">
+                  <span>
+                    {nombreLibre ?? tituloOportunidadLegacyContacto(row)}
+                    {nombreLibre ? (
+                      <span className="mt-0.5 block text-kicker font-normal text-muted-foreground">
+                        {subtituloContactoEmpresa(row.contacto.nombre_completo, row.empresa.nombre)}
+                      </span>
+                    ) : null}
+                  </span>
                   <LeadScoreBadge score={row.lead_score} />
                   {alerta ? <AlertaEstadoBadge estado={alerta} /> : null}
                 </span>
               </TableCell>
-              <TableCell className="text-ui">{row.empresa.nombre}</TableCell>
+              <TableCell className="text-ui">{nombreLibre ? "—" : row.empresa.nombre}</TableCell>
               <TableCell className="text-ui">{nombreEtapa.get(row.etapa) ?? row.etapa}</TableCell>
               {mostrarEjecutivo ? (
                 <TableCell className="text-ui">{row.ejecutivo.nombre_completo}</TableCell>

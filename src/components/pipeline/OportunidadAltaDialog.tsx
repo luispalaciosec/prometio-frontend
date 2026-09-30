@@ -24,6 +24,7 @@ import type { Empresa } from "@/types/empresa"
 import type { OportunidadCreate } from "@/types/oportunidad"
 
 type Draft = {
+  nombre: string
   contacto_id: string
   empresa_id: string
   valor_referencial: string
@@ -31,6 +32,7 @@ type Draft = {
 }
 
 const VACIO: Draft = {
+  nombre: "",
   contacto_id: "",
   empresa_id: "",
   valor_referencial: "",
@@ -82,6 +84,7 @@ export function OportunidadAltaDialog({
     }
     const valor = draft.valor_referencial.trim()
     onConfirm({
+      nombre: draft.nombre.trim() ? draft.nombre.trim() : null,
       contacto_id: draft.contacto_id,
       empresa_id: draft.empresa_id,
       valor_referencial: valor === "" ? null : Number(valor),
@@ -107,6 +110,19 @@ export function OportunidadAltaDialog({
           <DialogTitle>Nueva oportunidad</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="opp-nombre">Nombre</Label>
+            <Input
+              id="opp-nombre"
+              value={draft.nombre}
+              onChange={(event) => setDraft((prev) => ({ ...prev, nombre: event.target.value }))}
+              placeholder="Opcional — ej. Campaña Cyber Monday"
+              disabled={enviando}
+            />
+            <p className="text-xs text-muted-foreground">
+              Ayuda a distinguir varios deals del mismo contacto o empresa.
+            </p>
+          </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="opp-contacto">Contacto</Label>
             <Select value={draft.contacto_id || undefined} onValueChange={elegirContacto}>

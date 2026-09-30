@@ -26,6 +26,7 @@ import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import type { CotizacionConLineas } from "@/types/cotizacion"
 import type { DocumentoAlcance } from "@/types/documento-alcance"
 import type { CategoriaServicio } from "@/types/categoria-servicio"
+import { oportunidadNombreLibre } from "@/lib/oportunidad-presentacion"
 import type { OportunidadKanban } from "@/types/oportunidad"
 import type { Proveedor } from "@/types/proveedor"
 import type { Servicio } from "@/types/servicio"
@@ -150,6 +151,8 @@ export function CotizacionPage() {
 
   const { cotizacion, oportunidad, etapaNombre, servicios, proveedores, categorias, config, documentos } =
     state
+  const dealLabel =
+    oportunidadNombreLibre(oportunidad.nombre) ?? oportunidad.contacto.nombre_completo
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_15rem] lg:items-start">
@@ -162,10 +165,16 @@ export function CotizacionPage() {
                 to={`/pipeline/${oportunidad.id}`}
                 className="text-primary underline-offset-4 hover:underline"
               >
-                {oportunidad.contacto.nombre_completo}
+                {dealLabel}
               </Link>
               <span className="text-muted-foreground">·</span>
               <span>{oportunidad.empresa.nombre}</span>
+              {oportunidadNombreLibre(oportunidad.nombre) ? (
+                <>
+                  <span className="text-muted-foreground">·</span>
+                  <span>{oportunidad.contacto.nombre_completo}</span>
+                </>
+              ) : null}
               <span className="text-muted-foreground">·</span>
               <span>{etapaNombre}</span>
             </>

@@ -7,6 +7,11 @@ import { OportunidadValor } from "@/components/pipeline/OportunidadValor"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { EstadoAlerta } from "@/types/alerta"
+import {
+  oportunidadNombreLibre,
+  subtituloContactoEmpresa,
+  tituloOportunidadLegacyContacto,
+} from "@/lib/oportunidad-presentacion"
 import type { OportunidadKanban } from "@/types/oportunidad"
 
 export function OportunidadCard({
@@ -24,6 +29,7 @@ export function OportunidadCard({
     id: oportunidad.id,
     data: { etapa: oportunidad.etapa, oportunidad },
   })
+  const nombreLibre = oportunidadNombreLibre(oportunidad.nombre)
 
   return (
     <article
@@ -41,13 +47,25 @@ export function OportunidadCard({
         onClick={() => onAbrir(oportunidad.id)}
       >
         <div className="flex items-start justify-between gap-2">
-          <p className="text-ui-medium">{oportunidad.contacto.nombre_completo}</p>
+          <div className="min-w-0">
+            <p className="text-ui-medium truncate">
+              {nombreLibre ?? tituloOportunidadLegacyContacto(oportunidad)}
+            </p>
+            {nombreLibre ? (
+              <p className="text-kicker text-muted-foreground truncate">
+                {subtituloContactoEmpresa(
+                  oportunidad.contacto.nombre_completo,
+                  oportunidad.empresa.nombre,
+                )}
+              </p>
+            ) : null}
+          </div>
           <div className="flex shrink-0 items-center gap-1">
             <LeadScoreBadge score={oportunidad.lead_score} />
             {estadoAlerta ? <AlertaEstadoBadge estado={estadoAlerta} /> : null}
           </div>
         </div>
-        <p className="text-kicker">{oportunidad.empresa.nombre}</p>
+        {nombreLibre ? null : <p className="text-kicker">{oportunidad.empresa.nombre}</p>}
         <p className="mt-2 text-kicker">{oportunidad.ejecutivo.nombre_completo}</p>
         <p className="mt-2 text-ui">
           <OportunidadValor

@@ -55,6 +55,7 @@ const DESGLOSE_VACIO: LeadScoreDesglose = {
 function normalizar(row: Oportunidad): Oportunidad {
   return {
     ...row,
+    nombre: row.nombre ?? null,
     servicios_ids: row.servicios_ids ?? [],
     categoria_interes_id: row.categoria_interes_id ?? null,
     categoria_interes_nombre: row.categoria_interes_nombre ?? null,
@@ -169,6 +170,7 @@ export async function createOportunidad(input: OportunidadCreate): Promise<Oport
   return apiFetch("/oportunidades", {
     method: "POST",
     body: JSON.stringify({
+      nombre: input.nombre?.trim() ? input.nombre.trim() : null,
       contacto_id: input.contacto_id,
       empresa_id: input.empresa_id,
       valor_referencial: input.valor_referencial ?? null,
@@ -184,6 +186,9 @@ export async function updateOportunidad(
   perfil: Perfil,
 ): Promise<OportunidadKanban> {
   const body: Record<string, unknown> = {}
+  if (input.nombre !== undefined) {
+    body.nombre = input.nombre?.trim() ? input.nombre.trim() : null
+  }
   if (input.contacto_id !== undefined) {
     body.contacto_id = input.contacto_id
   }

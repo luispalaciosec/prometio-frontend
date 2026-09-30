@@ -24,6 +24,7 @@ import type { Empresa } from "@/types/empresa"
 import type { OportunidadKanban, OportunidadUpdate } from "@/types/oportunidad"
 
 type Draft = {
+  nombre: string
   contacto_id: string
   empresa_id: string
   valor_referencial: string
@@ -32,6 +33,7 @@ type Draft = {
 
 function draftDesde(oportunidad: OportunidadKanban): Draft {
   return {
+    nombre: oportunidad.nombre ?? "",
     contacto_id: oportunidad.contacto_id,
     empresa_id: oportunidad.empresa_id,
     valor_referencial:
@@ -60,6 +62,7 @@ export function OportunidadEditarDialog({
   onCancel: () => void
 }) {
   const [draft, setDraft] = useState<Draft>({
+    nombre: "",
     contacto_id: "",
     empresa_id: "",
     valor_referencial: "",
@@ -107,6 +110,7 @@ export function OportunidadEditarDialog({
     }
     const valor = draft.valor_referencial.trim()
     onConfirm({
+      nombre: draft.nombre.trim() ? draft.nombre.trim() : null,
       contacto_id: draft.contacto_id,
       empresa_id: draft.empresa_id,
       valor_referencial: valor === "" ? null : Number(valor),
@@ -131,6 +135,16 @@ export function OportunidadEditarDialog({
           <DialogTitle>Editar oportunidad</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="opp-edit-nombre">Nombre</Label>
+            <Input
+              id="opp-edit-nombre"
+              value={draft.nombre}
+              onChange={(event) => setDraft((prev) => ({ ...prev, nombre: event.target.value }))}
+              placeholder="Opcional — ej. Renovación anual"
+              disabled={enviando}
+            />
+          </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="opp-edit-contacto">Contacto</Label>
             <Select value={draft.contacto_id || undefined} onValueChange={elegirContacto}>

@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { oportunidadNombreLibre, subtituloContactoEmpresa } from "@/lib/oportunidad-presentacion"
 import type { OportunidadKanban } from "@/types/oportunidad"
 import type { Perfil } from "@/types/perfil"
 
@@ -54,7 +55,14 @@ export function ReasignarOportunidadDialog({
           <DialogTitle>Reasignar ejecutivo</DialogTitle>
           <DialogDescription>
             {oportunidad
-              ? `${oportunidad.contacto.nombre_completo} · ${oportunidad.empresa.nombre}`
+              ? (() => {
+                  const nombre = oportunidadNombreLibre(oportunidad.nombre)
+                  const contactoEmpresa = subtituloContactoEmpresa(
+                    oportunidad.contacto.nombre_completo,
+                    oportunidad.empresa.nombre,
+                  )
+                  return nombre ? `${nombre} — ${contactoEmpresa}` : contactoEmpresa
+                })()
               : "Elige un perfil activo de ventas o administrativo."}
           </DialogDescription>
         </DialogHeader>
