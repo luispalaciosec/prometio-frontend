@@ -8,10 +8,10 @@ export const PROSPECCION_LINKEDIN_ESTADOS = [
 export type ProspeccionLinkedinEstado = (typeof PROSPECCION_LINKEDIN_ESTADOS)[number]
 
 export const PROSPECCION_ESTADO_LABELS: Record<ProspeccionLinkedinEstado, string> = {
-  nuevo: "Nuevo",
-  revisado: "Revisado",
-  descartado: "Descartado",
-  convertido: "Convertido",
+  nuevo: "Nuevos",
+  revisado: "Revisados",
+  descartado: "Descartados",
+  convertido: "Convertidos",
 }
 
 export type ProspeccionLinkedinLead = {

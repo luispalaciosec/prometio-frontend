@@ -47,6 +47,7 @@ import { CuentaPage } from "@/pages/CuentaPage"
 import { UsuariosPage } from "@/pages/UsuariosPage"
 import { FormularioWebPage } from "@/pages/FormularioWebPage"
 import { LinkedInCriteriosPage } from "@/pages/LinkedInCriteriosPage"
+import { ProspeccionLinkedInLayout } from "@/components/prospeccion/ProspeccionLinkedInLayout"
 import { ProspeccionLinkedInPage } from "@/pages/ProspeccionLinkedInPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
 import { TvPanelPage } from "@/pages/TvPanelPage"
@@ -137,10 +138,20 @@ export default function App() {
                 path="/prospeccion-linkedin"
                 element={
                   <VentasRoute>
-                    <ProspeccionLinkedInPage />
+                    <ProspeccionLinkedInLayout />
                   </VentasRoute>
                 }
-              />
+              >
+                <Route index element={<ProspeccionLinkedInPage />} />
+                <Route
+                  path="configuracion"
+                  element={
+                    <AdminRoute>
+                      <LinkedInCriteriosPage sinEncabezado />
+                    </AdminRoute>
+                  }
+                />
+              </Route>
               <Route
                 path="/contactos"
                 element={
@@ -371,11 +382,7 @@ export default function App() {
               />
               <Route
                 path="/configuracion/linkedin-criterios"
-                element={
-                  <AdminRoute>
-                    <LinkedInCriteriosPage />
-                  </AdminRoute>
-                }
+                element={<Navigate to="/prospeccion-linkedin/configuracion" replace />}
               />
               <Route
                 path="/configuracion/marca"

@@ -5,7 +5,6 @@ import { UserSearch } from "lucide-react"
 
 import { ProspeccionLinkedInLeadCard } from "@/components/prospeccion/ProspeccionLinkedInLeadCard"
 import { EmptyState } from "@/components/empty-state"
-import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -70,13 +69,19 @@ export function ProspeccionLinkedInPage() {
     })
   }, [reloadLeads])
 
+  function mensajeProximaBusqueda(iso: string | null, detail?: string): string | null {
+    if (detail?.trim()) {
+      return detail.trim()
+    }
+    if (iso && prospeccionEnCooldown(iso)) {
+      return `Próxima búsqueda disponible: ${formatDateTime(iso)}`
+    }
+    return null
+  }
+
   function aplicarProximoIntento(iso: string | null) {
     setProximoIntentoEn(iso)
-    if (iso && prospeccionEnCooldown(iso)) {
-      setCooldownMensaje(`Próxima búsqueda disponible: ${formatDateTime(iso)}`)
-    } else {
-      setCooldownMensaje(null)
-    }
+    setCooldownMensaje(mensajeProximaBusqueda(iso))
   }
 
   async function buscarAhora() {
@@ -102,11 +107,11 @@ export function ProspeccionLinkedInPage() {
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 429) {
-          setCooldownMensaje(error.detail)
           const iso = extraerProximoIntento(error.detail)
           if (iso) {
             setProximoIntentoEn(iso)
           }
+          setCooldownMensaje(mensajeProximaBusqueda(iso, error.detail))
           return
         }
         if (error.status === 422) {
@@ -175,19 +180,15 @@ export function ProspeccionLinkedInPage() {
 
   return (
     <>
-      <PageHeader
-        title="Prospección LinkedIn"
-        description="Leads desde Apify según los criterios de la organización. Revisá, descartá o convertí a contacto."
-        action={
-          <Button
-            type="button"
-            disabled={buscando || enCooldown}
-            onClick={() => void buscarAhora()}
-          >
-            {buscando ? "Buscando…" : "Buscar ahora"}
-          </Button>
-        }
-      />
+      <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+        <Button
+          type="button"
+          disabled={buscando || enCooldown}
+          onClick={() => void buscarAhora()}
+        >
+          {buscando ? "Buscando…" : "Buscar ahora"}
+        </Button>
+      </div>
 
       {cooldownMensaje ? (
         <p className="mb-4 rounded-lg border border-border bg-muted/40 px-3 py-2 text-kicker">
@@ -200,10 +201,10 @@ export function ProspeccionLinkedInPage() {
           Configurá al menos un criterio de búsqueda activo.{" "}
           {isAdmin ? (
             <Link
-              to="/configuracion/linkedin-criterios"
+              to="/prospeccion-linkedin/configuracion"
               className="text-primary underline-offset-4 hover:underline"
             >
-              Ir a criterios LinkedIn
+              Ir a configuración de criterios
             </Link>
           ) : (
             "Pedile a un administrador que los cargue en Configuración."
@@ -284,23 +285,6 @@ export function ProspeccionLinkedInPage() {
           </TabsContent>
         ))}
       </Tabs>
-
-      <p className="mt-6 text-kicker text-muted-foreground">
-        {isAdmin ? (
-          <>
-            Criterios de búsqueda en{" "}
-            <Link
-              to="/configuracion/linkedin-criterios"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              Configuración → Criterios LinkedIn
-            </Link>
-            .
-          </>
-        ) : (
-          "Si falta configuración, pedile a un administrador que cargue criterios activos."
-        )}
-      </p>
 
       <Dialog
         open={convertirLead != null}

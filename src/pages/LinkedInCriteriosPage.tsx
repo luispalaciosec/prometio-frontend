@@ -26,7 +26,7 @@ import {
 import { ApiError } from "@/lib/api-client"
 import type { LinkedinCriterioBusqueda } from "@/types/linkedin-criterio"
 
-export function LinkedInCriteriosPage() {
+export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado?: boolean }) {
   const [rows, setRows] = useState<LinkedinCriterioBusqueda[] | null>(null)
   const [nuevoTexto, setNuevoTexto] = useState("")
   const [guardandoId, setGuardandoId] = useState<string | null>(null)
@@ -110,10 +110,12 @@ export function LinkedInCriteriosPage() {
 
   return (
     <>
-      <PageHeader
-        title="Criterios LinkedIn"
-        description="Cargos y palabras clave que Apify usa al buscar perfiles. Solo los activos entran en la corrida."
-      />
+      {sinEncabezado ? null : (
+        <PageHeader
+          title="Criterios LinkedIn"
+          description="Cargos y palabras clave que Apify usa al buscar perfiles. Solo los activos entran en la corrida."
+        />
+      )}
       <div className="surface-card mb-6 space-y-3 p-4">
         <Label htmlFor="criterio-nuevo">Agregar criterio</Label>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
