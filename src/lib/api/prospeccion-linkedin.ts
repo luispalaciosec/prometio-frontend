@@ -1,6 +1,7 @@
 import { apiFetch } from "@/lib/api-client"
 import type { Contacto } from "@/types/contacto"
 import type {
+  ListProspeccionLinkedinLeadsQuery,
   ProspeccionLinkedinBuscarResultado,
   ProspeccionLinkedinEstado,
   ProspeccionLinkedinLead,
@@ -11,10 +12,25 @@ export function buscarProspeccionLinkedin(): Promise<ProspeccionLinkedinBuscarRe
 }
 
 export function listProspeccionLinkedinLeads(
-  estado: ProspeccionLinkedinEstado = "nuevo",
+  query: ListProspeccionLinkedinLeadsQuery = {},
 ): Promise<ProspeccionLinkedinLead[]> {
-  const params = new URLSearchParams({ estado })
+  const params = new URLSearchParams()
+  params.set("estado", query.estado ?? "nuevo")
+  const ciudad = query.ciudad?.trim()
+  if (ciudad) {
+    params.set("ciudad", ciudad)
+  }
+  if (query.categoria_servicio_id) {
+    params.set("categoria_servicio_id", query.categoria_servicio_id)
+  }
+  if (query.meses_en_cargo_menor_a != null) {
+    params.set("meses_en_cargo_menor_a", String(query.meses_en_cargo_menor_a))
+  }
   return apiFetch(`/prospeccion-linkedin/leads?${params.toString()}`)
+}
+
+export function investigarProspeccionLinkedinLead(id: string): Promise<ProspeccionLinkedinLead> {
+  return apiFetch(`/prospeccion-linkedin/leads/${id}/investigar`, { method: "POST" })
 }
 
 export function patchProspeccionLinkedinLead(

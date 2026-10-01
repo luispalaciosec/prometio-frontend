@@ -21,12 +21,32 @@ export type ProspeccionLinkedinLead = {
   ubicacion: string | null
   empresa_actual: string | null
   criterio_busqueda_texto: string | null
+  categoria_servicio_nombre: string | null
+  prioridad?: number
+  fecha_inicio_cargo: string | null
   post_texto: string | null
   post_fecha: string | null
   post_url: string | null
   linkedin_url: string | null
   estado: ProspeccionLinkedinEstado
+  investigado_en: string | null
+  empresa_industria: string | null
+  empresa_tamano: string | null
+  empresa_sitio_web: string | null
+  resumen_ia: string | null
+  mensaje_sugerido_ia: string | null
 }
+
+export type ProspeccionLinkedinMesesEnCargo = 3 | 6 | 12
+
+export type ListProspeccionLinkedinLeadsQuery = {
+  estado?: ProspeccionLinkedinEstado
+  ciudad?: string
+  categoria_servicio_id?: string
+  meses_en_cargo_menor_a?: ProspeccionLinkedinMesesEnCargo
+}
+
+export const PROSPECCION_PRIORIDAD_ALTA_MIN = 40
 
 export type ProspeccionLinkedinBuscarResultado = {
   leads_nuevos: number

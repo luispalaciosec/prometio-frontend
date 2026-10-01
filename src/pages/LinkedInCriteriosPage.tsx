@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Search } from "lucide-react"
 
+import { CriterioCategoriaSelect } from "@/components/prospeccion/CriterioCategoriaSelect"
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
@@ -24,11 +25,15 @@ import {
   updateLinkedinCriterioBusqueda,
 } from "@/lib/api/linkedin-criterios"
 import { ApiError } from "@/lib/api-client"
+import { listCategoriasServicio } from "@/lib/config-api"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { LinkedinCriterioBusqueda } from "@/types/linkedin-criterio"
 
 export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado?: boolean }) {
   const [rows, setRows] = useState<LinkedinCriterioBusqueda[] | null>(null)
+  const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
   const [nuevoTexto, setNuevoTexto] = useState("")
+  const [nuevaCategoriaId, setNuevaCategoriaId] = useState<string | null>(null)
   const [guardandoId, setGuardandoId] = useState<string | null>(null)
   const [agregando, setAgregando] = useState(false)
 
@@ -37,10 +42,12 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
   }
 
   useEffect(() => {
-    void reload().catch((error: unknown) => {
-      toast.error(error instanceof Error ? error.message : "No se pudieron cargar los criterios.")
-      setRows([])
-    })
+    void Promise.all([reload(), listCategoriasServicio()])
+      .then(([, cats]) => setCategorias(cats))
+      .catch((error: unknown) => {
+        toast.error(error instanceof Error ? error.message : "No se pudieron cargar los criterios.")
+        setRows([])
+      })
   }, [])
 
   async function agregar() {
@@ -51,8 +58,13 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
     }
     setAgregando(true)
     try {
-      await createLinkedinCriterioBusqueda({ texto, activo: true })
+      await createLinkedinCriterioBusqueda({
+        texto,
+        activo: true,
+        categoria_servicio_id: nuevaCategoriaId,
+      })
       setNuevoTexto("")
+      setNuevaCategoriaId(null)
       toast.success("Criterio agregado.")
       await reload()
     } catch (error) {
@@ -73,6 +85,21 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
       await reload()
     } catch (error) {
       toast.error(error instanceof ApiError ? error.detail : "No se pudo guardar.")
+    } finally {
+      setGuardandoId(null)
+    }
+  }
+
+  async function guardarCategoria(row: LinkedinCriterioBusqueda, categoriaId: string | null) {
+    if (categoriaId === row.categoria_servicio_id) {
+      return
+    }
+    setGuardandoId(row.id)
+    try {
+      await updateLinkedinCriterioBusqueda(row.id, { categoria_servicio_id: categoriaId })
+      await reload()
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.detail : "No se pudo actualizar la categoría.")
     } finally {
       setGuardandoId(null)
     }
@@ -118,7 +145,7 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
       )}
       <div className="surface-card mb-6 space-y-3 p-4">
         <Label htmlFor="criterio-nuevo">Agregar criterio</Label>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="grid gap-3 sm:grid-cols-2">
           <Input
             id="criterio-nuevo"
             value={nuevoTexto}
@@ -131,10 +158,17 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
               }
             }}
           />
-          <Button type="button" disabled={agregando} onClick={() => void agregar()}>
-            {agregando ? "Guardando…" : "Agregar"}
-          </Button>
+          <CriterioCategoriaSelect
+            id="criterio-nueva-categoria"
+            categorias={categorias}
+            value={nuevaCategoriaId}
+            disabled={agregando}
+            onChange={setNuevaCategoriaId}
+          />
         </div>
+        <Button type="button" disabled={agregando} onClick={() => void agregar()}>
+          {agregando ? "Guardando…" : "Agregar"}
+        </Button>
       </div>
       {rows == null ? (
         <TableSkeleton />
@@ -149,6 +183,7 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
           <TableHeader>
             <TableRow>
               <TableHead>Texto</TableHead>
+              <TableHead className="min-w-[12rem]">Categoría</TableHead>
               <TableHead className="w-28">Activo</TableHead>
               <TableHead className="w-24" />
             </TableRow>
@@ -168,6 +203,15 @@ export function LinkedInCriteriosPage({ sinEncabezado = false }: { sinEncabezado
                         event.currentTarget.blur()
                       }
                     }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <CriterioCategoriaSelect
+                    id={`criterio-cat-${row.id}`}
+                    categorias={categorias}
+                    value={row.categoria_servicio_id}
+                    disabled={guardandoId === row.id}
+                    onChange={(categoriaId) => void guardarCategoria(row, categoriaId)}
                   />
                 </TableCell>
                 <TableCell>

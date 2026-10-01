@@ -17,6 +17,7 @@ export function createLinkedinCriterioBusqueda(
     body: JSON.stringify({
       texto: body.texto.trim(),
       activo: body.activo ?? true,
+      categoria_servicio_id: body.categoria_servicio_id ?? null,
     }),
   })
 }

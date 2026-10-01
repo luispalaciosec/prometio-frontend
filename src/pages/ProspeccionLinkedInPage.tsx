@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import { UserSearch } from "lucide-react"
@@ -8,6 +8,15 @@ import { EmptyState } from "@/components/empty-state"
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -20,9 +29,12 @@ import { ApiError, extraerUuid } from "@/lib/api-client"
 import {
   buscarProspeccionLinkedin,
   convertirProspeccionLinkedinLead,
+  investigarProspeccionLinkedinLead,
   listProspeccionLinkedinLeads,
   patchProspeccionLinkedinLead,
 } from "@/lib/api/prospeccion-linkedin"
+import { listCategoriasServicio } from "@/lib/config-api"
+import type { CategoriaServicio } from "@/types/categoria-servicio"
 import { formatDateTime } from "@/lib/datetime-local"
 import { prospeccionEnCooldown } from "@/lib/prospeccion-linkedin-cooldown"
 import { useAuthStore } from "@/store/auth-store"
@@ -32,7 +44,15 @@ import {
   PROSPECCION_LINKEDIN_ESTADOS,
   type ProspeccionLinkedinBuscarResultado,
   type ProspeccionLinkedinEstado,
+  type ProspeccionLinkedinMesesEnCargo,
 } from "@/types/prospeccion-linkedin"
+
+const MESES_EN_CARGO_OPCIONES: { value: string; label: string }[] = [
+  { value: "all", label: "Cualquier antigüedad" },
+  { value: "3", label: "Últimos 3 meses" },
+  { value: "6", label: "Últimos 6 meses" },
+  { value: "12", label: "Últimos 12 meses" },
+]
 
 export function ProspeccionLinkedInPage() {
   const navigate = useNavigate()
@@ -54,12 +74,47 @@ export function ProspeccionLinkedInPage() {
   const [crearEmpresa, setCrearEmpresa] = useState(false)
   const [convirtiendo, setConvirtiendo] = useState(false)
   const [contactoDuplicadoId, setContactoDuplicadoId] = useState<string | null>(null)
+  const [investigandoId, setInvestigandoId] = useState<string | null>(null)
+  const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
+  const [filtroCiudad, setFiltroCiudad] = useState("")
+  const [filtroCiudadDebounced, setFiltroCiudadDebounced] = useState("")
+  const [filtroCategoriaId, setFiltroCategoriaId] = useState<string>("all")
+  const [filtroMesesEnCargo, setFiltroMesesEnCargo] = useState<string>("all")
 
   const enCooldown = prospeccionEnCooldown(proximoIntentoEn)
 
+  useEffect(() => {
+    const t = window.setTimeout(() => setFiltroCiudadDebounced(filtroCiudad), 300)
+    return () => window.clearTimeout(t)
+  }, [filtroCiudad])
+
+  useEffect(() => {
+    void listCategoriasServicio()
+      .then(setCategorias)
+      .catch(() => setCategorias([]))
+  }, [])
+
+  const queryLeads = useMemo(() => {
+    const meses =
+      filtroMesesEnCargo === "3" || filtroMesesEnCargo === "6" || filtroMesesEnCargo === "12"
+        ? (Number(filtroMesesEnCargo) as ProspeccionLinkedinMesesEnCargo)
+        : undefined
+    return {
+      estado,
+      ciudad: filtroCiudadDebounced.trim() || undefined,
+      categoria_servicio_id:
+        filtroCategoriaId !== "all" ? filtroCategoriaId : undefined,
+      meses_en_cargo_menor_a: meses,
+    }
+  }, [estado, filtroCiudadDebounced, filtroCategoriaId, filtroMesesEnCargo])
+
   const reloadLeads = useCallback(async () => {
-    setLeads(await listProspeccionLinkedinLeads(estado))
-  }, [estado])
+    setLeads(await listProspeccionLinkedinLeads(queryLeads))
+  }, [queryLeads])
+
+  function actualizarLeadEnLista(next: ProspeccionLinkedinLead) {
+    setLeads((prev) => prev?.map((row) => (row.id === next.id ? next : row)) ?? prev)
+  }
 
   useEffect(() => {
     setLeads(null)
@@ -129,6 +184,19 @@ export function ProspeccionLinkedInPage() {
       toast.error(error instanceof Error ? error.message : "No se pudo buscar.")
     } finally {
       setBuscando(false)
+    }
+  }
+
+  async function investigar(leadId: string) {
+    setInvestigandoId(leadId)
+    try {
+      const next = await investigarProspeccionLinkedinLead(leadId)
+      actualizarLeadEnLista(next)
+      toast.success("Investigación completada.")
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.detail : "No se pudo investigar.")
+    } finally {
+      setInvestigandoId(null)
     }
   }
 
@@ -231,6 +299,49 @@ export function ProspeccionLinkedInPage() {
         </div>
       ) : null}
 
+      <div className="filter-bar mb-4">
+        <div className="filter-field sm:min-w-40 sm:flex-1">
+          <Label htmlFor="prospeccion-filtro-ciudad">Ciudad</Label>
+          <Input
+            id="prospeccion-filtro-ciudad"
+            value={filtroCiudad}
+            onChange={(event) => setFiltroCiudad(event.target.value)}
+            placeholder="Ej. Quito, Guayaquil…"
+          />
+        </div>
+        <div className="filter-field sm:min-w-48">
+          <Label htmlFor="prospeccion-filtro-categoria">Categoría</Label>
+          <Select value={filtroCategoriaId} onValueChange={setFiltroCategoriaId}>
+            <SelectTrigger id="prospeccion-filtro-categoria">
+              <SelectValue placeholder="Todas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {categorias.map((row) => (
+                <SelectItem key={row.id} value={row.id}>
+                  {row.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="filter-field sm:min-w-48">
+          <Label htmlFor="prospeccion-filtro-cargo">Recién en el cargo</Label>
+          <Select value={filtroMesesEnCargo} onValueChange={setFiltroMesesEnCargo}>
+            <SelectTrigger id="prospeccion-filtro-cargo">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {MESES_EN_CARGO_OPCIONES.map((row) => (
+                <SelectItem key={row.value} value={row.value}>
+                  {row.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <Tabs
         value={estado}
         onValueChange={(value) => setEstado(value as ProspeccionLinkedinEstado)}
@@ -276,9 +387,11 @@ export function ProspeccionLinkedInPage() {
                   key={lead.id}
                   lead={lead}
                   busy={accionLeadId === lead.id}
+                  investigando={investigandoId === lead.id}
                   onRevisado={() => void cambiarEstado(lead.id, "revisado")}
                   onDescartar={() => void cambiarEstado(lead.id, "descartado")}
                   onConvertir={() => abrirConvertir(lead)}
+                  onInvestigar={() => void investigar(lead.id)}
                 />
               ))
             )}
