@@ -10,6 +10,7 @@ import {
   Percent,
   Plug,
   Target,
+  UserSearch,
   Users,
 } from "lucide-react"
 
@@ -75,6 +76,12 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         label: "Causas de pérdida",
         body: "Catálogo usado en Cierre Perdido.",
         icon: CircleOff,
+      },
+      {
+        to: "/configuracion/linkedin-criterios",
+        label: "Criterios LinkedIn",
+        body: "Cargos y palabras clave para la prospección en LinkedIn vía Apify.",
+        icon: UserSearch,
       },
     ],
   },

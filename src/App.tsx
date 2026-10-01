@@ -46,6 +46,8 @@ import { TimelinePage } from "@/pages/TimelinePage"
 import { CuentaPage } from "@/pages/CuentaPage"
 import { UsuariosPage } from "@/pages/UsuariosPage"
 import { FormularioWebPage } from "@/pages/FormularioWebPage"
+import { LinkedInCriteriosPage } from "@/pages/LinkedInCriteriosPage"
+import { ProspeccionLinkedInPage } from "@/pages/ProspeccionLinkedInPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
 import { TvPanelPage } from "@/pages/TvPanelPage"
 
@@ -128,6 +130,14 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <EmpresaPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/prospeccion-linkedin"
+                element={
+                  <VentasRoute>
+                    <ProspeccionLinkedInPage />
                   </VentasRoute>
                 }
               />
@@ -356,6 +366,14 @@ export default function App() {
                 element={
                   <AdminRoute>
                     <FormularioWebPage />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="/configuracion/linkedin-criterios"
+                element={
+                  <AdminRoute>
+                    <LinkedInCriteriosPage />
                   </AdminRoute>
                 }
               />

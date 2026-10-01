@@ -19,6 +19,7 @@ import {
   Search,
   Tv,
   Truck,
+  UserSearch,
   Users,
   type LucideIcon,
 } from "lucide-react"
@@ -36,6 +37,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean; adm
 
 const crmNav: NavItem[] = [
   { to: "/resumen", label: "Resumen", icon: LayoutList },
+  { to: "/prospeccion-linkedin", label: "LinkedIn", icon: UserSearch },
   { to: "/contactos", label: "Contactos", icon: Users },
   { to: "/empresas", label: "Empresas", icon: Building2 },
   { to: "/bandeja", label: "Bandeja", icon: Inbox },
