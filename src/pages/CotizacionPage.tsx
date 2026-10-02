@@ -19,6 +19,7 @@ import {
   listEtapasPipeline,
   listServicios,
 } from "@/lib/config-api"
+import { subtotalCotizacionSinIva } from "@/lib/cotizacion-montos-ui"
 import { formatMoney } from "@/lib/costo-interno"
 import { compareTextoLocale } from "@/lib/lista-filtros"
 import { useAuthStore } from "@/store/auth-store"
@@ -241,7 +242,9 @@ export function CotizacionPage() {
         </dl>
         <div className="border-t border-border pt-4">
           <p className="text-micro">Total cotización</p>
-          <p className="text-page tabular-nums">{formatMoney(cotizacion.subtotal_cotizacion)}</p>
+          <p className="text-page tabular-nums">
+            {formatMoney(subtotalCotizacionSinIva(cotizacion))}
+          </p>
           <p className="mt-1 text-kicker text-muted-foreground">
             {cotizacion.lineas.length}{" "}
             {cotizacion.lineas.length === 1 ? "línea" : "líneas"}

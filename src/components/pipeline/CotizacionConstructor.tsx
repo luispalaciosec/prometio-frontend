@@ -18,6 +18,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ApiError } from "@/lib/api-client"
+import { montoLineaCotizacionSinIva } from "@/lib/cotizacion-montos-ui"
 import { formatMoney } from "@/lib/costo-interno"
 import { getSugerenciaPrecio } from "@/lib/config-api"
 import {
@@ -379,7 +380,7 @@ export function CotizacionConstructor({
                       : "A medida"}
                   {linea.precio_venta_base_manual != null ? " · precio ajustado" : ""}
                   {" · cantidad "}
-                  {linea.cantidad} · {formatMoney(linea.subtotal_linea_extendido)}
+                  {linea.cantidad} · {formatMoney(montoLineaCotizacionSinIva(linea))}
                 </p>
                 {linea.justificacion_precio ? (
                   <p className="text-micro text-muted-foreground">{linea.justificacion_precio}</p>
