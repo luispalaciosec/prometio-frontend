@@ -241,7 +241,7 @@ export function CotizacionPage() {
           </div>
         </dl>
         <div className="border-t border-border pt-4">
-          <p className="text-micro">Total cotización</p>
+          <p className="text-micro">Subtotal cotización</p>
           <p className="text-page tabular-nums">
             {formatMoney(subtotalCotizacionSinIva(cotizacion))}
           </p>
