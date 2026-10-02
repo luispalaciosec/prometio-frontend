@@ -8,6 +8,7 @@ export type SugerenciaInicioTipo =
   | "cotizacion_por_aprobar"
   | "documento_por_aprobar"
   | "meta_atrasada"
+  | "lead_linkedin_prioritario"
 
 export type EnlaceSugerenciaTipo =
   | "oportunidad"
@@ -15,6 +16,7 @@ export type EnlaceSugerenciaTipo =
   | "actividad"
   | "documento_alcance"
   | "meta"
+  | "lead_linkedin"
 
 export type EnlaceSugerencia = {
   tipo: EnlaceSugerenciaTipo

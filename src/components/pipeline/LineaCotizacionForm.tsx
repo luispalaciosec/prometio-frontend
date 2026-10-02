@@ -17,6 +17,7 @@ import {
   parseOptionalNumber,
   precioDirectoServicio,
 } from "@/lib/calculo-cotizacion"
+import { formatMoney } from "@/lib/costo-interno"
 import type { ConfiguracionGeneral } from "@/types/configuracion-general"
 import { lineaTieneDesgloseCostos } from "@/lib/linea-cotizacion-costos"
 import type { LineaCotizacionCalculada } from "@/types/linea-cotizacion"
@@ -730,7 +731,8 @@ export function LineaCotizacionForm({
               </p>
               {calculo ? (
                 <p className="text-ui-medium text-foreground">
-                  Total línea (con impuesto): {calculo.total_linea}
+                  Subtotal línea (sin IVA):{" "}
+                  {formatMoney(calculo.subtotal_con_comision * (Number(cantidadRaw) || 1))}
                 </p>
               ) : null}
             </div>

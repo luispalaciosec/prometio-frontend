@@ -153,9 +153,11 @@ async function calcularLinea(
       linea.comision_agencia_pct,
       tasa,
     )
+    const subtotal_linea_extendido = calculo.subtotal_con_comision * linea.cantidad
     return {
       ...linea,
       ...calculo,
+      subtotal_linea_extendido,
       total_linea_extendido: calculo.total_linea * linea.cantidad,
     }
   }
@@ -167,9 +169,11 @@ async function calcularLinea(
     throw new Error("no se puede calcular esta línea: falta precio_base_cliente en el servicio")
   }
   const calculo = calcularLineaSinProveedor(precioBase, tasa)
+  const subtotal_linea_extendido = calculo.subtotal_con_comision * linea.cantidad
   return {
     ...linea,
     ...calculo,
+    subtotal_linea_extendido,
     total_linea_extendido: calculo.total_linea * linea.cantidad,
   }
 }
@@ -177,8 +181,9 @@ async function calcularLinea(
 async function conCalculo(cotizacion: Cotizacion): Promise<CotizacionConLineas> {
   const lineasRaw = db.lineas.filter((row) => row.cotizacion_id === cotizacion.id)
   const lineas = await Promise.all(lineasRaw.map((linea) => calcularLinea(linea, cotizacion)))
+  const subtotal_cotizacion = lineas.reduce((sum, linea) => sum + linea.subtotal_linea_extendido, 0)
   const total_cotizacion = lineas.reduce((sum, linea) => sum + linea.total_linea_extendido, 0)
-  return { ...cotizacion, lineas, total_cotizacion }
+  return { ...cotizacion, lineas, subtotal_cotizacion, total_cotizacion }
 }
 
 export async function listProveedores(): Promise<Proveedor[]> {

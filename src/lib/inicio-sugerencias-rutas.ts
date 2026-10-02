@@ -12,6 +12,8 @@ export function rutaEnlaceSugerencia(enlace: EnlaceSugerencia): string {
       return `/agenda/actividades?actividad=${encodeURIComponent(enlace.id)}`
     case "meta":
       return "/dashboard"
+    case "lead_linkedin":
+      return `/prospeccion-linkedin?lead=${encodeURIComponent(enlace.id)}`
     default:
       return "/"
   }

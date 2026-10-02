@@ -225,7 +225,7 @@ export function CotizacionesPage() {
               <TableHead>Contacto / empresa</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Alcance</TableHead>
-              <TableHead className="text-right">Total</TableHead>
+              <TableHead className="text-right">Subtotal</TableHead>
               <TableHead>Fecha</TableHead>
               <TableHead className="w-0" />
             </TableRow>
@@ -249,7 +249,7 @@ export function CotizacionesPage() {
                   <DocumentoAlcanceIndicador docs={docsPorCotizacion[row.id]} />
                 </TableCell>
                 <TableCell className="text-right tabular-nums text-ui">
-                  {formatMoney(row.total_cotizacion)}
+                  {formatMoney(row.subtotal_cotizacion)}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {formatDateTime(row.created_at)}

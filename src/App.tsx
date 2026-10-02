@@ -49,6 +49,7 @@ import { FormularioWebPage } from "@/pages/FormularioWebPage"
 import { LinkedInCriteriosPage } from "@/pages/LinkedInCriteriosPage"
 import { ProspeccionLinkedInLayout } from "@/components/prospeccion/ProspeccionLinkedInLayout"
 import { ProspeccionLinkedInPage } from "@/pages/ProspeccionLinkedInPage"
+import { ProspeccionLinkedInRendimientoPage } from "@/pages/ProspeccionLinkedInRendimientoPage"
 import { TiposDocumentoPage } from "@/pages/TiposDocumentoPage"
 import { TvPanelPage } from "@/pages/TvPanelPage"
 
@@ -143,6 +144,7 @@ export default function App() {
                 }
               >
                 <Route index element={<ProspeccionLinkedInPage />} />
+                <Route path="rendimiento" element={<ProspeccionLinkedInRendimientoPage />} />
                 <Route
                   path="configuracion"
                   element={

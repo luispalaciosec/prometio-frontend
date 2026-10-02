@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import { UserSearch } from "lucide-react"
 
@@ -28,7 +28,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ApiError, extraerUuid } from "@/lib/api-client"
 import {
   buscarProspeccionLinkedin,
+  buscarProspeccionLinkedinEmpresa,
   convertirProspeccionLinkedinLead,
+  findProspeccionLinkedinLeadById,
   investigarProspeccionLinkedinLead,
   listProspeccionLinkedinLeads,
   patchProspeccionLinkedinLead,
@@ -56,6 +58,7 @@ const MESES_EN_CARGO_OPCIONES: { value: string; label: string }[] = [
 
 export function ProspeccionLinkedInPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const perfil = useAuthStore((state) => state.perfil)
   const isAdmin = perfil?.equipo === "administrativo"
 
@@ -80,6 +83,13 @@ export function ProspeccionLinkedInPage() {
   const [filtroCiudadDebounced, setFiltroCiudadDebounced] = useState("")
   const [filtroCategoriaId, setFiltroCategoriaId] = useState<string>("all")
   const [filtroMesesEnCargo, setFiltroMesesEnCargo] = useState<string>("all")
+
+  const [leadDestacadoId, setLeadDestacadoId] = useState<string | null>(() => searchParams.get("lead"))
+  const [leadInyectado, setLeadInyectado] = useState<ProspeccionLinkedinLead | null>(null)
+
+  const [buscarEmpresaAbierto, setBuscarEmpresaAbierto] = useState(false)
+  const [empresaNombre, setEmpresaNombre] = useState("")
+  const [buscandoEmpresa, setBuscandoEmpresa] = useState(false)
 
   const enCooldown = prospeccionEnCooldown(proximoIntentoEn)
 
@@ -124,6 +134,52 @@ export function ProspeccionLinkedInPage() {
     })
   }, [reloadLeads])
 
+  useEffect(() => {
+    const id = searchParams.get("lead")
+    setLeadDestacadoId(id)
+    if (!id) {
+      setLeadInyectado(null)
+      return
+    }
+    void findProspeccionLinkedinLeadById(id).then((lead) => {
+      if (!lead) {
+        toast.error("No se encontró el lead de LinkedIn.")
+        return
+      }
+      setLeadInyectado(lead)
+      setEstado(lead.estado)
+      setFiltroCiudad("")
+      setFiltroCategoriaId("all")
+      setFiltroMesesEnCargo("all")
+    })
+  }, [searchParams])
+
+  const leadsVisibles = useMemo(() => {
+    if (leads == null) {
+      return null
+    }
+    if (!leadInyectado || leadInyectado.estado !== estado) {
+      return leads
+    }
+    if (leads.some((row) => row.id === leadInyectado.id)) {
+      return leads
+    }
+    return [leadInyectado, ...leads]
+  }, [leads, leadInyectado, estado])
+
+  useEffect(() => {
+    if (!leadDestacadoId || leadsVisibles == null) {
+      return
+    }
+    const t = window.setTimeout(() => {
+      document.getElementById(`prospeccion-lead-${leadDestacadoId}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      })
+    }, 150)
+    return () => window.clearTimeout(t)
+  }, [leadDestacadoId, leadsVisibles, estado])
+
   function mensajeProximaBusqueda(iso: string | null, detail?: string): string | null {
     if (detail?.trim()) {
       return detail.trim()
@@ -139,6 +195,59 @@ export function ProspeccionLinkedInPage() {
     setCooldownMensaje(mensajeProximaBusqueda(iso))
   }
 
+  function toastExitoBusqueda(resumen: ProspeccionLinkedinBuscarResultado) {
+    toast.success(
+      resumen.leads_nuevos > 0
+        ? `Se encontraron ${resumen.leads_nuevos} leads nuevos.`
+        : "Búsqueda completada sin leads nuevos.",
+    )
+  }
+
+  async function aplicarResultadoBusqueda(
+    resumen: ProspeccionLinkedinBuscarResultado,
+    opts: { actualizarCooldown: boolean },
+  ) {
+    setUltimoResumen(resumen)
+    if (opts.actualizarCooldown) {
+      aplicarProximoIntento(resumen.proximo_intento_en)
+    }
+    toastExitoBusqueda(resumen)
+    if (estado === "nuevo") {
+      await reloadLeads()
+    } else {
+      setEstado("nuevo")
+    }
+  }
+
+  function manejarErrorBusqueda(error: unknown, opts: { manejarCooldown429: boolean }): void {
+    if (error instanceof ApiError) {
+      if (opts.manejarCooldown429 && error.status === 429) {
+        const iso = extraerProximoIntento(error.detail)
+        if (iso) {
+          setProximoIntentoEn(iso)
+        }
+        setCooldownMensaje(mensajeProximaBusqueda(iso, error.detail))
+        return
+      }
+      if (error.status === 404) {
+        toast.error(error.detail)
+        return
+      }
+      if (error.status === 422) {
+        setFaltaCriterios(true)
+        toast.error(error.detail)
+        return
+      }
+      if (error.status === 502) {
+        toast.error(error.detail)
+        return
+      }
+      toast.error(error.detail)
+      return
+    }
+    toast.error(error instanceof Error ? error.message : "No se pudo buscar.")
+  }
+
   async function buscarAhora() {
     if (enCooldown) {
       return
@@ -147,43 +256,31 @@ export function ProspeccionLinkedInPage() {
     setFaltaCriterios(false)
     try {
       const resumen = await buscarProspeccionLinkedin()
-      setUltimoResumen(resumen)
-      aplicarProximoIntento(resumen.proximo_intento_en)
-      toast.success(
-        resumen.leads_nuevos > 0
-          ? `Se encontraron ${resumen.leads_nuevos} leads nuevos.`
-          : "Búsqueda completada sin leads nuevos.",
-      )
-      if (estado === "nuevo") {
-        await reloadLeads()
-      } else {
-        setEstado("nuevo")
-      }
+      await aplicarResultadoBusqueda(resumen, { actualizarCooldown: true })
     } catch (error) {
-      if (error instanceof ApiError) {
-        if (error.status === 429) {
-          const iso = extraerProximoIntento(error.detail)
-          if (iso) {
-            setProximoIntentoEn(iso)
-          }
-          setCooldownMensaje(mensajeProximaBusqueda(iso, error.detail))
-          return
-        }
-        if (error.status === 422) {
-          setFaltaCriterios(true)
-          toast.error(error.detail)
-          return
-        }
-        if (error.status === 502) {
-          toast.error(error.detail)
-          return
-        }
-        toast.error(error.detail)
-        return
-      }
-      toast.error(error instanceof Error ? error.message : "No se pudo buscar.")
+      manejarErrorBusqueda(error, { manejarCooldown429: true })
     } finally {
       setBuscando(false)
+    }
+  }
+
+  async function confirmarBuscarEmpresa() {
+    const nombre = empresaNombre.trim()
+    if (!nombre) {
+      toast.error("Escribí el nombre de la empresa.")
+      return
+    }
+    setBuscandoEmpresa(true)
+    setFaltaCriterios(false)
+    try {
+      const resumen = await buscarProspeccionLinkedinEmpresa(nombre)
+      setBuscarEmpresaAbierto(false)
+      setEmpresaNombre("")
+      await aplicarResultadoBusqueda(resumen, { actualizarCooldown: false })
+    } catch (error) {
+      manejarErrorBusqueda(error, { manejarCooldown429: false })
+    } finally {
+      setBuscandoEmpresa(false)
     }
   }
 
@@ -226,12 +323,16 @@ export function ProspeccionLinkedInPage() {
     setConvirtiendo(true)
     setContactoDuplicadoId(null)
     try {
-      const contacto = await convertirProspeccionLinkedinLead(convertirLead.id, {
+      const resultado = await convertirProspeccionLinkedinLead(convertirLead.id, {
         crear_empresa_desde_actual: crearEmpresa,
       })
       setConvertirLead(null)
       toast.success("Contacto creado.")
-      navigate(`/contactos/${contacto.id}`)
+      const advertencia = resultado.advertencia_otro_contacto_en_empresa?.trim()
+      if (advertencia) {
+        toast.warning(advertencia, { duration: 8000 })
+      }
+      navigate(`/contactos/${resultado.contacto.id}`)
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
         const existente = extraerUuid(error.detail)
@@ -249,6 +350,14 @@ export function ProspeccionLinkedInPage() {
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={buscandoEmpresa}
+          onClick={() => setBuscarEmpresaAbierto(true)}
+        >
+          Buscar por empresa
+        </Button>
         <Button
           type="button"
           disabled={buscando || enCooldown}
@@ -356,9 +465,9 @@ export function ProspeccionLinkedInPage() {
         </TabsList>
         {PROSPECCION_LINKEDIN_ESTADOS.map((key) => (
           <TabsContent key={key} value={key} className="mt-0 space-y-3">
-            {leads == null ? (
+            {leadsVisibles == null ? (
               <TableSkeleton rows={4} />
-            ) : leads.length === 0 ? (
+            ) : leadsVisibles.length === 0 ? (
               <EmptyState
                 icon={UserSearch}
                 title={`Sin leads ${PROSPECCION_ESTADO_LABELS[key].toLowerCase()}`}
@@ -382,10 +491,11 @@ export function ProspeccionLinkedInPage() {
                 }
               />
             ) : (
-              leads.map((lead) => (
+              leadsVisibles.map((lead) => (
                 <ProspeccionLinkedInLeadCard
                   key={lead.id}
                   lead={lead}
+                  destacado={lead.id === leadDestacadoId}
                   busy={accionLeadId === lead.id}
                   investigando={investigandoId === lead.id}
                   onRevisado={() => void cambiarEstado(lead.id, "revisado")}
@@ -398,6 +508,53 @@ export function ProspeccionLinkedInPage() {
           </TabsContent>
         ))}
       </Tabs>
+
+      <Dialog
+        open={buscarEmpresaAbierto}
+        onOpenChange={(open) => {
+          if (!open && !buscandoEmpresa) {
+            setBuscarEmpresaAbierto(false)
+            setEmpresaNombre("")
+          }
+        }}
+      >
+        <DialogContent className="rounded-2xl shadow-modal sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Buscar por empresa</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="prospeccion-buscar-empresa">Nombre de la empresa en LinkedIn</Label>
+            <Input
+              id="prospeccion-buscar-empresa"
+              value={empresaNombre}
+              onChange={(event) => setEmpresaNombre(event.target.value)}
+              placeholder="Ej. Banco Pichincha"
+              disabled={buscandoEmpresa}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  void confirmarBuscarEmpresa()
+                }
+              }}
+            />
+            <p className="text-kicker text-muted-foreground">
+              Trae perfiles que trabajan hoy en esa empresa. No comparte el cooldown de «Buscar ahora».
+            </p>
+          </div>
+          <DialogFooter className="rounded-b-2xl">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={buscandoEmpresa}
+              onClick={() => setBuscarEmpresaAbierto(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="button" disabled={buscandoEmpresa} onClick={() => void confirmarBuscarEmpresa()}>
+              {buscandoEmpresa ? "Buscando…" : "Buscar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={convertirLead != null}

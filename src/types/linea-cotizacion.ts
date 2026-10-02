@@ -33,5 +33,6 @@ export type CalculoLinea = {
 
 export type LineaCotizacionCalculada = LineaCotizacion &
   CalculoLinea & {
+    subtotal_linea_extendido: number
     total_linea_extendido: number
   }

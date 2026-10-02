@@ -19,6 +19,7 @@ export function ProspeccionLinkedInLeadCard({
   lead,
   busy,
   investigando,
+  destacado = false,
   onRevisado,
   onDescartar,
   onConvertir,
@@ -27,6 +28,7 @@ export function ProspeccionLinkedInLeadCard({
   lead: ProspeccionLinkedinLead
   busy: boolean
   investigando: boolean
+  destacado?: boolean
   onRevisado: () => void
   onDescartar: () => void
   onConvertir: () => void
@@ -50,7 +52,13 @@ export function ProspeccionLinkedInLeadCard({
   const tieneIa = leadTieneInvestigacion(lead)
 
   return (
-    <article className="surface-card space-y-3 p-4">
+    <article
+      id={`prospeccion-lead-${lead.id}`}
+      className={cn(
+        "surface-card space-y-3 p-4 scroll-mt-24",
+        destacado && "ring-2 ring-primary shadow-raised",
+      )}
+    >
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">

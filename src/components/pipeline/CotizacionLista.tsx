@@ -133,7 +133,7 @@ export function CotizacionLista({
               <TableHead>Número</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead>Alcance</TableHead>
-              <TableHead className="text-right">Total</TableHead>
+              <TableHead className="text-right">Subtotal</TableHead>
               <TableHead />
             </TableRow>
           </TableHeader>
@@ -148,7 +148,7 @@ export function CotizacionLista({
                   <DocumentoAlcanceIndicador docs={docsPorCotizacion[row.id]} />
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
-                  {formatMoney(row.total_cotizacion)}
+                  {formatMoney(row.subtotal_cotizacion)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button type="button" variant="ghost" size="sm" onClick={() => onAbrir(row.id)}>

@@ -27,6 +27,9 @@ export function ProspeccionLinkedInLayout() {
         <NavLink to="/prospeccion-linkedin" end className={tabClass}>
           Resultados
         </NavLink>
+        <NavLink to="/prospeccion-linkedin/rendimiento" className={tabClass}>
+          Rendimiento de criterios
+        </NavLink>
         {isAdmin ? (
           <NavLink to="/prospeccion-linkedin/configuracion" className={tabClass}>
             Configuración

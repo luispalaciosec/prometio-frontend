@@ -241,7 +241,7 @@ export function CotizacionPage() {
         </dl>
         <div className="border-t border-border pt-4">
           <p className="text-micro">Total cotización</p>
-          <p className="text-page tabular-nums">{formatMoney(cotizacion.total_cotizacion)}</p>
+          <p className="text-page tabular-nums">{formatMoney(cotizacion.subtotal_cotizacion)}</p>
           <p className="mt-1 text-kicker text-muted-foreground">
             {cotizacion.lineas.length}{" "}
             {cotizacion.lineas.length === 1 ? "línea" : "líneas"}

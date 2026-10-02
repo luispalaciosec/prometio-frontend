@@ -35,8 +35,10 @@ export function LineaCalculoVivo({
         </dd>
       </div>
       <div className="flex justify-between gap-4">
-        <dt className="text-muted-foreground">total_linea</dt>
-        <dd className="tabular-nums font-medium">{formatMoney(calculo.total_linea)}</dd>
+        <dt className="text-muted-foreground">Subtotal línea (sin IVA)</dt>
+        <dd className="tabular-nums font-medium text-foreground">
+          {formatMoney(calculo.subtotal_con_comision)}
+        </dd>
       </div>
     </dl>
   )

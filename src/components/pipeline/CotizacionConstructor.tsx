@@ -379,7 +379,7 @@ export function CotizacionConstructor({
                       : "A medida"}
                   {linea.precio_venta_base_manual != null ? " · precio ajustado" : ""}
                   {" · cantidad "}
-                  {linea.cantidad} · {formatMoney(linea.total_linea_extendido)}
+                  {linea.cantidad} · {formatMoney(linea.subtotal_linea_extendido)}
                 </p>
                 {linea.justificacion_precio ? (
                   <p className="text-micro text-muted-foreground">{linea.justificacion_precio}</p>

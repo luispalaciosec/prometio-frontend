@@ -34,6 +34,9 @@ export type Cotizacion = {
 
 export type CotizacionConLineas = Cotizacion & {
   lineas: LineaCotizacionCalculada[]
+  /** Suma de subtotales de línea, sin IVA — uso en pantallas internas. */
+  subtotal_cotizacion: number
+  /** Total a cobrar al cliente (con IVA). No usar en listados ni sidebar del constructor. */
   total_cotizacion: number
 }
 

@@ -1,14 +1,47 @@
 import { apiFetch } from "@/lib/api-client"
-import type { Contacto } from "@/types/contacto"
 import type {
   ListProspeccionLinkedinLeadsQuery,
   ProspeccionLinkedinBuscarResultado,
+  ProspeccionLinkedinConvertirResultado,
+  ProspeccionLinkedinCriterioResumen,
   ProspeccionLinkedinEstado,
   ProspeccionLinkedinLead,
 } from "@/types/prospeccion-linkedin"
+import { PROSPECCION_LINKEDIN_ESTADOS } from "@/types/prospeccion-linkedin"
 
 export function buscarProspeccionLinkedin(): Promise<ProspeccionLinkedinBuscarResultado> {
   return apiFetch("/prospeccion-linkedin/buscar", { method: "POST" })
+}
+
+export function buscarProspeccionLinkedinEmpresa(
+  empresa_nombre: string,
+): Promise<ProspeccionLinkedinBuscarResultado> {
+  return apiFetch("/prospeccion-linkedin/buscar-empresa", {
+    method: "POST",
+    body: JSON.stringify({ empresa_nombre }),
+  })
+}
+
+export function listProspeccionLinkedinCriteriosResumen(): Promise<
+  ProspeccionLinkedinCriterioResumen[]
+> {
+  return apiFetch("/prospeccion-linkedin/criterios/resumen")
+}
+
+/** Sin GET por id: busca en cada pestaña de estado (una sola vez al abrir deep link). */
+export async function findProspeccionLinkedinLeadById(
+  id: string,
+): Promise<ProspeccionLinkedinLead | null> {
+  const listas = await Promise.all(
+    PROSPECCION_LINKEDIN_ESTADOS.map((estado) => listProspeccionLinkedinLeads({ estado })),
+  )
+  for (const lista of listas) {
+    const found = lista.find((row) => row.id === id)
+    if (found) {
+      return found
+    }
+  }
+  return null
 }
 
 export function listProspeccionLinkedinLeads(
@@ -50,7 +83,7 @@ export type ConvertirLeadLinkedinInput = {
 export function convertirProspeccionLinkedinLead(
   id: string,
   body: ConvertirLeadLinkedinInput = {},
-): Promise<Contacto> {
+): Promise<ProspeccionLinkedinConvertirResultado> {
   return apiFetch(`/prospeccion-linkedin/leads/${id}/convertir`, {
     method: "POST",
     body: JSON.stringify(body),

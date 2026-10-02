@@ -6,6 +6,7 @@ import {
   Flame,
   ScrollText,
   Target,
+  UserSearch,
   type LucideIcon,
 } from "lucide-react"
 
@@ -49,6 +50,11 @@ export const SUGERENCIA_TIPO_VISUAL: Record<
     icon: Target,
     tone: "bg-success/15 text-success",
     label: "Meta atrasada",
+  },
+  lead_linkedin_prioritario: {
+    icon: UserSearch,
+    tone: "bg-highlight/15 text-highlight",
+    label: "Lead LinkedIn prioritario",
   },
 }
 

@@ -1,3 +1,5 @@
+import type { Contacto } from "@/types/contacto"
+
 export const PROSPECCION_LINKEDIN_ESTADOS = [
   "nuevo",
   "revisado",
@@ -53,4 +55,17 @@ export type ProspeccionLinkedinBuscarResultado = {
   perfiles_revisados: number
   criterios_usados: number
   proximo_intento_en: string | null
+}
+
+export type ProspeccionLinkedinConvertirResultado = {
+  contacto: Contacto
+  advertencia_otro_contacto_en_empresa: string | null
+}
+
+export type ProspeccionLinkedinCriterioResumen = {
+  criterio_busqueda_id: string
+  criterio_busqueda_texto: string
+  total_leads: number
+  convertidos: number
+  tasa_conversion_pct: number
 }
