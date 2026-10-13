@@ -276,12 +276,12 @@ export function DashboardPage() {
           ) : null}
           {kpis.metas ? (
             <DashboardForecast
-            metas={kpis.metas}
-            pendiente={kpis.pendiente_por_facturar}
-            oportunidades={datos.oportunidades}
-            etapas={datos.etapas}
-            proyeccion={datos.proyeccion}
-            soloLoPropio={perfil ? esSoloLoPropio(perfil) : true}
+              metas={kpis.metas}
+              pendiente={kpis.pendiente_por_facturar}
+              oportunidades={datos.oportunidades}
+              etapas={datos.etapas}
+              proyeccion={datos.proyeccion}
+              soloLoPropio={perfil ? esSoloLoPropio(perfil) : true}
             />
           ) : null}
           <DashboardFacturacionResumen
