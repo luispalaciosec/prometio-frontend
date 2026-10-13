@@ -94,9 +94,9 @@ export function DashboardFacturacionResumen({
           </p>
         </div>
         {proyeccion == null ? (
-          <TilesSkeleton count={4} className="sm:grid-cols-2 xl:grid-cols-4" />
+          <TilesSkeleton count={4} className="sm:grid-cols-2 2xl:grid-cols-4" />
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
             <KpiCard
               title="Fees contratados"
               value={formatMoney(fees?.piso_contratado ?? 0)}
@@ -143,17 +143,17 @@ export function DashboardFacturacionResumen({
           extra={tarjetaPendiente}
         />
       ) : error ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
           {tarjetaPendiente}
           <EmptyState
             icon={Receipt}
             title="Sin resumen de facturación"
             body="No se pudo cargar el total del mes. Revisá Facturas o permisos de Contífico."
-            className="sm:col-span-1 xl:col-span-3"
+            className="sm:col-span-1 2xl:col-span-3"
           />
         </div>
       ) : (
-        <TilesSkeleton count={4} className="sm:grid-cols-2 xl:grid-cols-4" />
+        <TilesSkeleton count={4} className="sm:grid-cols-2 2xl:grid-cols-4" />
       )}
       {fees && fees.piso_contratado > 0 ? (
         <p className="text-kicker">

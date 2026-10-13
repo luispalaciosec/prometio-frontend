@@ -64,10 +64,10 @@ const MES_ACTUAL = mesActualEcuador()
 const OPCIONES_MES = Array.from({ length: 25 }, (_, index) => sumarMeses(MES_ACTUAL, index - 12))
 
 function etiquetaMes(mes: string): string {
-  const texto = formatPeriodo(`${mes}-01`, true)
+  const texto = formatPeriodo(`${mes}-01`, true).replace(" de ", " ")
   const capitalizado = texto.charAt(0).toUpperCase() + texto.slice(1)
   if (mes === MES_ACTUAL) {
-    return `${capitalizado} (en curso)`
+    return `${capitalizado} · en curso`
   }
   return mes > MES_ACTUAL ? `${capitalizado} · proyección` : capitalizado
 }
@@ -172,7 +172,7 @@ export function DashboardPage() {
         <div className="filter-field">
           <Label htmlFor="dash-mes-facturacion">Mes de facturación</Label>
           <Select value={mesFacturacion} onValueChange={setMesFacturacion}>
-            <SelectTrigger id="dash-mes-facturacion" className="sm:w-52">
+            <SelectTrigger id="dash-mes-facturacion" className="sm:w-64">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -292,7 +292,7 @@ export function DashboardPage() {
           <DashboardFacturacionHistorial proyeccion={datos.proyeccion} />
           <div className="grid gap-8 lg:grid-cols-2">
             <DashboardRenovaciones />
-            <DashboardCotizacionesSeguimiento oportunidades={datos.oportunidades} />
+            <DashboardCotizacionesSeguimiento oportunidades={datos.todasOportunidades} />
           </div>
           {perfil && puedeVerEquipo(perfil) ? (
             <DashboardRankingVendedores

@@ -16,7 +16,7 @@ const TRAMOS = [
   { key: "cerrado", label: "Cerrado", color: "var(--success)" },
   { key: "porFacturar", label: "Por facturar", color: "var(--warning)" },
   { key: "fees", label: "Fees por generar", color: "var(--primary)" },
-  { key: "pipeline", label: "Pipeline ponderado", color: "var(--highlight)" },
+  { key: "pipeline", label: "Pipeline ponderado", color: "color-mix(in oklab, var(--primary) 35%, transparent)" },
 ] as const
 
 type TramoKey = (typeof TRAMOS)[number]["key"]

@@ -168,7 +168,7 @@ export function DashboardFacturacionHistorial({ proyeccion }: { proyeccion: Proy
                   />
                   <Tooltip cursor={{ fill: "var(--muted)" }} content={<TooltipHistorial />} />
                   <Bar dataKey="agencia" stackId="facturado" fill="var(--primary)" barSize={22} />
-                  <Bar dataKey="medios" stackId="facturado" fill="var(--highlight)" barSize={22} radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="medios" stackId="facturado" fill="var(--kind-email)" barSize={22} radius={[4, 4, 0, 0]} />
                   <Line
                     dataKey="fees"
                     stroke="var(--success)"
@@ -188,7 +188,7 @@ export function DashboardFacturacionHistorial({ proyeccion }: { proyeccion: Proy
               Agencia
             </li>
             <li className="flex items-center gap-1.5 text-kicker">
-              <span aria-hidden className="size-2 rounded-full" style={{ background: "var(--highlight)" }} />
+              <span aria-hidden className="size-2 rounded-full" style={{ background: "var(--kind-email)" }} />
               Medios
             </li>
             <li className="flex items-center gap-1.5 text-kicker">

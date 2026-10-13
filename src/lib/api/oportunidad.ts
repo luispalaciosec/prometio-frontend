@@ -78,7 +78,7 @@ function mapearError(error: unknown): never {
 export async function refrescarEtiquetasOportunidad() {
   const [contactos, empresas, perfiles] = await Promise.all([
     listContactos({ incluir_inactivos: true }),
-    listEmpresas(),
+    listEmpresas({ incluir_inactivos: true }),
     listPerfiles(),
   ])
   nombresContacto.clear()

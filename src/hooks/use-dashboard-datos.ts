@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { getProyeccion } from "@/lib/api/contrato-recurrente"
 import { listOportunidadesLookup } from "@/lib/api/oportunidad"
@@ -12,8 +12,10 @@ export const DASHBOARD_MESES_ATRAS = 12
 export const DASHBOARD_MESES_ADELANTE = 13
 
 export type DashboardDatos = {
-  /** null = cargando; [] = sin datos o error. Ya filtradas por lo que el backend deja ver. */
+  /** Activas. null = cargando; [] = sin datos o error. Ya filtradas por lo que el backend deja ver. */
   oportunidades: Oportunidad[] | null
+  /** Activas e inactivas: para resolver contacto/empresa de cotizaciones viejas. */
+  todasOportunidades: Oportunidad[] | null
   etapas: EtapaPipeline[] | null
   proyeccion: ProyeccionMes[] | null
 }
@@ -23,7 +25,7 @@ export type DashboardDatos = {
  * un error deja esa lista vacía y la sección que la usa muestra su vacío.
  */
 export function useDashboardDatos(): DashboardDatos {
-  const [oportunidades, setOportunidades] = useState<Oportunidad[] | null>(null)
+  const [todasOportunidades, setTodasOportunidades] = useState<Oportunidad[] | null>(null)
   const [etapas, setEtapas] = useState<EtapaPipeline[] | null>(null)
   const [proyeccion, setProyeccion] = useState<ProyeccionMes[] | null>(null)
 
@@ -42,7 +44,7 @@ export function useDashboardDatos(): DashboardDatos {
           }
         })
     }
-    cargar(listOportunidadesLookup(), (rows) => setOportunidades(rows.filter((row) => row.activo)))
+    cargar(listOportunidadesLookup(), setTodasOportunidades)
     cargar(listEtapasPipeline(), setEtapas)
     cargar(
       getProyeccion({ meses: DASHBOARD_MESES_ADELANTE, meses_atras: DASHBOARD_MESES_ATRAS }),
@@ -53,5 +55,10 @@ export function useDashboardDatos(): DashboardDatos {
     }
   }, [])
 
-  return { oportunidades, etapas, proyeccion }
+  const oportunidades = useMemo(
+    () => todasOportunidades?.filter((row) => row.activo) ?? null,
+    [todasOportunidades],
+  )
+
+  return { oportunidades, todasOportunidades, etapas, proyeccion }
 }
