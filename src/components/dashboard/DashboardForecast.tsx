@@ -1,11 +1,15 @@
+import { useState } from "react"
 import { Flag, ShieldCheck, TrendingUp } from "lucide-react"
+
+import { DashboardForecastDetalle } from "@/components/dashboard/DashboardForecastDetalle"
+import { DashboardKpiTrigger } from "@/components/dashboard/DashboardKpiTrigger"
 
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
 import { TilesSkeleton } from "@/components/skeleton"
 import { mesActualEcuador } from "@/lib/contrato-recurrente"
 import { formatMoney } from "@/lib/costo-interno"
-import { feesPorGenerar, pipelinePonderado } from "@/lib/dashboard-comercial"
+import { detalleFeesPorGenerar, detallePipelinePonderado } from "@/lib/dashboard-comercial"
 import { formatDateOnly } from "@/lib/datetime-local"
 import type { ProyeccionMes } from "@/types/contrato-recurrente"
 import type { MetasComerciales, PendientePorFacturar } from "@/types/dashboard"
@@ -25,6 +29,7 @@ export function DashboardForecast({
   metas,
   pendiente,
   oportunidades,
+  todasOportunidades,
   etapas,
   proyeccion,
   soloLoPropio,
@@ -32,22 +37,28 @@ export function DashboardForecast({
   metas: MetasComerciales
   pendiente: PendientePorFacturar
   oportunidades: Oportunidad[] | null
+  todasOportunidades: Oportunidad[] | null
   etapas: EtapaPipeline[] | null
   proyeccion: ProyeccionMes[] | null
   /** Vendedor: su meta y lo cerrado en el CRM. Equipo: meta de agencia y lo facturado. */
   soloLoPropio: boolean
 }) {
+  const [detalleAbierto, setDetalleAbierto] = useState(false)
   const meta = metas.meta_total
   if (meta == null || !metas.fecha_fin) {
     return null
   }
 
   const cargando = oportunidades == null || etapas == null || proyeccion == null
+  const filasPipeline = oportunidades && etapas ? detallePipelinePonderado(oportunidades, etapas) : []
+  const filasFees = proyeccion
+    ? detalleFeesPorGenerar(proyeccion, mesActualEcuador(), metas.fecha_fin.slice(0, 7))
+    : []
   const montos: Record<TramoKey, number> = {
     cerrado: metas.valor_cerrado_total,
     porFacturar: pendiente.monto,
-    fees: proyeccion ? feesPorGenerar(proyeccion, mesActualEcuador(), metas.fecha_fin.slice(0, 7)) : 0,
-    pipeline: oportunidades && etapas ? pipelinePonderado(oportunidades, etapas) : 0,
+    fees: filasFees.reduce((sum, row) => sum + row.monto, 0),
+    pipeline: filasPipeline.reduce((sum, row) => sum + row.ponderado, 0),
   }
   const comprometido = montos.cerrado + montos.porFacturar + montos.fees
   const forecast = comprometido + montos.pipeline
@@ -71,6 +82,7 @@ export function DashboardForecast({
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
+            <DashboardKpiTrigger ariaLabel="Ver cómo se calcula el forecast" onOpen={() => setDetalleAbierto(true)}>
             <KpiCard
               title="Forecast"
               value={formatMoney(forecast)}
@@ -78,6 +90,8 @@ export function DashboardForecast({
               icon={TrendingUp}
               tone="bg-primary/15 text-primary"
             />
+            </DashboardKpiTrigger>
+            <DashboardKpiTrigger ariaLabel="Ver qué está comprometido" onOpen={() => setDetalleAbierto(true)}>
             <KpiCard
               title="Comprometido"
               value={formatMoney(comprometido)}
@@ -85,13 +99,16 @@ export function DashboardForecast({
               icon={ShieldCheck}
               tone="bg-success/15 text-success"
             />
+            </DashboardKpiTrigger>
+            <DashboardKpiTrigger ariaLabel="Ver cuánto falta para la meta" onOpen={() => setDetalleAbierto(true)}>
             <KpiCard
               title={brecha > 0 ? "Falta para la meta" : "Sobre la meta"}
               value={formatMoney(Math.abs(brecha))}
-              hint={brecha > 0 ? "Aun cerrando el pipeline ponderado" : "Con el pipeline ponderado"}
+              hint={`Meta ${formatMoney(meta)} − forecast ${formatMoney(forecast)}`}
               icon={Flag}
               tone={brecha > 0 ? "bg-destructive/15 text-destructive" : "bg-success/15 text-success"}
             />
+            </DashboardKpiTrigger>
           </div>
           {forecast === 0 ? (
             <EmptyState
@@ -138,6 +155,17 @@ export function DashboardForecast({
           )}
         </>
       )}
+      <DashboardForecastDetalle
+        open={detalleAbierto}
+        onClose={() => setDetalleAbierto(false)}
+        montos={{ ...montos, meta }}
+        soloLoPropio={soloLoPropio}
+        fechaFin={formatDateOnly(metas.fecha_fin)}
+        pipeline={filasPipeline}
+        etapas={etapas ?? []}
+        fees={filasFees}
+        oportunidades={todasOportunidades ?? []}
+      />
     </section>
   )
 }

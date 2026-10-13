@@ -21,13 +21,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   Table,
   TableBody,
   TableCell,
@@ -39,7 +32,7 @@ import { getDashboardKpis } from "@/lib/api/dashboard"
 import { formatMoney } from "@/lib/costo-interno"
 import { formatDateOnly } from "@/lib/datetime-local"
 import { rangoDatetimeEcuador } from "@/lib/rango-datetime-ecuador"
-import { formatPeriodo, mesActualEcuador, sumarMeses } from "@/lib/contrato-recurrente"
+import { mesActualEcuador } from "@/lib/contrato-recurrente"
 import { esSoloLoPropio, puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
@@ -56,20 +49,6 @@ const ESTADO_COTIZACION: Record<string, string> = {
   facturado: "Facturada",
   rechazada: "Rechazada",
   vencida: "Vencida",
-}
-
-const MES_ACTUAL = mesActualEcuador()
-
-/** 12 meses atrás → 12 adelante, en orden cronológico. */
-const OPCIONES_MES = Array.from({ length: 25 }, (_, index) => sumarMeses(MES_ACTUAL, index - 12))
-
-function etiquetaMes(mes: string): string {
-  const texto = formatPeriodo(`${mes}-01`, true).replace(" de ", " ")
-  const capitalizado = texto.charAt(0).toUpperCase() + texto.slice(1)
-  if (mes === MES_ACTUAL) {
-    return `${capitalizado} · en curso`
-  }
-  return mes > MES_ACTUAL ? `${capitalizado} · proyección` : capitalizado
 }
 
 export function DashboardPage() {
@@ -169,27 +148,10 @@ export function DashboardPage() {
         <Button type="submit" variant="outline" disabled={cargando}>
           Aplicar
         </Button>
-        <div className="filter-field">
-          <Label htmlFor="dash-mes-facturacion">Mes de facturación</Label>
-          <Select value={mesFacturacion} onValueChange={setMesFacturacion}>
-            <SelectTrigger id="dash-mes-facturacion" className="sm:w-64">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {OPCIONES_MES.map((mes) => (
-                <SelectItem key={mes} value={mes}>
-                  {etiquetaMes(mes)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         <p className="text-kicker max-w-xl">
           El rango aplica solo a <span className="text-ui-medium">Actividades por vendedor</span>{" "}
-          (programada o reportada en esas fechas, hora Ecuador). El mes cambia solo{" "}
-          <span className="text-ui-medium">Facturación</span>: un mes futuro muestra lo que hay
-          contratado por facturar. KPIs, pipeline, cotizaciones y metas siguen siendo el estado
-          actual del CRM.
+          (programada o reportada en esas fechas, hora Ecuador). KPIs, pipeline, cotizaciones y
+          metas siguen siendo el estado actual del CRM. Facturación tiene su propio selector de mes.
         </p>
       </form>
       {cargando && !kpis ? (
@@ -279,6 +241,7 @@ export function DashboardPage() {
               metas={kpis.metas}
               pendiente={kpis.pendiente_por_facturar}
               oportunidades={datos.oportunidades}
+              todasOportunidades={datos.todasOportunidades}
               etapas={datos.etapas}
               proyeccion={datos.proyeccion}
               soloLoPropio={perfil ? esSoloLoPropio(perfil) : true}
@@ -287,6 +250,7 @@ export function DashboardPage() {
           <DashboardFacturacionResumen
             pendiente={kpis.pendiente_por_facturar}
             mes={mesFacturacion}
+            onMesChange={setMesFacturacion}
             proyeccion={datos.proyeccion}
           />
           <DashboardFacturacionHistorial proyeccion={datos.proyeccion} />

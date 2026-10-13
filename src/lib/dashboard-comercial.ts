@@ -30,20 +30,54 @@ function probabilidad(oportunidad: Oportunidad, etapas: EtapaPipeline[]): number
   return pct > 1 ? pct / 100 : pct
 }
 
-export function pipelinePonderado(oportunidades: Oportunidad[], etapas: EtapaPipeline[]): number {
-  return oportunidades
-    .filter(esAbierta)
-    .reduce((sum, row) => sum + valorEfectivo(row) * probabilidad(row, etapas), 0)
+export type FilaPipelinePonderado = {
+  oportunidad: Oportunidad
+  valor: number
+  /** 0–1 */
+  probabilidad: number
+  ponderado: number
 }
 
-/** Fees de contratos que todavía no tienen cotización, de `desdeMes` a `hastaMes` (`YYYY-MM`). */
-export function feesPorGenerar(proyeccion: ProyeccionMes[], desdeMes: string, hastaMes: string): number {
+/** Oportunidades abiertas con su aporte al pipeline ponderado, de mayor a menor. */
+export function detallePipelinePonderado(
+  oportunidades: Oportunidad[],
+  etapas: EtapaPipeline[],
+): FilaPipelinePonderado[] {
+  return oportunidades
+    .filter(esAbierta)
+    .map((oportunidad) => {
+      const valor = valorEfectivo(oportunidad)
+      const prob = probabilidad(oportunidad, etapas)
+      return { oportunidad, valor, probabilidad: prob, ponderado: valor * prob }
+    })
+    .sort((a, b) => b.ponderado - a.ponderado)
+}
+
+export function pipelinePonderado(oportunidades: Oportunidad[], etapas: EtapaPipeline[]): number {
+  return detallePipelinePonderado(oportunidades, etapas).reduce((sum, row) => sum + row.ponderado, 0)
+}
+
+/** Meses con fees sin cotización todavía, de `desdeMes` a `hastaMes` (`YYYY-MM`). */
+export function detalleFeesPorGenerar(
+  proyeccion: ProyeccionMes[],
+  desdeMes: string,
+  hastaMes: string,
+): { periodo: string; monto: number }[] {
   return proyeccion
     .filter((row) => {
       const mes = row.periodo.slice(0, 7)
       return mes >= desdeMes && mes <= hastaMes
     })
-    .reduce((sum, row) => sum + Math.max(0, row.piso_contratado - row.facturado - row.por_facturar), 0)
+    .map((row) => ({
+      periodo: row.periodo,
+      monto: Math.max(0, row.piso_contratado - row.facturado - row.por_facturar),
+    }))
+    .filter((row) => row.monto > 0)
+}
+
+/** Fees de contratos que todavía no tienen cotización, de `desdeMes` a `hastaMes` (`YYYY-MM`). */
+export function feesPorGenerar(proyeccion: ProyeccionMes[], desdeMes: string, hastaMes: string): number {
+  return detalleFeesPorGenerar(proyeccion, desdeMes, hastaMes).reduce((sum, row) => sum + row.monto, 0)
 }
 
 /** Ganadas con fecha de cierre en [desde, hasta] (`YYYY-MM-DD`, comparación por día). */

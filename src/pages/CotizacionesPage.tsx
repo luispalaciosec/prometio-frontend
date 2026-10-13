@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 import { FileText } from "lucide-react"
 
@@ -61,7 +61,11 @@ export function CotizacionesPage() {
   const [rows, setRows] = useState<FilaCotizacion[] | null>(null)
   const [busqueda, setBusqueda] = useState("")
   const [qDebounced, setQDebounced] = useState("")
-  const [estado, setEstado] = useState<CotizacionEstado | null>(null)
+  const [searchParams] = useSearchParams()
+  const [estado, setEstado] = useState<CotizacionEstado | null>(() => {
+    const desdeUrl = searchParams.get("estado")
+    return COTIZACION_ESTADOS.find((item) => item === desdeUrl) ?? null
+  })
   const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
   const [duplicarId, setDuplicarId] = useState<string | null>(null)
   const [duplicando, setDuplicando] = useState(false)
