@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/table"
 import { getDashboardKpis } from "@/lib/api/dashboard"
 import { formatMoney } from "@/lib/costo-interno"
+import { formatDateOnly } from "@/lib/datetime-local"
+import { rangoDatetimeEcuador } from "@/lib/rango-datetime-ecuador"
 import { esSoloLoPropio } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
@@ -44,6 +46,9 @@ export function DashboardPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
+  const [rangoActividades, setRangoActividades] = useState<{ desde: string; hasta: string } | null>(
+    null,
+  )
   const [cargando, setCargando] = useState(true)
   const [detalleReq, setDetalleReq] = useState<DashboardDetalleRequest | null>(null)
   const returnFocusRef = useRef<HTMLElement | null>(null)
@@ -60,11 +65,10 @@ export function DashboardPage() {
     setCargando(true)
     try {
       const data = await getDashboardKpis(
-        rango?.desde && rango.hasta
-          ? { desde: `${rango.desde}T00:00:00`, hasta: `${rango.hasta}T23:59:59` }
-          : {},
+        rango?.desde && rango.hasta ? rangoDatetimeEcuador(rango.desde, rango.hasta) : {},
       )
       setKpis(data)
+      setRangoActividades(rango?.desde && rango.hasta ? rango : null)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar los indicadores.")
       setKpis(null)
@@ -106,7 +110,15 @@ export function DashboardPage() {
         className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault()
+          if ((desde && !hasta) || (!desde && hasta)) {
+            toast.error("Elegí fecha desde y hasta.")
+            return
+          }
           if (desde && hasta) {
+            if (desde > hasta) {
+              toast.error("«Desde» no puede ser posterior a «Hasta».")
+              return
+            }
             void reload({ desde, hasta })
             return
           }
@@ -124,8 +136,10 @@ export function DashboardPage() {
         <Button type="submit" variant="outline" disabled={cargando}>
           Aplicar
         </Button>
-        <p className="text-kicker">
-          El rango solo filtra actividades por vendedor. El resto es el estado actual.
+        <p className="text-kicker max-w-xl">
+          El rango aplica solo a <span className="text-ui-medium">Actividades por vendedor</span>{" "}
+          (programada o reportada en esas fechas, hora Ecuador). KPIs, pipeline, cotizaciones y
+          metas siguen siendo el estado actual del CRM.
         </p>
       </form>
       {cargando && !kpis ? (
@@ -311,12 +325,28 @@ export function DashboardPage() {
             </section>
           </div>
           <section className="space-y-3">
-            <h2 className="text-section">Actividades por vendedor</h2>
+            <div>
+              <h2 className="text-section">Actividades por vendedor</h2>
+              {rangoActividades ? (
+                <p className="mt-1 text-kicker text-muted-foreground">
+                  Filtrado: {formatDateOnly(rangoActividades.desde)} –{" "}
+                  {formatDateOnly(rangoActividades.hasta)}
+                </p>
+              ) : (
+                <p className="mt-1 text-kicker text-muted-foreground">
+                  Sin filtro de fechas — todas las actividades con fecha programada o reportada.
+                </p>
+              )}
+            </div>
             {kpis.actividades_por_vendedor.length === 0 ? (
               <EmptyState
                 icon={CalendarClock}
                 title="Sin actividades en el rango"
-                body="El filtro de fechas solo aplica a este bloque. El resto es el estado actual."
+                body={
+                  rangoActividades
+                    ? "Ninguna actividad tiene programada_para o reportada_en en esas fechas."
+                    : "Cuando haya actividades registradas, el conteo por vendedor aparece acá."
+                }
               />
             ) : (
               <Table>
