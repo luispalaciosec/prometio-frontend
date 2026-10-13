@@ -27,6 +27,8 @@ export type Oportunidad = {
   causa_perdida_secundaria_id: string | null
   competidor_mencionado: string | null
   fecha_ultima_actividad: string | null
+  /** Cuándo pasó a cierre_ganado / cierre_perdido. */
+  fecha_cierre?: string | null
   activo: boolean
   created_at: string
   lead_score: number

@@ -6,17 +6,12 @@ import { FacturasResumenKpis } from "@/components/facturas/FacturasResumenKpis"
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
 import { TilesSkeleton } from "@/components/skeleton"
-import { getProyeccion } from "@/lib/api/contrato-recurrente"
 import { boundsMesCalendario, getFacturasResumen } from "@/lib/api/factura"
 import { formatPeriodo, mesActualEcuador } from "@/lib/contrato-recurrente"
 import { formatMoney } from "@/lib/costo-interno"
 import type { ProyeccionMes } from "@/types/contrato-recurrente"
 import type { PendientePorFacturar } from "@/types/dashboard"
 import type { FacturasResumen } from "@/types/factura"
-
-/** Ventana que cubre el combo de mes del dashboard (12 atrás, 12 adelante). */
-const MESES_ATRAS = 12
-const MESES_ADELANTE = 13
 
 function capitalizar(texto: string): string {
   return texto.charAt(0).toUpperCase() + texto.slice(1)
@@ -25,39 +20,22 @@ function capitalizar(texto: string): string {
 export function DashboardFacturacionResumen({
   pendiente,
   mes,
+  proyeccion,
 }: {
   pendiente: PendientePorFacturar
   /** `YYYY-MM` */
   mes: string
+  /** null = cargando. */
+  proyeccion: ProyeccionMes[] | null
 }) {
   const navigate = useNavigate()
   const [resumen, setResumen] = useState<FacturasResumen | null>(null)
   const [error, setError] = useState(false)
-  /** null = cargando; [] = sin datos o error. */
-  const [proyeccion, setProyeccion] = useState<ProyeccionMes[] | null>(null)
 
   const mesActual = mesActualEcuador()
   const esFuturo = mes > mesActual
   const nombreMes = capitalizar(formatPeriodo(`${mes}-01`, true))
   const fees = proyeccion?.find((row) => row.periodo.slice(0, 7) === mes) ?? null
-
-  useEffect(() => {
-    let cancelled = false
-    void getProyeccion({ meses: MESES_ADELANTE, meses_atras: MESES_ATRAS })
-      .then((data) => {
-        if (!cancelled) {
-          setProyeccion(data)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setProyeccion([])
-        }
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     if (esFuturo) {

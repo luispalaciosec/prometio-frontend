@@ -42,6 +42,8 @@ export type Cotizacion = {
   requiere_documento_alcance?: boolean
   /** Solo con estado `facturado`. */
   numero_factura?: string | null
+  /** `YYYY-MM-DD`. Vigencia de la oferta enviada al cliente. */
+  valido_hasta?: string | null
   /** Solo si la generó un contrato de fee recurrente. */
   contrato_recurrente_id?: string | null
   /** `YYYY-MM-DD`, primer día del mes que cubre. */

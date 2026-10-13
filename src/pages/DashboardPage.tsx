@@ -4,7 +4,14 @@ import { toast } from "sonner"
 import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
 import { DashboardDetalleModal } from "@/components/dashboard/DashboardDetalleModal"
 import { DashboardKpiTrigger } from "@/components/dashboard/DashboardKpiTrigger"
+import { DashboardCicloVenta } from "@/components/dashboard/DashboardCicloVenta"
+import { DashboardCotizacionesSeguimiento } from "@/components/dashboard/DashboardCotizacionesSeguimiento"
+import { DashboardFacturacionHistorial } from "@/components/dashboard/DashboardFacturacionHistorial"
 import { DashboardFacturacionResumen } from "@/components/dashboard/DashboardFacturacionResumen"
+import { DashboardForecast } from "@/components/dashboard/DashboardForecast"
+import { DashboardRankingVendedores } from "@/components/dashboard/DashboardRankingVendedores"
+import { DashboardRenovaciones } from "@/components/dashboard/DashboardRenovaciones"
+import { useDashboardDatos } from "@/hooks/use-dashboard-datos"
 import { DashboardMetas } from "@/components/dashboard/DashboardMetas"
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
@@ -33,7 +40,7 @@ import { formatMoney } from "@/lib/costo-interno"
 import { formatDateOnly } from "@/lib/datetime-local"
 import { rangoDatetimeEcuador } from "@/lib/rango-datetime-ecuador"
 import { formatPeriodo, mesActualEcuador, sumarMeses } from "@/lib/contrato-recurrente"
-import { esSoloLoPropio } from "@/lib/pipeline-acceso"
+import { esSoloLoPropio, puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
 import type { DashboardDetalleRequest } from "@/types/dashboard-detalle"
@@ -71,6 +78,7 @@ export function DashboardPage() {
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
   const [mesFacturacion, setMesFacturacion] = useState(mesActualEcuador)
+  const datos = useDashboardDatos()
   const [rangoActividades, setRangoActividades] = useState<{ desde: string; hasta: string } | null>(
     null,
   )
@@ -266,7 +274,35 @@ export function DashboardPage() {
               }
             />
           ) : null}
-          <DashboardFacturacionResumen pendiente={kpis.pendiente_por_facturar} mes={mesFacturacion} />
+          {kpis.metas ? (
+            <DashboardForecast
+            metas={kpis.metas}
+            pendiente={kpis.pendiente_por_facturar}
+            oportunidades={datos.oportunidades}
+            etapas={datos.etapas}
+            proyeccion={datos.proyeccion}
+            soloLoPropio={perfil ? esSoloLoPropio(perfil) : true}
+            />
+          ) : null}
+          <DashboardFacturacionResumen
+            pendiente={kpis.pendiente_por_facturar}
+            mes={mesFacturacion}
+            proyeccion={datos.proyeccion}
+          />
+          <DashboardFacturacionHistorial proyeccion={datos.proyeccion} />
+          <div className="grid gap-8 lg:grid-cols-2">
+            <DashboardRenovaciones />
+            <DashboardCotizacionesSeguimiento oportunidades={datos.oportunidades} />
+          </div>
+          {perfil && puedeVerEquipo(perfil) ? (
+            <DashboardRankingVendedores
+              perfil={perfil}
+              oportunidades={datos.oportunidades}
+              etapas={datos.etapas}
+              metasPorVendedor={kpis.metas?.por_vendedor ?? []}
+            />
+          ) : null}
+          <DashboardCicloVenta oportunidades={datos.oportunidades} />
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>
             <PipelineBarras rows={kpis.pipeline_por_etapa} />
