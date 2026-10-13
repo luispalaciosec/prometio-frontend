@@ -50,3 +50,10 @@ export function mesActualEcuador(): string {
 export function hoyEcuador(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/Guayaquil" })
 }
+
+/** `YYYY-MM` + n meses (n puede ser negativo). */
+export function sumarMeses(yyyyMm: string, n: number): string {
+  const [year, month] = yyyyMm.split("-").map(Number)
+  const date = new Date(year, month - 1 + n, 1)
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+}

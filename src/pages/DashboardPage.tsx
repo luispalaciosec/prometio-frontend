@@ -14,6 +14,13 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   Table,
   TableBody,
   TableCell,
@@ -25,6 +32,7 @@ import { getDashboardKpis } from "@/lib/api/dashboard"
 import { formatMoney } from "@/lib/costo-interno"
 import { formatDateOnly } from "@/lib/datetime-local"
 import { rangoDatetimeEcuador } from "@/lib/rango-datetime-ecuador"
+import { formatPeriodo, mesActualEcuador, sumarMeses } from "@/lib/contrato-recurrente"
 import { esSoloLoPropio } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 import type { DashboardKPIs } from "@/types/dashboard"
@@ -43,11 +51,26 @@ const ESTADO_COTIZACION: Record<string, string> = {
   vencida: "Vencida",
 }
 
+const MES_ACTUAL = mesActualEcuador()
+
+/** 12 meses atrás → 12 adelante, en orden cronológico. */
+const OPCIONES_MES = Array.from({ length: 25 }, (_, index) => sumarMeses(MES_ACTUAL, index - 12))
+
+function etiquetaMes(mes: string): string {
+  const texto = formatPeriodo(`${mes}-01`, true)
+  const capitalizado = texto.charAt(0).toUpperCase() + texto.slice(1)
+  if (mes === MES_ACTUAL) {
+    return `${capitalizado} (en curso)`
+  }
+  return mes > MES_ACTUAL ? `${capitalizado} · proyección` : capitalizado
+}
+
 export function DashboardPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null)
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
+  const [mesFacturacion, setMesFacturacion] = useState(mesActualEcuador)
   const [rangoActividades, setRangoActividades] = useState<{ desde: string; hasta: string } | null>(
     null,
   )
@@ -138,10 +161,27 @@ export function DashboardPage() {
         <Button type="submit" variant="outline" disabled={cargando}>
           Aplicar
         </Button>
+        <div className="filter-field">
+          <Label htmlFor="dash-mes-facturacion">Mes de facturación</Label>
+          <Select value={mesFacturacion} onValueChange={setMesFacturacion}>
+            <SelectTrigger id="dash-mes-facturacion" className="sm:w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {OPCIONES_MES.map((mes) => (
+                <SelectItem key={mes} value={mes}>
+                  {etiquetaMes(mes)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <p className="text-kicker max-w-xl">
           El rango aplica solo a <span className="text-ui-medium">Actividades por vendedor</span>{" "}
-          (programada o reportada en esas fechas, hora Ecuador). KPIs, pipeline, cotizaciones y
-          metas siguen siendo el estado actual del CRM.
+          (programada o reportada en esas fechas, hora Ecuador). El mes cambia solo{" "}
+          <span className="text-ui-medium">Facturación</span>: un mes futuro muestra lo que hay
+          contratado por facturar. KPIs, pipeline, cotizaciones y metas siguen siendo el estado
+          actual del CRM.
         </p>
       </form>
       {cargando && !kpis ? (
@@ -226,7 +266,7 @@ export function DashboardPage() {
               }
             />
           ) : null}
-          <DashboardFacturacionResumen pendiente={kpis.pendiente_por_facturar} />
+          <DashboardFacturacionResumen pendiente={kpis.pendiente_por_facturar} mes={mesFacturacion} />
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>
             <PipelineBarras rows={kpis.pipeline_por_etapa} />
