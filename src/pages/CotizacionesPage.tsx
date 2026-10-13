@@ -29,6 +29,7 @@ import {
 import { DuplicarCotizacionDialog } from "@/components/pipeline/DuplicarCotizacionDialog"
 import { duplicarCotizacion, listCotizaciones } from "@/lib/api/cotizacion"
 import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import {
@@ -43,6 +44,7 @@ import { useAuthStore } from "@/store/auth-store"
 import {
   COTIZACION_ESTADO_LABELS,
   COTIZACION_ESTADOS,
+  COTIZACION_ESTADOS_GANADA,
   type CotizacionConLineas,
   type CotizacionEstado,
 } from "@/types/cotizacion"
@@ -237,7 +239,14 @@ export function CotizacionesPage() {
                 className="cursor-pointer"
                 onClick={() => navigate(rutaConstructorCotizacion(row.id))}
               >
-                <TableCell className="text-ui-medium">{row.numero}</TableCell>
+                <TableCell className="text-ui-medium">
+                  <span className="inline-flex items-center gap-2">
+                    {row.numero}
+                    {row.contrato_recurrente_id ? (
+                      <Badge variant="outline">Fee recurrente</Badge>
+                    ) : null}
+                  </span>
+                </TableCell>
                 <TableCell className="whitespace-normal">
                   <p className="text-ui-medium">{row.contactoNombre}</p>
                   <p className="text-kicker text-muted-foreground">{row.empresaNombre}</p>
@@ -255,7 +264,7 @@ export function CotizacionesPage() {
                   {formatDateTime(row.created_at)}
                 </TableCell>
                 <TableCell className="text-right">
-                  {row.estado === "aprobada" && row.lineas.length > 0 ? (
+                  {COTIZACION_ESTADOS_GANADA.includes(row.estado) && row.lineas.length > 0 ? (
                     <Button
                       type="button"
                       variant="ghost"

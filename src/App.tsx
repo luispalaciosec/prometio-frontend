@@ -22,6 +22,11 @@ import { CalendarioPage } from "@/pages/CalendarioPage"
 import { ConfiguracionPage } from "@/pages/ConfiguracionPage"
 import { ConectoresPage } from "@/pages/ConectoresPage"
 import { ContactoPage } from "@/pages/ContactoPage"
+import { ContratoPage } from "@/pages/ContratoPage"
+import { ContratosLayout } from "@/components/contratos/ContratosLayout"
+import { ContratosPage } from "@/pages/ContratosPage"
+import { ProyeccionContratosPage } from "@/pages/ProyeccionContratosPage"
+import { RenovacionesPage } from "@/pages/RenovacionesPage"
 import { ContactosPage } from "@/pages/ContactosPage"
 import { CotizacionPage } from "@/pages/CotizacionPage"
 import { CotizacionesPage } from "@/pages/CotizacionesPage"
@@ -183,6 +188,26 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <CotizacionPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/contratos"
+                element={
+                  <VentasRoute>
+                    <ContratosLayout />
+                  </VentasRoute>
+                }
+              >
+                <Route index element={<ContratosPage />} />
+                <Route path="renovaciones" element={<RenovacionesPage />} />
+                <Route path="proyeccion" element={<ProyeccionContratosPage />} />
+              </Route>
+              <Route
+                path="/contratos/:id"
+                element={
+                  <VentasRoute>
+                    <ContratoPage />
                   </VentasRoute>
                 }
               />

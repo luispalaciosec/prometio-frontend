@@ -14,6 +14,8 @@ const LABELS: Record<AccionCotizacion, string> = {
   marcar_aprobada: "Marcar aprobada",
   marcar_rechazada: "Marcar rechazada",
   marcar_vencida: "Marcar vencida",
+  marcar_por_facturar: "Marcar por facturar",
+  marcar_facturada: "Marcar facturada",
 }
 
 export function CotizacionTransiciones({

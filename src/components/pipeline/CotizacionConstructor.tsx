@@ -9,6 +9,7 @@ import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanc
 import { DocumentoAlcanceRequisitoAviso } from "@/components/pipeline/DocumentoAlcanceRequisitoAviso"
 import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
 import { LineaCostosDesglose } from "@/components/pipeline/LineaCostosDesglose"
+import { MarcarFacturadaDialog } from "@/components/pipeline/MarcarFacturadaDialog"
 import {
   LineaCotizacionForm,
   prefillDesdeSugerencia,
@@ -25,6 +26,7 @@ import {
   createLinea,
   deleteLinea,
   ejecutarTransicion,
+  marcarFacturada,
   getPreviewAprobacion,
   updateLinea,
   type AccionCotizacion,
@@ -100,6 +102,7 @@ export function CotizacionConstructor({
   const esBorrador = cotizacion.estado === "borrador"
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [transicionPendiente, setTransicionPendiente] = useState(false)
+  const [facturarAbierto, setFacturarAbierto] = useState(false)
   const [previewAprobacion, setPreviewAprobacion] = useState<boolean | null>(null)
   const [prefillNuevaLinea, setPrefillNuevaLinea] = useState<LineaFormPrefillAlta | null>(null)
   const [notaPrefill, setNotaPrefill] = useState<string | null>(null)
@@ -264,6 +267,10 @@ export function CotizacionConstructor({
   }
 
   async function transicionar(accion: AccionCotizacion) {
+    if (accion === "marcar_facturada") {
+      setFacturarAbierto(true)
+      return
+    }
     setTransicionPendiente(true)
     try {
       if (accion === "enviar") {
@@ -278,11 +285,28 @@ export function CotizacionConstructor({
     }
   }
 
+  async function confirmarFacturada(numeroFactura: string) {
+    setTransicionPendiente(true)
+    try {
+      await marcarFacturada(cotizacion.id, numeroFactura)
+      setFacturarAbierto(false)
+      await onChange()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo marcar facturada.")
+    } finally {
+      setTransicionPendiente(false)
+    }
+  }
+
   return (
     <div className="mt-4 space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-section">{cotizacion.numero}</p>
         <CotizacionEstadoBadge estado={cotizacion.estado} />
+        {cotizacion.contrato_recurrente_id ? <Badge variant="outline">Fee recurrente</Badge> : null}
+        {cotizacion.numero_factura ? (
+          <span className="text-kicker text-muted-foreground">Factura {cotizacion.numero_factura}</span>
+        ) : null}
         {previewAprobacion ? (
           <Badge variant="warning">Pedirá aprobación al enviar</Badge>
         ) : previewAprobacion === false && esBorrador ? (
@@ -306,7 +330,9 @@ export function CotizacionConstructor({
                 ? "Un supervisor o admin aprueba o rechaza el descuento. Recién después se puede enviar al cliente."
                 : cotizacion.estado === "enviada"
                   ? "El cliente ya la tiene. Acá se marca el resultado: aprobada, rechazada o vencida."
-                  : "Esta cotización ya no cambia de estado."}
+                  : cotizacion.estado === "aprobada" || cotizacion.estado === "por_facturar"
+                    ? "Aceptada por el cliente. Marcala por facturar si falta la orden de compra o pasó el corte, o facturada con el número de factura."
+                    : "Esta cotización ya no cambia de estado."}
           </p>
         </div>
         <CotizacionTransiciones
@@ -317,6 +343,13 @@ export function CotizacionConstructor({
           onAccion={(accion) => void transicionar(accion)}
         />
       </div>
+      <MarcarFacturadaDialog
+        open={facturarAbierto}
+        cotizacionNumero={cotizacion.numero}
+        enviando={transicionPendiente}
+        onConfirm={(numero) => void confirmarFacturada(numero)}
+        onCancel={() => setFacturarAbierto(false)}
+      />
       <CotizacionPdfAcciones
         cotizacionId={cotizacion.id}
         perfil={perfil}

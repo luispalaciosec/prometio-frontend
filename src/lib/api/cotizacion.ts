@@ -55,6 +55,8 @@ const TRANSICION_PATH: Record<AccionCotizacion, string> = {
   marcar_aprobada: "marcar-aprobada",
   marcar_rechazada: "marcar-rechazada",
   marcar_vencida: "marcar-vencida",
+  marcar_por_facturar: "marcar-por-facturar",
+  marcar_facturada: "marcar-facturada",
 }
 
 export { listProveedores } from "@/lib/api/proveedor"
@@ -256,9 +258,17 @@ export function marcarVencida(id: string, _perfil: Perfil): Promise<CotizacionCo
 export function ejecutarTransicion(
   id: string,
   _perfil: Perfil,
-  accion: AccionCotizacion,
+  accion: Exclude<AccionCotizacion, "marcar_facturada">,
 ): Promise<CotizacionConLineas> {
   return apiFetch(`/cotizaciones/${id}/${TRANSICION_PATH[accion]}`, { method: "POST" })
+}
+
+/** Desde aprobada o por_facturar. El número de factura es obligatorio. */
+export function marcarFacturada(id: string, numeroFactura: string): Promise<CotizacionConLineas> {
+  return apiFetch(`/cotizaciones/${id}/${TRANSICION_PATH.marcar_facturada}`, {
+    method: "POST",
+    body: JSON.stringify({ numero_factura: numeroFactura.trim() }),
+  })
 }
 
 function abrirBlob(blob: Blob, filename: string, modo: "descargar" | "ver") {

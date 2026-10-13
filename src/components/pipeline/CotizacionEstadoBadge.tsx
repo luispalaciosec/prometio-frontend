@@ -9,6 +9,8 @@ const VARIANTS: Record<
   preparacion: "warning",
   enviada: "default",
   aprobada: "success",
+  por_facturar: "warning",
+  facturado: "success",
   rechazada: "destructive",
   vencida: "secondary",
 }

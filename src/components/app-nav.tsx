@@ -15,6 +15,7 @@ import {
   LayoutList,
   FileText,
   Receipt,
+  Repeat,
   ScrollText,
   Search,
   Tv,
@@ -47,6 +48,7 @@ const crmNav: NavItem[] = [
 const negociosNav: NavItem[] = [
   { to: "/pipeline", label: "Pipeline", icon: Columns3 },
   { to: "/cotizaciones", label: "Cotizaciones", icon: FileText },
+  { to: "/contratos", label: "Contratos", icon: Repeat },
   { to: "/facturas", label: "Facturas", icon: Receipt },
   { to: "/alertas", label: "Alertas", icon: Bell },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

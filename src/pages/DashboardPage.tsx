@@ -37,6 +37,8 @@ const ESTADO_COTIZACION: Record<string, string> = {
   preparacion: "Preparación",
   enviada: "Enviada",
   aprobada: "Aprobada",
+  por_facturar: "Por facturar",
+  facturado: "Facturada",
   rechazada: "Rechazada",
   vencida: "Vencida",
 }

@@ -5,6 +5,8 @@ export const COTIZACION_ESTADOS = [
   "preparacion",
   "enviada",
   "aprobada",
+  "por_facturar",
+  "facturado",
   "rechazada",
   "vencida",
 ] as const
@@ -16,9 +18,18 @@ export const COTIZACION_ESTADO_LABELS: Record<CotizacionEstado, string> = {
   preparacion: "En preparación",
   enviada: "Enviada",
   aprobada: "Aprobada",
+  por_facturar: "Por facturar",
+  facturado: "Facturada",
   rechazada: "Rechazada",
   vencida: "Vencida",
 }
+
+/** Ganada = el cliente ya aceptó, esté donde esté la facturación (espejo de ESTADOS_GANADA). */
+export const COTIZACION_ESTADOS_GANADA: readonly CotizacionEstado[] = [
+  "aprobada",
+  "por_facturar",
+  "facturado",
+]
 
 export type Cotizacion = {
   id: string
@@ -29,6 +40,12 @@ export type Cotizacion = {
   aprobado_por: string | null
   tasa_impuesto_pct_aplicada: number | null
   requiere_documento_alcance?: boolean
+  /** Solo con estado `facturado`. */
+  numero_factura?: string | null
+  /** Solo si la generó un contrato de fee recurrente. */
+  contrato_recurrente_id?: string | null
+  /** `YYYY-MM-DD`, primer día del mes que cubre. */
+  periodo_contrato?: string | null
   created_at: string
 }
 

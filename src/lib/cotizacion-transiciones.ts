@@ -9,6 +9,8 @@ export type AccionCotizacion =
   | "marcar_aprobada"
   | "marcar_rechazada"
   | "marcar_vencida"
+  | "marcar_por_facturar"
+  | "marcar_facturada"
 
 /** Matriz estado × rol. UI oculta; mock vuelve a chequear. */
 export function puedeEjecutarTransicion(
@@ -27,6 +29,13 @@ export function puedeEjecutarTransicion(
     case "marcar_rechazada":
     case "marcar_vencida":
       return estado === "enviada" && puedeVerDesgloseCotizacion(perfil, ejecutivoId)
+    case "marcar_por_facturar":
+      return estado === "aprobada" && puedeVerDesgloseCotizacion(perfil, ejecutivoId)
+    case "marcar_facturada":
+      return (
+        (estado === "aprobada" || estado === "por_facturar") &&
+        puedeVerDesgloseCotizacion(perfil, ejecutivoId)
+      )
   }
 }
 
@@ -42,6 +51,8 @@ export function accionesVisibles(
     "marcar_aprobada",
     "marcar_rechazada",
     "marcar_vencida",
+    "marcar_por_facturar",
+    "marcar_facturada",
   ]
   return todas.filter((accion) => puedeEjecutarTransicion(accion, perfil, estado, ejecutivoId))
 }
@@ -63,6 +74,9 @@ export function mensajeSinTransicion(
     case "enviada":
       return "Cuando el cliente responde, el dueño o un supervisor marca aprobada, rechazada o vencida."
     case "aprobada":
+    case "por_facturar":
+      return "El cliente la aceptó. El dueño o un supervisor la marca por facturar o facturada."
+    case "facturado":
     case "rechazada":
     case "vencida":
       return "Esta cotización ya está cerrada. No hay más cambios de estado."
