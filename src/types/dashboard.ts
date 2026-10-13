@@ -47,6 +47,12 @@ export type MetasComerciales = {
   por_vendedor: MetaVendedor[]
 }
 
+/** Cotizaciones en `por_facturar`: subtotal sin IVA. Estado actual, no depende del rango. */
+export type PendientePorFacturar = {
+  monto: number
+  cantidad: number
+}
+
 export type DashboardKPIs = {
   pipeline_por_etapa: PipelinePorEtapa[]
   valor_total_en_juego: number
@@ -55,4 +61,5 @@ export type DashboardKPIs = {
   actividades_por_vendedor: ActividadPorVendedor[]
   causas_perdida: CausaPerdidaResumen[]
   metas: MetasComerciales
+  pendiente_por_facturar: PendientePorFacturar
 }

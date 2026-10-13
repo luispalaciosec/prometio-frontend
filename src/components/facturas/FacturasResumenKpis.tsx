@@ -28,17 +28,20 @@ export function FacturasResumenKpis({
   resumen,
   clickable = false,
   onKpiClick,
+  extra,
 }: {
   resumen: FacturasResumen
   clickable?: boolean
   onKpiClick?: (tipo: FacturasResumenKpiTipo) => void
+  /** Tarjeta adicional al final de la grilla (p. ej. pendiente por facturar en el dashboard). */
+  extra?: ReactNode
 }) {
   function abrir(tipo: FacturasResumenKpiTipo, ariaLabel: string, card: ReactNode) {
     return envolver(clickable, ariaLabel, () => onKpiClick?.(tipo), card)
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className={extra ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-4" : "grid gap-4 sm:grid-cols-3"}>
       {abrir(
         "total",
         "Ver facturación total en Facturas",
@@ -76,6 +79,7 @@ export function FacturasResumenKpis({
           tone="bg-highlight/15 text-highlight"
         />,
       )}
+      {extra}
     </div>
   )
 }

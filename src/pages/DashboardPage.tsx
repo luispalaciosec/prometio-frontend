@@ -226,7 +226,7 @@ export function DashboardPage() {
               }
             />
           ) : null}
-          <DashboardFacturacionResumen />
+          <DashboardFacturacionResumen pendiente={kpis.pendiente_por_facturar} />
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>
             <PipelineBarras rows={kpis.pipeline_por_etapa} />
