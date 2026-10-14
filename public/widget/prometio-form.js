@@ -821,6 +821,20 @@
           return;
         }
 
+        // 429: límite de envíos. 503: hCaptcha no respondió del lado del servidor.
+        // En los dos el token de captcha ya se gastó: se reinicia para poder reintentar.
+        if (res.status === 429 || res.status === 503) {
+          err.textContent =
+            res.status === 429
+              ? "Recibimos muchos envíos seguidos. Esperá un minuto y volvé a intentar."
+              : "No pudimos verificar el captcha en este momento. Resolvelo de nuevo e intentá otra vez.";
+          err.hidden = false;
+          resetHcaptcha(this.captchaWidgetId);
+          this.enviando = false;
+          btn.disabled = false;
+          return;
+        }
+
         if (!res.ok) {
           throw new Error("http");
         }
@@ -832,9 +846,10 @@
             : "Recibimos tus datos. Te contactaremos pronto.";
         this.shadowRoot.innerHTML = `<style>${CSS}</style><p class="ok">${exito}</p>`;
       } catch {
+        resetHcaptcha(this.captchaWidgetId);
         this.enviando = false;
         btn.disabled = false;
-        err.textContent = "No se pudo enviar. Intentá de nuevo.";
+        err.textContent = "No se pudo enviar. Resolvé el captcha de nuevo e intentá otra vez.";
         err.hidden = false;
       }
     }

@@ -1,15 +1,83 @@
+import { toast } from "sonner"
+
 import { useAuthStore } from "@/store/auth-store"
 
 export class ApiError extends Error {
   status: number
   detail: string
+  /** Segundos de espera que pidió el backend (429 con Retry-After). */
+  retryAfter: number | null
 
-  constructor(status: number, detail: string) {
-    super(detail)
+  /**
+   * `detail` es siempre el texto del backend (hay pantallas que lo parsean, p. ej. el cooldown
+   * de LinkedIn). `message` puede ser una versión amable para mostrar en toasts.
+   */
+  constructor(status: number, detail: string, retryAfter: number | null = null, mensaje?: string) {
+    super(mensaje ?? detail)
     this.name = "ApiError"
     this.status = status
     this.detail = detail
+    this.retryAfter = retryAfter
   }
+}
+
+/** 409 de una transición: otra petición ya cambió el registro, hay que recargarlo. */
+export function esConflicto(error: unknown): error is ApiError {
+  return error instanceof ApiError && error.status === 409
+}
+
+function leerRetryAfter(response: Response): number | null {
+  const raw = response.headers.get("Retry-After")
+  if (!raw) {
+    return null
+  }
+  const segundos = Number(raw)
+  if (Number.isFinite(segundos)) {
+    return Math.max(1, Math.ceil(segundos))
+  }
+  const fecha = Date.parse(raw)
+  return Number.isNaN(fecha) ? null : Math.max(1, Math.ceil((fecha - Date.now()) / 1000))
+}
+
+let cerrandoPorCuentaDesactivada = false
+
+/** El backend corta a un usuario desactivado con 403 en cualquier endpoint: se cierra la sesión. */
+function cerrarSesionDesactivada(detail: string) {
+  if (cerrandoPorCuentaDesactivada) {
+    return
+  }
+  cerrandoPorCuentaDesactivada = true
+  toast.error(detail, { id: "cuenta-desactivada", duration: 15_000 })
+  void useAuthStore
+    .getState()
+    .signOut()
+    .finally(() => {
+      cerrandoPorCuentaDesactivada = false
+    })
+}
+
+async function errorDeRespuesta(response: Response): Promise<ApiError> {
+  let detail = response.statusText
+  try {
+    detail = leerDetail(await response.json())
+  } catch {
+    /* cuerpo no JSON */
+  }
+  if (response.status === 429) {
+    const espera = leerRetryAfter(response)
+    return new ApiError(
+      429,
+      detail,
+      espera,
+      espera
+        ? `Hiciste muchas solicitudes seguidas. Probá de nuevo en ${espera} s.`
+        : "Hiciste muchas solicitudes seguidas. Esperá un momento y probá de nuevo.",
+    )
+  }
+  if (response.status === 403 && /cuenta est[aá] desactivada/i.test(detail)) {
+    cerrarSesionDesactivada(detail)
+  }
+  return new ApiError(response.status, detail)
 }
 
 function apiBase(): string {
@@ -55,13 +123,7 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 
   const response = await fetch(`${apiBase()}${path}`, { ...init, headers })
   if (!response.ok) {
-    let detail = response.statusText
-    try {
-      detail = leerDetail(await response.json())
-    } catch {
-      /* cuerpo no JSON */
-    }
-    throw new ApiError(response.status, detail)
+    throw await errorDeRespuesta(response)
   }
   if (response.status === 204) {
     return undefined as T
@@ -100,13 +162,7 @@ export async function apiFetchBlob(
   }
   const response = await fetch(`${apiBase()}${path}`, { ...init, headers })
   if (!response.ok) {
-    let detail = response.statusText
-    try {
-      detail = leerDetail(await response.json())
-    } catch {
-      /* cuerpo no JSON */
-    }
-    throw new ApiError(response.status, detail)
+    throw await errorDeRespuesta(response)
   }
   return {
     blob: await response.blob(),

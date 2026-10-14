@@ -28,6 +28,7 @@ import {
   getContrato,
   reactivarContrato,
 } from "@/lib/api/contrato-recurrente"
+import { esConflicto } from "@/lib/api-client"
 import { marcarFacturada } from "@/lib/api/cotizacion"
 import { listCategoriasServicio, listServicios } from "@/lib/config-api"
 import { formatPeriodo, textoDiasParaVencer } from "@/lib/contrato-recurrente"
@@ -118,6 +119,12 @@ export function ContratoPage() {
       toast.success(`${facturando.numero} marcada facturada.`)
       await reload(contrato.id)
     } catch (err) {
+      if (esConflicto(err)) {
+        toast.error(err.detail)
+        setFacturando(null)
+        await reload(contrato.id)
+        return
+      }
       toast.error(err instanceof Error ? err.message : "No se pudo marcar facturada.")
     } finally {
       setEnviandoFactura(false)

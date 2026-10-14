@@ -19,7 +19,7 @@ import {
 import { DocumentoAlcanceRichText } from "@/components/pipeline/DocumentoAlcanceRichText"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ApiError } from "@/lib/api-client"
+import { ApiError, esConflicto } from "@/lib/api-client"
 import {
   auditarDocumentoAlcance,
   descargarDocxDocumentoAlcance,
@@ -287,6 +287,15 @@ export function DocumentoAlcanceWizard({
       setEnviadoOk(true)
       toast.success("Enviado a aprobación. Tu supervisor lo revisa.")
     } catch (error) {
+      if (esConflicto(error)) {
+        toast.error(error.detail)
+        try {
+          onDocumentoChange(await getDocumentoAlcance(documento.id))
+        } catch {
+          /* el aviso ya pide actualizar la pantalla */
+        }
+        return
+      }
       toast.error(error instanceof Error ? error.message : "No se pudo enviar.")
     } finally {
       setEnviando(false)

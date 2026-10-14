@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { esConflicto } from "@/lib/api-client"
 import {
   aprobarDocumentoAlcance,
   crearDocumentoAlcance,
@@ -159,6 +160,19 @@ export function DocumentoAlcanceSection({
     }
   }
 
+  /** 409: otra petición ya cambió el documento. Se trae el estado real y se avisa. */
+  async function recargarTrasConflicto(id: string, detail: string) {
+    toast.error(detail)
+    try {
+      const row = await getDocumentoAlcance(id)
+      setAbierto(row)
+      setDraft(draftDesdeDocumento(row))
+      await reloadLista(row.id)
+    } catch {
+      /* el aviso ya se mostró; la lista se recarga en la próxima acción */
+    }
+  }
+
   async function ejecutar(accion: AccionDocumentoAlcance) {
     if (!abierto) {
       return
@@ -197,6 +211,10 @@ export function DocumentoAlcanceSection({
         toast.success("Nueva versión creada a partir de esta.")
       }
     } catch (error) {
+      if (esConflicto(error)) {
+        await recargarTrasConflicto(abierto.id, error.detail)
+        return
+      }
       toast.error(error instanceof Error ? error.message : "No se pudo completar la acción.")
     } finally {
       setAccionPendiente(null)
@@ -216,6 +234,11 @@ export function DocumentoAlcanceSection({
       setReabrirOpen(false)
       toast.success("Documento reabierto. Volvió a borrador.")
     } catch (error) {
+      if (esConflicto(error)) {
+        setReabrirOpen(false)
+        await recargarTrasConflicto(abierto.id, error.detail)
+        return
+      }
       toast.error(error instanceof Error ? error.message : "No se pudo reabrir el documento.")
     } finally {
       setAccionPendiente(null)

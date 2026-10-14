@@ -18,7 +18,7 @@ import {
 } from "@/components/pipeline/LineaCotizacionForm"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ApiError } from "@/lib/api-client"
+import { ApiError, esConflicto } from "@/lib/api-client"
 import { montoLineaCotizacionSinIva } from "@/lib/cotizacion-montos-ui"
 import { formatMoney } from "@/lib/costo-interno"
 import { getSugerenciaPrecio } from "@/lib/config-api"
@@ -279,6 +279,11 @@ export function CotizacionConstructor({
       await ejecutarTransicion(cotizacion.id, perfil, accion)
       await onChange()
     } catch (error) {
+      if (esConflicto(error)) {
+        toast.error(error.detail)
+        await onChange()
+        return
+      }
       toast.error(error instanceof Error ? error.message : "No se pudo cambiar el estado.")
     } finally {
       setTransicionPendiente(false)
@@ -292,6 +297,12 @@ export function CotizacionConstructor({
       setFacturarAbierto(false)
       await onChange()
     } catch (error) {
+      if (esConflicto(error)) {
+        toast.error(error.detail)
+        setFacturarAbierto(false)
+        await onChange()
+        return
+      }
       toast.error(error instanceof Error ? error.message : "No se pudo marcar facturada.")
     } finally {
       setTransicionPendiente(false)
