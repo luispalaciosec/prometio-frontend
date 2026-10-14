@@ -8,8 +8,9 @@ Antes de cuestionar una decisión de stack, revisá `../docs/DECISIONS.md`. Fase
 
 - React 18 + TypeScript + Vite
 - Tailwind CSS 4 + shadcn/ui (`src/components/ui`)
-- TanStack Table (listas/tablas), `@dnd-kit` (Kanban del pipeline), Tiptap (editor de documentos)
-- Zustand (`src/store`), React Router v6 (rutas en `src/App.tsx`)
+- Tablas con el `Table` del sistema (`src/components/ui/table.tsx`), `@dnd-kit` (Kanban del pipeline), Tiptap (editor de documentos), Recharts (gráficos)
+- Zustand (`src/store`), React Router v7 vía `react-router-dom` en modo librería (rutas en `src/App.tsx`)
+- Sentry (`@sentry/react`), solo activo con `VITE_SENTRY_DSN`
 - Desplegado en Vercel (`https://prometio.vercel.app`)
 
 ## Comandos

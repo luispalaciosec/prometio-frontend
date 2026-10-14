@@ -13,10 +13,10 @@ Antes de cuestionar una decisión de stack, revisa `../docs/DECISIONS.md` en la 
 
 - React 18 + TypeScript + Vite
 - Tailwind CSS + shadcn/ui
-- TanStack Table (listas/tablas)
+- Tablas con el `Table` del sistema (`src/components/ui/table.tsx`)
 - `@dnd-kit` (Kanban del pipeline)
 - Zustand (estado global)
-- React Router v6
+- React Router v7 (`react-router-dom`, modo librería)
 - Desplegado en Vercel
 
 ## Punto de partida

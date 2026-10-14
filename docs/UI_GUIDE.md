@@ -15,7 +15,7 @@ Previews de cotización/documento en UI: envolver con `BrandSurface` (`className
 - Cada tarjeta de oportunidad muestra: contacto, empresa, ejecutivo, valor (etiquetado estimado/cotizado), días en la etapa actual
 - Filtro por servicio sobre el mismo tablero (no una pantalla separada)
 - Indicador visual cuando una oportunidad supera el umbral de alerta de su etapa (color/badge), con acciones sugeridas al hacer clic (evaluar descuento, agendar visita, ofrecer otro servicio)
-- Vista alternativa: lista/tabla (TanStack Table) para el supervisor, con scope "todo el equipo" vs. "lo mío" según rol
+- Vista alternativa: lista/tabla (`Table` del sistema) para el supervisor, con scope "todo el equipo" vs. "lo mío" según rol
 
 ## Wizard de creación de Servicio (Fase 1, solo admins)
 8 pasos, guardable como borrador en cualquier punto:
