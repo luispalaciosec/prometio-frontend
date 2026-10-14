@@ -1,6 +1,7 @@
 import type { Session, User } from "@supabase/supabase-js"
 import { create } from "zustand"
 
+import { sentryUsuario } from "@/lib/sentry"
 import { supabase } from "@/lib/supabase"
 import { clearOrganizationTheme } from "@/lib/theme"
 import { useOrgStore } from "@/store/org-store"
@@ -27,12 +28,16 @@ export const useAuthStore = create<AuthState>((set) => ({
       session,
       user: session?.user ?? null,
     }),
-  setPerfil: (perfil) => set({ perfil }),
+  setPerfil: (perfil) => {
+    sentryUsuario(perfil?.id ?? null)
+    set({ perfil })
+  },
   setLoading: (loading) => set({ loading }),
   signOut: async () => {
     await supabase.auth.signOut()
     useOrgStore.getState().setOrganizacion(null)
     clearOrganizationTheme()
+    sentryUsuario(null)
     set({ session: null, user: null, perfil: null, loading: false })
   },
 }))
