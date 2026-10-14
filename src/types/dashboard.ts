@@ -42,9 +42,14 @@ export type MetasComerciales = {
   fecha_inicio: string | null
   fecha_fin: string | null
   meta_total: number | null
-  valor_cerrado_total: number
+  /** null si la meta de agencia mide facturación y Contífico no respondió (ver `cerrado_no_disponible`). */
+  valor_cerrado_total: number | null
   avance_total_pct: number | null
   por_vendedor: MetaVendedor[]
+  /** Contífico no respondió: el cerrado de la meta de agencia no se pudo calcular. */
+  cerrado_no_disponible?: boolean
+  /** Contífico devolvió más documentos que el tope de lectura: el cerrado puede estar incompleto. */
+  cerrado_truncado?: boolean
 }
 
 /** Cotizaciones en `por_facturar`: subtotal sin IVA. Estado actual, no depende del rango. */

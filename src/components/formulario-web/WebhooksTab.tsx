@@ -28,6 +28,7 @@ import {
 import {
   createOrganizacionWebhook,
   deleteOrganizacionWebhook,
+  rotarSecretoOrganizacionWebhook,
   listOrganizacionWebhooks,
   updateOrganizacionWebhook,
 } from "@/lib/api/formulario-config"
@@ -55,6 +56,8 @@ export function WebhooksTab() {
   const [draft, setDraft] = useState<Draft>(() => draftVacio())
   const [guardando, setGuardando] = useState(false)
   const [secretoNuevo, setSecretoNuevo] = useState<string | null>(null)
+  const [rotarId, setRotarId] = useState<string | null>(null)
+  const [rotando, setRotando] = useState(false)
 
   async function reload() {
     setRows(await listOrganizacionWebhooks())
@@ -103,6 +106,25 @@ export function WebhooksTab() {
       toast.error(error instanceof Error ? error.message : "No se pudo guardar el webhook.")
     } finally {
       setGuardando(false)
+    }
+  }
+
+  async function rotar() {
+    if (!rotarId) {
+      return
+    }
+    setRotando(true)
+    try {
+      const fila = await rotarSecretoOrganizacionWebhook(rotarId)
+      setRotarId(null)
+      if (fila.secreto) {
+        setSecretoNuevo(fila.secreto)
+      }
+      toast.success("Secreto rotado. El anterior ya no es válido.")
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo rotar el secreto.")
+    } finally {
+      setRotando(false)
     }
   }
 
@@ -179,6 +201,9 @@ export function WebhooksTab() {
                   >
                     Editar
                   </Button>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setRotarId(row.id)}>
+                    Rotar secreto
+                  </Button>
                   <Button type="button" variant="ghost" size="sm" onClick={() => void remove(row.id)}>
                     Eliminar
                   </Button>
@@ -239,13 +264,32 @@ export function WebhooksTab() {
           </DialogHeader>
           <p className="text-kicker text-muted-foreground">
             {secretoNuevo
-              ? "Copialo ahora. No se vuelve a mostrar en esta pantalla — usalo para verificar X-Prometio-Signature."
-              : "El secreto HMAC se generó en el servidor. No es recuperable por API; si no lo guardaste al crear, eliminá el webhook y volvé a crearlo."}
+              ? "Copialo ahora: no se vuelve a mostrar. El receptor lo usa para verificar el HMAC-SHA256 del cuerpo en la cabecera X-Prometio-Signature (sha256=<hex>). Si lo perdés, usá «Rotar secreto»."
+              : null}
           </p>
           {secretoNuevo ? <CopyBlock label="Secreto HMAC" value={secretoNuevo} /> : null}
           <DialogFooter>
             <Button type="button" onClick={() => setSecretoNuevo(null)}>
               Entendido
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={rotarId != null} onOpenChange={(next) => !next && !rotando && setRotarId(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rotar secreto</DialogTitle>
+          </DialogHeader>
+          <p className="text-kicker">
+            Se genera un secreto nuevo y el actual deja de valer al instante. Hasta que actualices el receptor, va a
+            rechazar los envíos de este webhook.
+          </p>
+          <DialogFooter>
+            <Button type="button" variant="outline" disabled={rotando} onClick={() => setRotarId(null)}>
+              Cancelar
+            </Button>
+            <Button type="button" disabled={rotando} onClick={() => void rotar()}>
+              Rotar secreto
             </Button>
           </DialogFooter>
         </DialogContent>

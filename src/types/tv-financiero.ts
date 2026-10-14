@@ -4,6 +4,8 @@ export type FacturacionPorPilar = Record<Pilar | "sin_clasificar", number>
 
 export type TvFinanciero = {
   cuenta_verificada: boolean
+  /** Lo facturado puede estar incompleto (tope de lectura de Contífico). */
+  facturacion_truncada?: boolean
   facturado_mes_actual: number
   pendiente_por_facturar_aproximado: number
   cotizaciones_pendientes_aproximado: number

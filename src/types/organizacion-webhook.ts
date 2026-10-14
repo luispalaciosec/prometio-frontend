@@ -10,7 +10,10 @@ export type OrganizacionWebhook = {
   activo: boolean
 }
 
-/** POST 201 — el backend puede incluir `secreto` una sola vez al crear. */
+/**
+ * Respuesta de crear (201) y de rotar el secreto: incluye `secreto` (64 hex) una sola vez. Los GET nunca lo devuelven.
+ * El receptor verifica el HMAC-SHA256 del cuerpo con la cabecera `X-Prometio-Signature: sha256=<hex>`.
+ */
 export type OrganizacionWebhookCreateResponse = OrganizacionWebhook & {
   secreto?: string
 }

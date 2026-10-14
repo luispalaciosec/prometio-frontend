@@ -24,6 +24,8 @@ export type CategoriaFacturada = {
 
 export type FacturasResumen = {
   cuenta_verificada: boolean
+  /** Ver `FacturasResponse.truncado`. */
+  truncado?: boolean
   desde: string
   hasta: string
   total_facturado: number
@@ -36,6 +38,8 @@ export type FacturasResumen = {
 
 export type FacturasResponse = {
   cuenta_verificada: boolean
+  /** Contífico devolvió más documentos que el tope de lectura (unos 3.000): el resultado puede estar incompleto. */
+  truncado?: boolean
   total: number
   resultados: FacturaContifico[]
 }

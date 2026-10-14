@@ -35,9 +35,16 @@ export type DashboardDetalleMeta = {
   fecha_inicio: string
   fecha_fin: string
   meta_total: number
-  valor_cerrado: number
-  faltante: number
+  /** Agencia: facturado en Contífico (sin medios). Vendedor: cierres del CRM. null si Contífico no respondió. */
+  valor_cerrado: number | null
+  faltante: number | null
   avance_pct: number | null
+  /** De dónde sale `valor_cerrado`. */
+  fuente_cerrado?: "contifico" | "crm"
+  /** Suma de los cierres del CRM (lo que listan las filas). */
+  cerrado_crm?: number
+  cerrado_no_disponible?: boolean
+  cerrado_truncado?: boolean
 }
 
 export type DashboardDetalle = {

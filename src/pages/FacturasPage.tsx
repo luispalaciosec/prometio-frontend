@@ -105,6 +105,9 @@ export function FacturasPage() {
   const [rows, setRows] = useState<FacturaContifico[] | null>(null)
   const [total, setTotal] = useState(0)
   const [cuentaVerificada, setCuentaVerificada] = useState(true)
+  const [truncadoResumen, setTruncadoResumen] = useState(false)
+  const [truncadoLista, setTruncadoLista] = useState(false)
+  const truncado = truncadoResumen || truncadoLista
   const [error, setError] = useState<string | null>(null)
 
   const [resumen, setResumen] = useState<FacturasResumen | null>(null)
@@ -129,6 +132,7 @@ export function FacturasPage() {
       .then((data) => {
         setResumen(data)
         setCuentaVerificada(data.cuenta_verificada)
+        setTruncadoResumen(data.truncado === true)
       })
       .catch((err: unknown) => {
         const mensaje =
@@ -189,6 +193,7 @@ export function FacturasPage() {
     })
       .then((data) => {
         setCuentaVerificada(data.cuenta_verificada)
+        setTruncadoLista(data.truncado === true)
         setTotal(data.total)
         setRows(data.resultados)
       })
@@ -366,6 +371,12 @@ export function FacturasPage() {
         {!cuentaVerificada ? (
           <p className="text-kicker text-warning sm:basis-full">
             La cuenta de Contífico todavía no fue verificada como la de Geeks.
+          </p>
+        ) : null}
+        {truncado ? (
+          <p className="text-kicker text-warning sm:basis-full">
+            Contífico devolvió más de unos 3.000 documentos para este rango y solo se leyeron los primeros: los totales
+            y la lista pueden estar incompletos. Achicá el rango de fechas.
           </p>
         ) : null}
       </div>

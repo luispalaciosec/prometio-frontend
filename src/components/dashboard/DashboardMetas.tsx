@@ -18,6 +18,10 @@ import { formatDateOnly } from "@/lib/datetime-local"
 import { etiquetaPeriodo } from "@/lib/meta-comercial"
 import type { MetasComerciales } from "@/types/dashboard"
 
+function montoOAviso(valor: number | null): string {
+  return valor == null ? "No disponible" : formatMoney(valor)
+}
+
 function avanceLabel(pct: number | null | undefined): string {
   if (pct == null) {
     return "—"
@@ -91,12 +95,19 @@ export function DashboardMetas({
               <DashboardKpiTrigger
                 ariaLabel="Ver detalle del monto cerrado"
                 onOpen={(source) =>
-                  onAbrirDetalleMeta(source, formatMoney(metas.valor_cerrado_total), "Cerrado hacia la meta")
+                  onAbrirDetalleMeta(source, montoOAviso(metas.valor_cerrado_total), "Cerrado hacia la meta")
                 }
               >
                 <KpiCard
                   title="Cerrado"
-                  value={formatMoney(metas.valor_cerrado_total)}
+                  value={montoOAviso(metas.valor_cerrado_total)}
+                  hint={
+                    metas.cerrado_no_disponible
+                      ? "Contífico no respondió. Probá de nuevo en un rato."
+                      : metas.cerrado_truncado
+                        ? "Puede faltar facturación: Contífico devolvió más documentos de los que se leen."
+                        : undefined
+                  }
                   icon={CircleDollarSign}
                   tone="bg-success/15 text-success"
                 />

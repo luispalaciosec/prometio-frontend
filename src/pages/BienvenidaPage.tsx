@@ -62,10 +62,16 @@ function bloquesDe(data: Inicio): Bloque[] {
     {
       label: "Meta vs. venta",
       to: "/dashboard",
-      value: hayMeta ? avance : formatMoney(metas.valor_cerrado_total),
-      hint: hayMeta
-        ? `${formatMoney(metas.valor_cerrado_total)} de ${formatMoney(metas.meta_total ?? 0)}`
-        : "Sin meta vigente",
+      value: hayMeta
+        ? avance
+        : metas.valor_cerrado_total == null
+          ? "—"
+          : formatMoney(metas.valor_cerrado_total),
+      hint: metas.cerrado_no_disponible
+        ? "Facturación no disponible (Contífico)"
+        : hayMeta
+          ? `${formatMoney(metas.valor_cerrado_total ?? 0)} de ${formatMoney(metas.meta_total ?? 0)}`
+          : "Sin meta vigente",
       icon: Target,
       tone: "bg-success/15 text-success",
     },

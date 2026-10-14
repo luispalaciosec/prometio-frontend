@@ -185,6 +185,8 @@ function ContenidoDetalle({ detalle }: { detalle: DashboardDetalle }) {
 
 function MetaBloque({ meta }: { meta: NonNullable<DashboardDetalle["meta"]> }) {
   const pct = meta.avance_pct ?? 0
+  const facturacion = meta.fuente_cerrado === "contifico"
+  const monto = (valor: number | null) => (valor == null ? "No disponible" : formatMoney(valor))
   return (
     <div className="surface-card space-y-3 p-4">
       <p className="text-ui-medium">
@@ -203,14 +205,25 @@ function MetaBloque({ meta }: { meta: NonNullable<DashboardDetalle["meta"]> }) {
           <dd className="text-ui-medium tabular-nums">{formatMoney(meta.meta_total)}</dd>
         </div>
         <div>
-          <dt className="text-muted-foreground">Cerrado</dt>
-          <dd className="text-ui-medium tabular-nums">{formatMoney(meta.valor_cerrado)}</dd>
+          <dt className="text-muted-foreground">{facturacion ? "Facturado (Contífico)" : "Cerrado"}</dt>
+          <dd className="text-ui-medium tabular-nums">{monto(meta.valor_cerrado)}</dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Faltante</dt>
-          <dd className="text-ui-medium tabular-nums">{formatMoney(meta.faltante)}</dd>
+          <dd className="text-ui-medium tabular-nums">{monto(meta.faltante)}</dd>
         </div>
       </dl>
+      {facturacion ? (
+        <p className="text-kicker">
+          La meta de agencia se mide con lo facturado (sin clientes de medios). La tabla de abajo son los cierres del
+          CRM del período, que suman {formatMoney(meta.cerrado_crm ?? 0)}: pueden no coincidir con lo facturado.
+        </p>
+      ) : null}
+      {meta.cerrado_no_disponible ? (
+        <p className="text-kicker text-destructive">Contífico no respondió: lo facturado no está disponible.</p>
+      ) : meta.cerrado_truncado ? (
+        <p className="text-kicker text-warning">Puede faltar facturación: Contífico devolvió más documentos de los que se leen.</p>
+      ) : null}
     </div>
   )
 }

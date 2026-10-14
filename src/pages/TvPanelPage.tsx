@@ -183,9 +183,11 @@ export function TvPanelPage() {
               title="Meta del mes"
               value={metaPct}
               hint={
-                kpis?.metas.meta_total != null
-                  ? `${formatMoney(kpis.metas.valor_cerrado_total)} de ${formatMoney(kpis.metas.meta_total)}`
-                  : "Sin meta vigente"
+                kpis?.metas.cerrado_no_disponible
+                  ? "Facturación no disponible (Contífico)"
+                  : kpis?.metas.meta_total != null
+                    ? `${formatMoney(kpis.metas.valor_cerrado_total ?? 0)} de ${formatMoney(kpis.metas.meta_total)}`
+                    : "Sin meta vigente"
               }
               icon={Target}
               tone="bg-success/15 text-success"

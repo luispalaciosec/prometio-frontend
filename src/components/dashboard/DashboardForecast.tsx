@@ -55,7 +55,7 @@ export function DashboardForecast({
     ? detalleFeesPorGenerar(proyeccion, mesActualEcuador(), metas.fecha_fin.slice(0, 7))
     : []
   const montos: Record<TramoKey, number> = {
-    cerrado: metas.valor_cerrado_total,
+    cerrado: metas.valor_cerrado_total ?? 0,
     porFacturar: pendiente.monto,
     fees: filasFees.reduce((sum, row) => sum + row.monto, 0),
     pipeline: filasPipeline.reduce((sum, row) => sum + row.ponderado, 0),
@@ -77,6 +77,15 @@ export function DashboardForecast({
           período.
         </p>
       </div>
+      {metas.cerrado_no_disponible ? (
+        <p className="rounded-xl bg-warning/10 px-4 py-3 text-kicker text-foreground">
+          Contífico no respondió: este forecast no incluye lo ya facturado, así que se ve más bajo de lo real.
+        </p>
+      ) : metas.cerrado_truncado ? (
+        <p className="rounded-xl bg-warning/10 px-4 py-3 text-kicker text-foreground">
+          Contífico devolvió más documentos de los que se leen: lo facturado puede estar incompleto.
+        </p>
+      ) : null}
       {cargando ? (
         <TilesSkeleton count={3} className="sm:grid-cols-3" />
       ) : (

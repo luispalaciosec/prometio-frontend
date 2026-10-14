@@ -13,6 +13,9 @@
     "utm_campaign",
     "utm_content",
     "utm_term",
+    // Click id de Meta: `fbclid` es el que agrega Meta; `fclid` queda por enlaces armados a mano (si llegan los dos,
+    // la API se queda con `fclid`).
+    "fbclid",
     "fclid",
     "gclid",
   ];
@@ -242,12 +245,6 @@
       if (value) {
         out[key] = value;
       }
-    }
-    // Meta agrega el click id como `fbclid`. La API lo recibe en el campo `fclid`: se lee el parámetro estándar y,
-    // si no está, el `fclid` que ya usaban los enlaces armados a mano.
-    const fbclid = params.get("fbclid");
-    if (fbclid && !out.fclid) {
-      out.fclid = fbclid;
     }
     return out;
   }

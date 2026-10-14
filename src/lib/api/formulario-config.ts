@@ -73,6 +73,11 @@ export function updateOrganizacionWebhook(
   })
 }
 
+/** Genera un secreto nuevo, invalida el anterior y lo devuelve una sola vez (solo admin). */
+export function rotarSecretoOrganizacionWebhook(id: string): Promise<OrganizacionWebhookCreateResponse> {
+  return apiFetch(`/config/organizacion-webhooks/${id}/rotar-secreto`, { method: "POST" })
+}
+
 export function deleteOrganizacionWebhook(id: string): Promise<void> {
   return apiFetch(`/config/organizacion-webhooks/${id}`, { method: "DELETE" })
 }

@@ -226,6 +226,11 @@ export function DashboardFacturacionResumen({
       ) : (
         <TilesSkeleton count={4} className="sm:grid-cols-2 2xl:grid-cols-4" />
       )}
+      {resumen?.truncado ? (
+        <p className="text-kicker text-warning">
+          Contífico devolvió más documentos de los que se leen: lo facturado de este mes puede estar incompleto.
+        </p>
+      ) : null}
       {fees && fees.piso_contratado > 0 ? (
         <p className="text-kicker">
           Fees recurrentes del mes:{" "}

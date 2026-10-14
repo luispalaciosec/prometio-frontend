@@ -34,7 +34,9 @@ export function TvFinancieroFila({
           hint={
             datos && !datos.cuenta_verificada
               ? "Cuenta Contífico sin verificar"
-              : avisoContifico ?? "Sin IVA · Contífico"
+              : datos?.facturacion_truncada
+                ? "Puede estar incompleto · Contífico"
+                : avisoContifico ?? "Sin IVA · Contífico"
           }
           icon={Receipt}
           tone="bg-primary/15 text-primary"
