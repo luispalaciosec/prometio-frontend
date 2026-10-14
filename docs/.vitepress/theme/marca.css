@@ -1,0 +1,20 @@
+/* Colores de prometIO (los mismos tokens de la app: primary #533afd, ink #0d253d). */
+:root {
+  --vp-c-brand-1: #533afd;
+  --vp-c-brand-2: #4434d4;
+  --vp-c-brand-3: #533afd;
+  --vp-c-brand-soft: rgba(83, 58, 253, 0.12);
+  --vp-home-hero-name-color: #533afd;
+}
+.dark {
+  --vp-c-brand-1: #9aa7ff;
+  --vp-c-brand-2: #b9c1ff;
+  --vp-c-brand-3: #533afd;
+  --vp-c-brand-soft: rgba(124, 137, 255, 0.16);
+  --vp-home-hero-name-color: #9aa7ff;
+}
+/* Tablas anchas (modelo de datos, API): desplazamiento propio sin romper la página. */
+.vp-doc table {
+  display: block;
+  overflow-x: auto;
+}

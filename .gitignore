@@ -35,3 +35,6 @@ tmp/
 # El PDF y las capturas se regeneran en local y llevan datos reales de producción.
 docs/Manual-PrometIO.pdf
 docs/manual-screenshots/
+
+# Sitio de documentación (VitePress): cache local; el build sale a dist/docs
+docs/.vitepress/cache/

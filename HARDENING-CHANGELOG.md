@@ -46,7 +46,7 @@ Las tablas de dominio (`cotizacion`, `linea_cotizacion`, `linea_cotizacion_costo
 - **#2 · CORS.** El dominio real de producción del frontend es **`https://prometio.vercel.app`**. Es lo que va en `CORS_ALLOW_ORIGINS`. `http://localhost:5173` no debería quedar en producción; para desarrollo local, el README usa `http://127.0.0.1:5173`.
 - **#3 · connect-src.**
   - **API backend:** `https://prometio-backend-production.up.railway.app`, tomada del README (es la `VITE_API_URL` de Vercel). **La sesión backend debe confirmarla** y avisar si hay otra URL pública, por ejemplo un dominio propio.
-  - **Supabase:** `https://wzorknpihqmzppcsixua.supabase.co`, tomada del `.env`.
+  - **Supabase:** `https://<proyecto>.supabase.co` (el de `VITE_SUPABASE_URL`), tomada del `.env`.
   - **hCaptcha:** el CRM no lo usa. Solo lo usan el widget y la página `/formulario-demo`, que tienen su propia CSP con `*.hcaptcha.com`.
 - **#4 · Sentry.** [PENDIENTE-HUMANO] Crear en sentry.io un proyecto **propio del frontend** (React), distinto del backend, y cargar su DSN en Vercel como `VITE_SENTRY_DSN`. También queda para el humano, una sola vez: la configuración del signup de Supabase Auth y la rotación de secretos.
 
