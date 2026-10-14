@@ -86,9 +86,18 @@ flowchart LR
 
 Lo que pasa solo al cambiar de etapa:
 
-- **Probabilidad.** Se reemplaza por la probabilidad por defecto de la etapa destino, salvo que la misma petición
-  mande una probabilidad explícita. Hoy la pantalla no tiene un campo para editarla a mano: en la práctica, la
-  probabilidad es siempre la de la etapa.
+- **Aprobar una cotización gana la oportunidad** (desde el 14/10/2026). Al marcar una cotización como aprobada, la
+  oportunidad pasa a Cierre Ganado con la fecha de cierre y la probabilidad de esa etapa. Si ya estaba ganada, no se
+  toca. Si está en Cierre Perdido o desactivada, la aprobación se rechaza con 409: primero hay que reabrirla o
+  reactivarla. Queda en la auditoría (`oportunidad.ganada_por_cotizacion`) y en el timeline como cierre. Las
+  cotizaciones mensuales de un contrato no pasan por «aprobada» y no tocan la oportunidad.
+
+- **Probabilidad.** Se reemplaza por la probabilidad por defecto de la etapa destino. Dentro de una etapa, el dueño,
+  el supervisor o el admin pueden ajustarla a mano (de 0 a 100) desde el detalle de la oportunidad, con «Ajustar».
+  El ajuste queda en la auditoría con el valor anterior y el nuevo, y dura hasta el próximo cambio de etapa.
+  **Por qué se reinicia:** el pipeline ponderado y el forecast salen de estas probabilidades; si un ajuste manual
+  sobreviviera a los cambios de etapa, un 80% puesto en Propuesta seguiría en 80% en otra etapa y el forecast
+  mentiría sin que nadie lo note.
 - **Fecha de cierre.** Al entrar a Cierre Ganado o Cierre Perdido se guarda `fecha_cierre` con la fecha real. Si la
   oportunidad se reabre y se vuelve a cerrar, la fecha se actualiza: el reporte de metas usa el cierre más reciente
   (ver [Dashboard, metas y forecast](./06-dashboard.md)).
@@ -97,7 +106,6 @@ Lo que pasa solo al cambiar de etapa:
 
 Lo que **no** pasa solo:
 
-- Marcar una cotización como aprobada no mueve la oportunidad a Cierre Ganado. Ese paso lo hace el vendedor.
 - No existen reglas configurables de transición automática entre etapas. El backend las menciona como parámetro del
   Panel de Configuración, pero no están construidas.
 

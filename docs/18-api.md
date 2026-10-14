@@ -88,7 +88,7 @@ que cuelga de ellas); el filtro se aplica dentro del handler. Ver [Roles y permi
 | POST | `/oportunidades` | Ventas | Crear. Nace en Clasificación con el creador como ejecutivo; enriquece la empresa en segundo plano |
 | GET | `/oportunidades` | Ventas | Listar (vendedor: solo las suyas). Incluye lead score |
 | GET | `/oportunidades/{id}` | Ventas | Detalle |
-| PATCH | `/oportunidades/{id}` | Ventas | Editar, mover de etapa, cerrar |
+| PATCH | `/oportunidades/{id}` | Ventas | Editar, mover de etapa, cerrar, ajustar `probabilidad_cierre` (0–100; `null` explícito da 422) |
 | POST | `/oportunidades/{id}/reasignar` | Sup/Admin | Cambiar el ejecutivo |
 | POST | `/oportunidades/{id}/desactivar` | Sup/Admin | Baja lógica |
 | POST | `/oportunidades/{id}/reactivar` | Sup/Admin | Revertir la baja |
@@ -113,13 +113,14 @@ que cuelga de ellas); el filtro se aplica dentro del handler. Ver [Roles y permi
 | GET | `/cotizaciones/{id}` | Ventas | Detalle con el cálculo completo |
 | GET | `/cotizaciones/{id}/versiones` | Ventas | Cadena de versiones |
 | POST | `/cotizaciones/{id}/nueva-version` | Ventas | Nueva versión a partir de esta |
-| POST | `/cotizaciones/{id}/duplicar` | Ventas | Cotización nueva e independiente sobre otra oportunidad (se valida contra la oportunidad destino) |
+| GET | `/cotizaciones/plantillas?q=&limite=` | Ventas | Cotizaciones ganadas de toda la organización para partir de una. Sin costos ni márgenes |
+| POST | `/cotizaciones/{id}/duplicar` | Ventas | Cotización nueva sobre otra oportunidad (destino propia). Origen: propio, o una ganada de cualquier vendedor (sin sus costos ni comisión) |
 | GET | `/cotizaciones/{id}/preview-aprobacion` | Ventas | Qué líneas harían caer la cotización en preparación al enviarla |
 | POST | `/cotizaciones/{id}/sugerir-lineas` | Ventas | Borrador de líneas con IA a partir de un texto libre (no guarda nada) |
 | POST | `/cotizaciones/{id}/enviar` | Ventas | Enviar, o pasar a `preparacion` si requiere aprobación. Congela la tasa de impuesto |
 | POST | `/cotizaciones/{id}/aprobar-preparacion` | Sup/Admin | Aprobar una cotización en preparación |
 | POST | `/cotizaciones/{id}/rechazar-preparacion` | Sup/Admin | Devolverla al vendedor |
-| POST | `/cotizaciones/{id}/marcar-aprobada` | Ventas | El cliente aceptó. Dispara el webhook `cotizacion.aprobada` |
+| POST | `/cotizaciones/{id}/marcar-aprobada` | Ventas | El cliente aceptó: gana la oportunidad y dispara el webhook `cotizacion.aprobada`. 409 si la oportunidad está perdida o desactivada |
 | POST | `/cotizaciones/{id}/marcar-por-facturar` | Ventas | Aceptada pero todavía no facturable |
 | POST | `/cotizaciones/{id}/marcar-facturada` | Ventas | Facturada, con `numero_factura` |
 | POST | `/cotizaciones/{id}/marcar-rechazada` | Ventas | El cliente la rechazó |

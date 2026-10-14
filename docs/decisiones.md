@@ -378,3 +378,34 @@ maneja las respuestas nuevas (429, 409 y 403 de cuenta desactivada).
 llamando directo a la base.
 
 **Cuándo.** 13/10/2026 · Ver [Endurecimiento](./endurecimiento.md).
+
+### Aprobar una cotización gana la oportunidad
+
+**Qué.** Marcar una cotización como aprobada pasa la oportunidad a Cierre Ganado, con su fecha de cierre. Si la
+oportunidad está perdida o desactivada, la aprobación se rechaza.
+
+**Por qué.** Antes había que mover la tarjeta a mano después de aprobar, y se olvidaba: el pipeline, la conversión y
+el ciclo de venta quedaban atrasados respecto a lo que el cliente ya había aceptado.
+
+**Cuándo.** 14/10/2026 · Ver [Pipeline y oportunidades](./02-pipeline.md).
+
+### La probabilidad la pone la etapa, con ajuste manual dentro de ella
+
+**Qué.** Cada cambio de etapa pone la probabilidad por defecto de la etapa. Dentro de la etapa, el dueño, el
+supervisor o el admin pueden ajustarla, y queda auditado. El ajuste no sobrevive al siguiente cambio de etapa.
+
+**Por qué.** El forecast usa estas probabilidades. Un ajuste que sobreviviera a los cambios de etapa dejaría números
+viejos sin que nadie lo note; no permitir ajustes ignoraría lo que el vendedor sabe del cliente. Es el mismo criterio
+de los CRM conocidos.
+
+**Cuándo.** 14/10/2026 · Ver [Pipeline y oportunidades](./02-pipeline.md).
+
+### Cualquier vendedor puede partir de una cotización ganada de otro
+
+**Qué.** Las cotizaciones ganadas de toda la organización sirven de plantilla. Al copiar una ajena se llevan servicios,
+descripciones, cantidades y precios, pero no costos, proveedores, margen ni comisión.
+
+**Por qué.** Las propuestas ganadas son el mejor punto de partida para la siguiente, sin importar quién las armó. La
+comisión y los costos negociados son de cada vendedor y no se transfieren.
+
+**Cuándo.** 14/10/2026 · Ver [Cotizaciones y motor de márgenes](./03-cotizaciones.md).

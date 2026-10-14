@@ -235,9 +235,10 @@ explica por qué. Pero la UI no es la barrera: el backend vuelve a verificar rol
   congela tasa, precios y validez, y copia el subtotal a `valor_cotizado` de la oportunidad.
 - **Aprobar preparación.** Congela igual que un envío directo, guarda quién aprobó en `aprobado_por` y pasa a
   enviada.
-- **Marcar aprobada.** Copia siempre el subtotal a la oportunidad y dispara el evento `cotizacion.aprobada` hacia
-  BackIO y cualquier otro destino suscrito (ver [Integraciones](./11-integraciones.md)). No mueve la oportunidad a
-  Cierre Ganado: eso lo hace el vendedor en el pipeline.
+- **Marcar aprobada.** Copia el subtotal a la oportunidad, **la pasa a Cierre Ganado** (si no lo estaba) y dispara el
+  evento `cotizacion.aprobada` hacia BackIO y cualquier otro destino suscrito (ver
+  [Integraciones](./11-integraciones.md)). Si la oportunidad está en Cierre Perdido o desactivada, responde 409 y no
+  aprueba nada. Ver [Pipeline y oportunidades](./02-pipeline.md).
 - **Marcar rechazada o vencida.** Si era esta cotización la que sostenía el valor cotizado de la oportunidad, lo
   borra.
 - Todas quedan en la bitácora de auditoría.
@@ -260,12 +261,19 @@ Una cotización que ya salió no se edita. Para cambiarla se crea otra.
 | Acción | Endpoint | Para qué | Resultado |
 |---|---|---|---|
 | Nueva versión | `POST /cotizaciones/{id}/nueva-version` | Corregir o renegociar la misma propuesta | Un borrador nuevo en la **misma oportunidad**, con versión +1 y las mismas líneas y costos |
-| Duplicar | `POST /cotizaciones/{id}/duplicar` | Usar una cotización como plantilla para otro cliente | Un borrador nuevo e independiente (versión 1) en **otra oportunidad** que eliges |
+| Duplicar / partir de una plantilla | `POST /cotizaciones/{id}/duplicar` | Usar una cotización como plantilla para otro cliente | Un borrador nuevo e independiente (versión 1) en **otra oportunidad** que eliges |
 
 - Nueva versión no aplica a una cotización en borrador o preparación: esas se editan directo (409).
 - Las versiones de una cadena se listan en `GET /cotizaciones/{id}/versiones`.
-- Duplicar valida el acceso a la cotización origen y a la oportunidad destino. Como el vendedor solo accede a lo
-  suyo, en la práctica duplica entre oportunidades propias; un supervisor o admin puede duplicar entre cualquiera.
+- La oportunidad destino tiene que ser tuya (o del equipo, si eres supervisor o admin).
+- El origen puede ser **una cotización ganada de cualquier vendedor** (desde el 14/10/2026). En la oportunidad, el
+  botón «Partir de una plantilla» lista las ganadas de toda la organización (`GET /cotizaciones/plantillas`) con lo
+  mínimo para reconocerlas: número, empresa, oportunidad, servicios, subtotal sin IVA y fecha. Nunca costos, márgenes
+  ni comisiones.
+- Si la plantilla es de **otro vendedor**, la copia lleva servicios, descripciones, cantidades y precios manuales, pero
+  **no** costos, proveedores, margen ni comisión: la comisión es una condición negociada por persona. Esos campos
+  quedan para completar o se resuelven por política. Si la plantilla es tuya, se copia todo.
+- Una cotización que no está ganada solo se puede duplicar si es tuya.
 - En ambos casos el precio de catálogo no se copia congelado: se vuelve a resolver en vivo, como en cualquier
   borrador.
 
