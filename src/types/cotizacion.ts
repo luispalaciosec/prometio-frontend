@@ -76,3 +76,16 @@ export type SugerirLineasResponse = {
 export type PreviewAprobacion = {
   requiere_aprobacion: boolean
 }
+
+/** Cotización ganada ofrecida como punto de partida (`GET /cotizaciones/plantillas`). Sin costos ni márgenes. */
+export type PlantillaCotizacion = {
+  id: string
+  numero: string
+  empresa_nombre: string | null
+  oportunidad_nombre: string | null
+  /** Hasta 5 servicios o descripciones de las líneas. */
+  servicios: string[]
+  servicios_total: number
+  subtotal_sin_iva: number
+  fecha: string
+}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
 import { PageHeader } from "@/components/page-header"
 import { CotizacionConstructor } from "@/components/pipeline/CotizacionConstructor"
@@ -31,6 +31,7 @@ import { oportunidadNombreLibre } from "@/lib/oportunidad-presentacion"
 import type { OportunidadKanban } from "@/types/oportunidad"
 import type { Proveedor } from "@/types/proveedor"
 import type { Servicio } from "@/types/servicio"
+import type { EtapaPipeline } from "@/types/etapa-pipeline"
 
 type LoadState =
   | { status: "loading" }
@@ -54,14 +55,23 @@ export function CotizacionPage() {
   const documentoQuery = searchParams.get("documento")
   const perfil = useAuthStore((state) => state.perfil)
   const [state, setState] = useState<LoadState>({ status: "loading" })
+  const etapasRef = useRef<EtapaPipeline[]>([])
 
+  // Una transición puede mover la oportunidad (aprobar la gana): se recarga también para el encabezado.
   const reloadCotizacion = useCallback(async () => {
     if (!id || !perfil) {
       return
     }
     const cotizacion = await getCotizacion(id, perfil)
-    const documentos = await listDocumentosAlcance(id)
-    setState((prev) => (prev.status === "ok" ? { ...prev, cotizacion, documentos } : prev))
+    const [documentos, oportunidad] = await Promise.all([
+      listDocumentosAlcance(id),
+      getOportunidad(cotizacion.oportunidad_id, perfil),
+    ])
+    const etapaNombre =
+      etapasRef.current.find((etapa) => etapa.codigo === oportunidad.etapa)?.nombre ?? oportunidad.etapa
+    setState((prev) =>
+      prev.status === "ok" ? { ...prev, cotizacion, documentos, oportunidad, etapaNombre } : prev,
+    )
   }, [id, perfil])
 
   useEffect(() => {
@@ -85,6 +95,7 @@ export function CotizacionPage() {
         if (cancelled) {
           return
         }
+        etapasRef.current = etapas
         const etapaNombre =
           etapas.find((etapa) => etapa.codigo === oportunidad.etapa)?.nombre ??
           oportunidad.etapa

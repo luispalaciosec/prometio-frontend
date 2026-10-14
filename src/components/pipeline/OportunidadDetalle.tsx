@@ -1,4 +1,5 @@
 import { OportunidadValor } from "@/components/pipeline/OportunidadValor"
+import { ProbabilidadCierreCampo } from "@/components/pipeline/ProbabilidadCierreCampo"
 import type { OportunidadKanban } from "@/types/oportunidad"
 
 export function OportunidadDetalle({
@@ -7,13 +8,18 @@ export function OportunidadDetalle({
   servicios,
   causaPrincipal,
   causaSecundaria,
+  puedeAjustarProbabilidad,
+  onGuardarProbabilidad,
 }: {
   oportunidad: OportunidadKanban
   etapaNombre: string
   servicios: { id: string; nombre: string }[]
   causaPrincipal: string | null
   causaSecundaria: string | null
+  puedeAjustarProbabilidad: boolean
+  onGuardarProbabilidad: (valor: number) => Promise<void>
 }) {
+  const cerrada = oportunidad.etapa === "cierre_ganado" || oportunidad.etapa === "cierre_perdido"
   const mostrarCausas = oportunidad.etapa === "cierre_perdido"
 
   return (
@@ -23,6 +29,11 @@ export function OportunidadDetalle({
       <Field label="Empresa" value={oportunidad.empresa.nombre} />
       <Field label="Ejecutivo" value={oportunidad.ejecutivo.nombre_completo} />
       <Field label="Etapa" value={etapaNombre} />
+      <ProbabilidadCierreCampo
+        valor={oportunidad.probabilidad_cierre}
+        editable={puedeAjustarProbabilidad && oportunidad.activo && !cerrada}
+        onGuardar={onGuardarProbabilidad}
+      />
       <div className="flex flex-col gap-1">
         <dt className="text-micro">Valor</dt>
         <dd className="text-ui">

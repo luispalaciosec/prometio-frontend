@@ -60,4 +60,6 @@ export type OportunidadUpdate = {
   valor_referencial?: number | null
   servicios_ids?: string[] | null
   categoria_interes_id?: string | null
+  /** 0–100. Ajuste manual dentro de la etapa: el próximo cambio de etapa lo vuelve al default. */
+  probabilidad_cierre?: number
 }

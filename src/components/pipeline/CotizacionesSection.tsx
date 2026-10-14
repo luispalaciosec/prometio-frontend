@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import { CotizacionLista } from "@/components/pipeline/CotizacionLista"
+import { PlantillaCotizacionDialog } from "@/components/pipeline/PlantillaCotizacionDialog"
 import { Button } from "@/components/ui/button"
-import { createCotizacion, listCotizaciones } from "@/lib/api/cotizacion"
+import { createCotizacion, duplicarCotizacion, listCotizaciones } from "@/lib/api/cotizacion"
 import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import { useAuthStore } from "@/store/auth-store"
@@ -16,6 +17,8 @@ export function CotizacionesSection({ oportunidadId }: { oportunidadId: string }
   const perfil = useAuthStore((state) => state.perfil)
   const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[] | null>(null)
   const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
+  const [plantillaAbierta, setPlantillaAbierta] = useState(false)
+  const [copiando, setCopiando] = useState(false)
 
   const reloadLista = useCallback(async () => {
     if (!perfil) {
@@ -70,13 +73,32 @@ export function CotizacionesSection({ oportunidadId }: { oportunidadId: string }
     }
   }
 
+  async function usarPlantilla(plantillaId: string) {
+    setCopiando(true)
+    try {
+      const copia = await duplicarCotizacion(plantillaId, oportunidadId)
+      setPlantillaAbierta(false)
+      toast.success(`Plantilla copiada como ${copia.numero}.`)
+      navigate(rutaConstructorCotizacion(copia.id))
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo copiar la plantilla.")
+    } finally {
+      setCopiando(false)
+    }
+  }
+
   return (
     <section id="cotizaciones" className="surface-card p-4">
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-section">Cotizaciones</h2>
-        <Button type="button" size="sm" onClick={() => void nueva()}>
-          Nueva cotización
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" size="sm" variant="outline" onClick={() => setPlantillaAbierta(true)}>
+            Partir de una plantilla
+          </Button>
+          <Button type="button" size="sm" onClick={() => void nueva()}>
+            Nueva cotización
+          </Button>
+        </div>
       </div>
       <CotizacionLista
         cotizaciones={cotizaciones ?? []}
@@ -85,6 +107,12 @@ export function CotizacionesSection({ oportunidadId }: { oportunidadId: string }
         docsPorCotizacion={docsPorCotizacion}
         onAbrir={abrir}
         onNueva={() => void nueva()}
+      />
+      <PlantillaCotizacionDialog
+        open={plantillaAbierta}
+        enviando={copiando}
+        onConfirm={(plantillaId) => void usarPlantilla(plantillaId)}
+        onCancel={() => setPlantillaAbierta(false)}
       />
     </section>
   )

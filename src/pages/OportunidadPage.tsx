@@ -180,6 +180,20 @@ export function OportunidadPage() {
     }
   }
 
+  async function guardarProbabilidad(valor: number) {
+    if (!id || !perfil || state.status !== "ok") {
+      return
+    }
+    try {
+      const actualizada = await updateOportunidad(id, { probabilidad_cierre: valor }, perfil)
+      setState({ ...state, oportunidad: actualizada })
+      toast.success("Probabilidad ajustada.")
+    } catch (error) {
+      toast.error(error instanceof ApiError ? error.detail : "No se pudo ajustar la probabilidad.")
+      throw error
+    }
+  }
+
   async function toggleActivo() {
     if (!id || !perfil || state.status !== "ok") {
       return
@@ -271,6 +285,10 @@ export function OportunidadPage() {
         servicios={state.servicios}
         causaPrincipal={state.causaPrincipal}
         causaSecundaria={state.causaSecundaria}
+        puedeAjustarProbabilidad={
+          perfil != null && (puedeVerEquipo(perfil) || state.oportunidad.ejecutivo_id === perfil.id)
+        }
+        onGuardarProbabilidad={guardarProbabilidad}
       />
       <div className="mt-6">
         <LeadScoreDesglosePanel

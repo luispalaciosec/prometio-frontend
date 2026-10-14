@@ -217,6 +217,9 @@ export async function updateOportunidad(
   if (input.categoria_interes_id !== undefined) {
     body.categoria_interes_id = input.categoria_interes_id
   }
+  if (input.probabilidad_cierre !== undefined) {
+    body.probabilidad_cierre = input.probabilidad_cierre
+  }
   try {
     const row = await apiFetch<Oportunidad>(`/oportunidades/${id}`, {
       method: "PATCH",

@@ -8,6 +8,7 @@ import { puedeVerDesgloseCotizacion } from "@/lib/pipeline-acceso"
 import type {
   CotizacionConLineas,
   CotizacionEstado,
+  PlantillaCotizacion,
   PreviewAprobacion,
   SugerirLineasResponse,
 } from "@/types/cotizacion"
@@ -213,6 +214,17 @@ export function enviarCotizacion(id: string, _perfil: Perfil): Promise<Cotizacio
 
 export function getPreviewAprobacion(cotizacionId: string): Promise<PreviewAprobacion> {
   return apiFetch(`/cotizaciones/${cotizacionId}/preview-aprobacion`)
+}
+
+/** Cotizaciones ganadas de toda la organización para partir de una (el vendedor no ve las ajenas en la lista). */
+export function listPlantillasCotizacion(q?: string): Promise<PlantillaCotizacion[]> {
+  const params = new URLSearchParams()
+  const termino = q?.trim()
+  if (termino) {
+    params.set("q", termino)
+  }
+  const qs = params.toString()
+  return apiFetch(`/cotizaciones/plantillas${qs ? `?${qs}` : ""}`)
 }
 
 export function duplicarCotizacion(
