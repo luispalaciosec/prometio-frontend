@@ -34,7 +34,7 @@ export function TvFinancieroFila({
           hint={
             datos && !datos.cuenta_verificada
               ? "Cuenta Contífico sin verificar"
-              : avisoContifico ?? "IVA incluido · Contífico"
+              : avisoContifico ?? "Sin IVA · Contífico"
           }
           icon={Receipt}
           tone="bg-primary/15 text-primary"
@@ -62,7 +62,7 @@ export function TvFinancieroFila({
         />
         <div className="surface-card p-4">
           <p className="text-kicker">Facturación por pilar</p>
-          <p className="mb-3 text-micro text-muted-foreground">IVA incluido · mes actual</p>
+          <p className="mb-3 text-micro text-muted-foreground">Sin IVA · mes actual</p>
           {datos ? (
             <TvFacturacionPilarBarras pilares={datos.facturacion_por_pilar} />
           ) : (

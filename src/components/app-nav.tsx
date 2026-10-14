@@ -87,6 +87,10 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
   const agendaActivo = location.pathname.startsWith("/agenda")
   const saludActivo =
     location.pathname.startsWith("/salud") || location.pathname.startsWith("/auditoria")
+  // SEO es de marketing; el Modo TV muestra datos de ventas (su API exige acceso a ventas).
+  const herramientasVisible = herramientasNav.filter((item) =>
+    item.to === "/tv" ? isVentas : isMarketing,
+  )
   const herramientasActivo = herramientasNav.some((item) => itemActive(location.pathname, item))
 
   return (
@@ -171,9 +175,9 @@ export function AppNav({ onNavigate }: { onNavigate?: () => void }) {
             Proveedores
           </NavLink>
         ) : null}
-        {isMarketing ? (
+        {herramientasVisible.length > 0 ? (
           <SidebarSection title="Herramientas" active={herramientasActivo}>
-            {herramientasNav.map((item) => (
+            {herramientasVisible.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

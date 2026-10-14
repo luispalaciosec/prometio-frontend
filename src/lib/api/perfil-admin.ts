@@ -42,3 +42,11 @@ export function desactivarPerfil(id: string): Promise<PerfilDetalle> {
 export function reactivarPerfil(id: string): Promise<PerfilDetalle> {
   return apiFetch(`/perfiles/${id}/reactivar`, { method: "POST" })
 }
+
+/** Preferencia de tema del propio usuario (`PATCH /perfiles/me`). */
+export function guardarTemaPreferido(tema: "light" | "dark"): Promise<unknown> {
+  return apiFetch("/perfiles/me", {
+    method: "PATCH",
+    body: JSON.stringify({ tema_preferido: tema }),
+  })
+}

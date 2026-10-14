@@ -4,6 +4,8 @@ import { Moon, Sun } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/theme-provider"
+import { guardarTemaPreferido } from "@/lib/api/perfil-admin"
+import { useAuthStore } from "@/store/auth-store"
 
 export function ModeToggle({
   className,
@@ -42,6 +44,12 @@ export function ModeToggle({
   function pickTheme(theme: "light" | "dark" | "system") {
     setTheme(theme)
     setOpen(false)
+    // "Sistema" no tiene equivalente en el perfil: solo se guarda en este navegador.
+    if (theme !== "system" && useAuthStore.getState().perfil) {
+      void guardarTemaPreferido(theme).catch(() => {
+        /* la preferencia local ya se aplicó; el perfil se sincroniza en el próximo cambio */
+      })
+    }
   }
 
   return (

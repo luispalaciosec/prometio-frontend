@@ -2,9 +2,19 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/app-shell"
 import { AuthProvider } from "@/components/auth-provider"
-import { AdminRoute, GuestRoute, KioskRoute, MarketingRoute, ProtectedRoute, ProveedoresRoute, VentasRoute } from "@/components/auth-routes"
+import {
+  AdminRoute,
+  GuestRoute,
+  KioskRoute,
+  MarketingRoute,
+  ProtectedRoute,
+  ProveedoresRoute,
+  SupervisorRoute,
+  VentasRoute,
+} from "@/components/auth-routes"
 import { ServicioWizardPage } from "@/components/servicio-wizard/ServicioWizardPage"
 import { ServiciosConfigLayout } from "@/components/servicios-config-layout"
+import { TemaPerfilSync } from "@/components/tema-perfil-sync"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthCallbackPage } from "@/pages/AuthCallbackPage"
@@ -39,6 +49,7 @@ import { HomePage } from "@/pages/HomePage"
 import { LoginPage } from "@/pages/LoginPage"
 import { MarcaPage } from "@/pages/MarcaPage"
 import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
+import { ParametrosGeneralesPage } from "@/pages/ParametrosGeneralesPage"
 import { MetaComercialPage } from "@/pages/MetaComercialPage"
 import { PipelinePage } from "@/pages/PipelinePage"
 import { ProveedoresPage } from "@/pages/ProveedoresPage"
@@ -62,6 +73,7 @@ export default function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="prometio-theme">
       <AuthProvider>
+        <TemaPerfilSync />
         <BrowserRouter>
           <Routes>
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
@@ -384,11 +396,19 @@ export default function App() {
                 }
               />
               <Route
-                path="/configuracion/meta-comercial"
+                path="/configuracion/parametros"
                 element={
                   <AdminRoute>
-                    <MetaComercialPage />
+                    <ParametrosGeneralesPage />
                   </AdminRoute>
+                }
+              />
+              <Route
+                path="/configuracion/meta-comercial"
+                element={
+                  <SupervisorRoute>
+                    <MetaComercialPage />
+                  </SupervisorRoute>
                 }
               />
               <Route

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
@@ -67,6 +67,9 @@ export function PipelinePage() {
   const [vista, setVista] = useState<PipelineVista>(leerVista)
   const [etapas, setEtapas] = useState<EtapaPipeline[]>([])
   const [servicios, setServicios] = useState<Servicio[]>([])
+  // El filtro solo se usa después de elegir un servicio del catálogo ya cargado: un ref evita recargar al llegar.
+  const serviciosRef = useRef<Servicio[]>([])
+  serviciosRef.current = servicios
   const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
   const [causas, setCausas] = useState<CausaPerdida[]>([])
   const [items, setItems] = useState<OportunidadKanban[]>([])
@@ -92,6 +95,7 @@ export function PipelinePage() {
           perfil,
           scope,
           servicio_id: servicioId,
+          servicio_categoria_id: serviciosRef.current.find((row) => row.id === servicioId)?.categoria_id ?? null,
         }),
         listAlertas(perfil),
       ])
@@ -206,6 +210,7 @@ export function PipelinePage() {
   async function confirmarPerdido(input: {
     causa_perdida_principal_id: string
     causa_perdida_secundaria_id: string | null
+    competidor_mencionado: string | null
   }) {
     if (!perfil || !pendientePerdido) {
       return
@@ -217,6 +222,7 @@ export function PipelinePage() {
         etapa: "cierre_perdido",
         causa_perdida_principal_id: input.causa_perdida_principal_id,
         causa_perdida_secundaria_id: input.causa_perdida_secundaria_id ?? "",
+        competidor_mencionado: input.competidor_mencionado,
       })
       setPendientePerdido(null)
       await reload()

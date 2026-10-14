@@ -500,6 +500,41 @@ export function PasoMargenes({
         />
         <CampoAyuda>Techo del mismo rango. No es un valor fijo: es un intervalo.</CampoAyuda>
       </div>
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="precio_base_cliente">Precio de catálogo, sin IVA (opcional)</Label>
+        <Input
+          id="precio_base_cliente"
+          type="number"
+          min={0}
+          value={draft.precio_base_cliente ?? ""}
+          onChange={(event) =>
+            setDraft((prev) => ({
+              ...prev,
+              precio_base_cliente: event.target.value === "" ? null : Number(event.target.value),
+            }))
+          }
+        />
+        <CampoAyuda>
+          Precio de venta base cuando la línea se cotiza sin proveedor. En fee fijo o recurrente, si lo dejás en
+          blanco se usa el monto del fee.
+        </CampoAyuda>
+      </div>
+      {draft.id ? (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="contifico_producto_id">Producto en Contífico (opcional)</Label>
+          <Input
+            id="contifico_producto_id"
+            value={draft.contifico_producto_id ?? ""}
+            onChange={(event) =>
+              setDraft((prev) => ({
+                ...prev,
+                contifico_producto_id: event.target.value.trim() === "" ? null : event.target.value.trim(),
+              }))
+            }
+          />
+          <CampoAyuda>ID del producto en Contífico. Habilita el historial de precios facturados de este servicio.</CampoAyuda>
+        </div>
+      ) : null}
     </div>
   )
 }

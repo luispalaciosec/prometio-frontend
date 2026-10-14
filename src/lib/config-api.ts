@@ -5,7 +5,7 @@ import { ApiError, apiFetch } from "@/lib/api-client"
 import type { CategoriaServicio } from "@/types/categoria-servicio"
 import type { CausaPerdida } from "@/types/causa-perdida"
 import type { ClienteMedios, ClienteMediosCreate } from "@/types/cliente-medios"
-import type { ConfiguracionGeneral } from "@/types/configuracion-general"
+import type { ConfiguracionGeneral, ParametrosGeneralesUpdate } from "@/types/configuracion-general"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
 import type { Servicio } from "@/types/servicio"
 import type { TarifaInterna } from "@/types/tarifa-interna"
@@ -80,6 +80,8 @@ function cuerpoServicio(
     body.pilar = input.pilar
   } else {
     body.pilar = input.pilar ?? null
+    // El alta no lo acepta (se mapea una vez que el servicio existe).
+    body.contifico_producto_id = input.contifico_producto_id ?? null
   }
   return body
 }
@@ -329,4 +331,12 @@ export function createClienteMedios(body: ClienteMediosCreate): Promise<ClienteM
 
 export function deleteClienteMedios(id: string): Promise<void> {
   return apiFetch(`/config/clientes-medios/${id}`, { method: "DELETE" })
+}
+
+/** PATCH parcial de `configuracion_general` con los parámetros que no son márgenes ni impuestos. */
+export function updateParametrosGenerales(patch: ParametrosGeneralesUpdate): Promise<ConfiguracionGeneral> {
+  return apiFetch("/config/general", {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  })
 }

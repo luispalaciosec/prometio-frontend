@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react"
 import {
+  SlidersHorizontal,
   CircleOff,
   Clock,
   Code2,
@@ -63,6 +64,12 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
         label: "Márgenes e impuestos",
         body: "Margen de agencia, rango de comisión y tasa de impuesto.",
         icon: Percent,
+      },
+      {
+        to: "/configuracion/parametros",
+        label: "Parámetros generales",
+        body: "Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn y reparto de leads.",
+        icon: SlidersHorizontal,
       },
       {
         to: "/configuracion/meta-comercial",

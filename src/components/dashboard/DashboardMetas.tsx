@@ -43,9 +43,16 @@ export function DashboardMetas({
 
   return (
     <section className="space-y-3">
-      <div>
-        <h2 className="text-section">Meta comercial</h2>
-        {periodo ? <p className="mt-1 text-kicker">{periodo}. El rango del dashboard no cambia este período.</p> : null}
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="text-section">Meta comercial</h2>
+          {periodo ? <p className="mt-1 text-kicker">{periodo}. El rango del dashboard no cambia este período.</p> : null}
+        </div>
+        {puedeConfigurar && (hayTotal || hayVendedores) ? (
+          <Link to="/configuracion/meta-comercial" className="text-ui-medium underline-offset-4 hover:underline">
+            Gestionar metas
+          </Link>
+        ) : null}
       </div>
       {!hayTotal && !hayVendedores ? (
         <EmptyState

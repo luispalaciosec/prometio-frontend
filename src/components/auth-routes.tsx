@@ -2,6 +2,7 @@ import { Navigate } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 import type { ReactNode } from "react"
 
+import { puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
 
 /**
@@ -68,6 +69,26 @@ export function AdminRoute({ children }: { children: ReactNode }) {
   }
 
   if (perfil?.equipo !== "administrativo") {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
+/** Administrativo o supervisor de ventas (espejo de `require_supervisor_o_admin`). */
+export function SupervisorRoute({ children }: { children: ReactNode }) {
+  const perfil = useAuthStore((state) => state.perfil)
+  const loading = useAuthStore((state) => state.loading)
+
+  if (loading) {
+    return (
+      <div className="flex min-h-svh items-center justify-center bg-background">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (!perfil || !puedeVerEquipo(perfil)) {
     return <Navigate to="/" replace />
   }
 

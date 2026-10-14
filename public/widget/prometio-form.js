@@ -243,7 +243,26 @@
         out[key] = value;
       }
     }
+    // Meta agrega el click id como `fbclid`. La API lo recibe en el campo `fclid`: se lee el parámetro estándar y,
+    // si no está, el `fclid` que ya usaban los enlaces armados a mano.
+    const fbclid = params.get("fbclid");
+    if (fbclid && !out.fclid) {
+      out.fclid = fbclid;
+    }
     return out;
+  }
+
+  /** Solo redirige a https:// absoluto (mismo criterio que la API al guardar la URL). */
+  function urlRedireccionValida(value) {
+    if (typeof value !== "string" || !value.trim()) {
+      return null;
+    }
+    try {
+      const url = new URL(value.trim());
+      return url.protocol === "https:" && url.hostname ? url.toString() : null;
+    } catch {
+      return null;
+    }
   }
 
   function vacioANull(value) {
@@ -845,6 +864,12 @@
             ? escapeHtml(this.marca.formulario_texto_exito.trim())
             : "Recibimos tus datos. Te contactaremos pronto.";
         this.shadowRoot.innerHTML = `<style>${CSS}</style><p class="ok">${exito}</p>`;
+        // Redirección post-envío configurada en prometIO → Formulario web → Apariencia: se muestra el mensaje de
+        // éxito y ~400 ms después se navega.
+        const destino = urlRedireccionValida(this.marca.formulario_redirect_url);
+        if (destino) {
+          window.setTimeout(() => window.location.assign(destino), 400);
+        }
       } catch {
         resetHcaptcha(this.captchaWidgetId);
         this.enviando = false;

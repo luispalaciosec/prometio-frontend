@@ -136,6 +136,11 @@ export type ListOportunidadesQuery = {
   perfil: Perfil
   scope?: PipelineScope
   servicio_id?: string | null
+  /**
+   * Categoría del servicio filtrado. La oportunidad se clasifica por categoría de interés al crearla (el servicio
+   * concreto se elige al cotizar), así que también coincide si su categoría de interés es la del servicio.
+   */
+  servicio_categoria_id?: string | null
 }
 
 /** Lista cruda, incluye inactivas. Para etiquetar cotizaciones u otras entidades ligadas. */
@@ -158,7 +163,15 @@ export async function listOportunidades(query: ListOportunidadesQuery): Promise<
       .map(normalizar)
       .filter((item) => item.activo)
       .filter((item) => (scope === "mio" ? item.ejecutivo_id === query.perfil.id : true))
-      .filter((item) => (query.servicio_id ? item.servicios_ids.includes(query.servicio_id) : true))
+      .filter((item) => {
+        if (!query.servicio_id) {
+          return true
+        }
+        return (
+          item.servicios_ids.includes(query.servicio_id) ||
+          (query.servicio_categoria_id != null && item.categoria_interes_id === query.servicio_categoria_id)
+        )
+      })
       .map((item) => toKanban(item, query.perfil))
   } catch (error) {
     mapearError(error)
@@ -234,6 +247,7 @@ export type MoverOportunidadInput = {
   etapa: EtapaPipelineCodigo
   causa_perdida_principal_id?: string
   causa_perdida_secundaria_id?: string
+  competidor_mencionado?: string | null
 }
 
 export async function moverOportunidad(input: MoverOportunidadInput): Promise<OportunidadKanban> {
@@ -242,6 +256,9 @@ export async function moverOportunidad(input: MoverOportunidadInput): Promise<Op
     body.causa_perdida_principal_id = input.causa_perdida_principal_id ?? null
     const secundaria = input.causa_perdida_secundaria_id?.trim() ?? ""
     body.causa_perdida_secundaria_id = secundaria === "" ? null : secundaria
+    if (input.competidor_mencionado) {
+      body.competidor_mencionado = input.competidor_mencionado
+    }
   }
   try {
     const row = await apiFetch<Oportunidad>(`/oportunidades/${input.id}`, {

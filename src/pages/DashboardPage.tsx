@@ -230,7 +230,7 @@ export function DashboardPage() {
           {kpis.metas ? (
             <DashboardMetas
               metas={kpis.metas}
-              puedeConfigurar={perfil?.equipo === "administrativo"}
+              puedeConfigurar={perfil ? puedeVerEquipo(perfil) : false}
               onAbrirDetalleMeta={(source, previewValor, previewTitulo) =>
                 abrirDetalle({ tarjeta: "meta", previewValor, previewTitulo }, source)
               }

@@ -155,6 +155,7 @@ export function ServicioWizardPage() {
       comision_sugerida_max_pct: current.comision_sugerida_max_pct,
       tipos_documento_requeridos: current.tipos_documento_requeridos,
       requiere_documento_alcance: current.requiere_documento_alcance === true,
+      contifico_producto_id: current.contifico_producto_id ?? null,
       estado: "borrador",
       created_by: current.created_by,
       created_at: current.created_at,

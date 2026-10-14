@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -32,15 +33,18 @@ export function CierrePerdidoDialog({
   onConfirm: (input: {
     causa_perdida_principal_id: string
     causa_perdida_secundaria_id: string | null
+    competidor_mencionado: string | null
   }) => void
   onCancel: () => void
 }) {
   const [principal, setPrincipal] = useState("")
   const [secundaria, setSecundaria] = useState(SIN_SECUNDARIA)
+  const [competidor, setCompetidor] = useState("")
 
   function reset() {
     setPrincipal("")
     setSecundaria(SIN_SECUNDARIA)
+    setCompetidor("")
   }
 
   return (
@@ -94,6 +98,15 @@ export function CierrePerdidoDialog({
               </SelectContent>
             </Select>
           </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="competidor-mencionado">Competidor que ganó (opcional)</Label>
+            <Input
+              id="competidor-mencionado"
+              value={competidor}
+              onChange={(event) => setCompetidor(event.target.value)}
+              placeholder="Si el cliente lo mencionó"
+            />
+          </div>
         </div>
         <DialogFooter className="rounded-b-2xl">
           <Button
@@ -114,6 +127,7 @@ export function CierrePerdidoDialog({
                 causa_perdida_principal_id: principal,
                 causa_perdida_secundaria_id:
                   secundaria === SIN_SECUNDARIA ? null : secundaria,
+                competidor_mencionado: competidor.trim() || null,
               })
               reset()
             }}
