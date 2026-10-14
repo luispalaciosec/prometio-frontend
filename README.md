@@ -1,60 +1,112 @@
-# prometio-frontend
+# prometIO · frontend
 
-Frontend de **prometIO**, el CRM interno de Geeks Ecuador. React 18 + TypeScript + Vite, Tailwind + shadcn/ui, desplegado en Vercel (`https://prometio.vercel.app`).
+[![CI](https://github.com/luispalaciosec/prometio-frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/luispalaciosec/prometio-frontend/actions/workflows/ci.yml)
 
-El backend (FastAPI + Supabase) vive en el repo hermano `prometio-backend`. El contrato es `prometio-backend/docs/DATA_MODEL.md` + el OpenAPI en `/docs` de FastAPI. Decisiones de stack y fases: `../docs/DECISIONS.md` y `../docs/ROADMAP.md`.
+CRM comercial interno de **Geeks Ecuador**: contactos y empresas, pipeline de 9 etapas, cotizaciones con motor de
+márgenes, documentos de alcance, contratos de fee recurrente, facturación (Contífico), dashboard con forecast y panel
+TV.
 
-Este repo **no habla con Supabase para el dominio** (contactos, pipeline, bandeja, etc.). Auth sí: login email/Google vía `@supabase/supabase-js`. El resto va por HTTP al backend con el JWT de la sesión.
+- **App:** https://prometio.vercel.app
+- **Documentación:** https://prometio.vercel.app/docs/ — cómo funciona cada módulo, operación, referencia técnica y
+  decisiones. La fuente está en [`docs/`](docs/).
+- **Backend:** repo hermano `prometio-backend` (FastAPI + Supabase, en Railway).
 
-## Requisitos
+## Cómo encaja
 
-- Node 20+
-- Un proyecto Supabase (Auth) — las mismas credenciales que usa el backend para verificar JWT
-- Backend levantado (local o Railway) si querés datos reales
+```
+Navegador ──login──▶ Supabase Auth
+    │
+    └──API con JWT──▶ prometio-backend (FastAPI, Railway) ──▶ Supabase Postgres (RLS) · Contífico · Basecamp · Google · Apify
+```
+
+- **El frontend no escribe la base de datos.** Supabase en el navegador se usa solo para iniciar sesión y leer
+  perfiles (solo lectura). Todo el dominio va por HTTP al backend con el JWT de la sesión (`src/lib/api-client.ts`).
+- **Los permisos los decide el servidor.** La interfaz oculta lo que un rol no puede hacer, pero la barrera real es el
+  backend y las políticas RLS.
+- **Montos sin IVA en pantalla.** El IVA solo aparece en el PDF para el cliente, que genera el backend.
+
+## Stack
+
+| | |
+|---|---|
+| Base | React 18, TypeScript, Vite |
+| UI | Tailwind CSS 4, shadcn/ui, Lucide, Recharts, Tiptap, `@dnd-kit` (Kanban) |
+| Estado y rutas | Zustand, React Router 7 (modo librería) |
+| Auth | Supabase Auth (email y Google, PKCE) |
+| Errores | Sentry (`@sentry/react`), activo solo con `VITE_SENTRY_DSN` |
+| Docs | VitePress, publicado en `/docs` |
+| Deploy | Vercel |
 
 ## Levantar en local
 
+Requisitos: Node 20 o superior.
+
 ```bash
-cp .env.example .env
+cp .env.example .env    # completar antes de entrar
 npm install
-npm run dev
+npm run dev             # http://127.0.0.1:5173
 ```
 
-El dev server queda en `http://127.0.0.1:5173` (host/puerto configurables). Completá `.env` **antes** de entrar: sin `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` el login no arranca.
-
-| Variable | Qué hace |
+| Variable | Para qué |
 |---|---|
-| `VITE_SUPABASE_URL` | Project URL de Supabase (Auth) |
-| `VITE_SUPABASE_ANON_KEY` | Anon key de Supabase (pública, va al browser) |
-| `VITE_API_URL` | URL pública del backend, **sin barra final**. En local **dejala vacía**: el cliente usa `/api-backend` y Vite proxea. En Vercel es `https://prometio-backend-production.up.railway.app` |
-| `VITE_BASECAMP_CLIENT_ID` | Client id público de la app OAuth en Launchpad. Local y producción son integraciones distintas (redirect `http://127.0.0.1:5173/auth/basecamp/callback` vs `https://prometio.vercel.app/auth/basecamp/callback`). El secret queda en el backend |
-| `DEV_API_PROXY_TARGET` | Solo `npm run dev`. Destino del proxy `/api-backend`. Default del example: `http://127.0.0.1:8000` (uvicorn local). Podés apuntarlo a Railway si no tenés backend local |
-| `DEV_SERVER_HOST` / `DEV_SERVER_PORT` | Bind del Vite. Opcional |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Proyecto de Supabase para el login (la anon key es pública por diseño). Sin ellas el login no arranca |
+| `VITE_API_URL` | URL del backend, **sin barra final**. En local se deja vacía y se usa el proxy de abajo |
+| `DEV_API_PROXY_TARGET` | Solo en `npm run dev`: a dónde va `/api-backend`. `http://127.0.0.1:8000` para un backend local, o la URL de Railway |
+| `VITE_BASECAMP_CLIENT_ID` | Client ID público de la integración de Basecamp (local y producción son integraciones distintas) |
+| `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT` | Opcionales. Sin DSN, Sentry no arranca |
+| `DEV_SERVER_HOST`, `DEV_SERVER_PORT` | Opcionales |
 
-Scripts: `npm run dev`, `npm run build` (`tsc -b` + Vite), `npm run preview`, `npm run lint` (oxlint).
+**Contra el backend de producción desde local:** usa `DEV_API_PROXY_TARGET` con la URL de Railway. No uses
+`VITE_API_URL` en local: el backend de producción solo acepta orígenes `https`.
 
-## Backend real vs. “mock”
+Ningún secreto va en este repo ni en variables `VITE_*`: todo lo que empieza con `VITE_` termina en el navegador.
 
-**No hay un modo mock conmutable.** La app en runtime siempre pega HTTP (`src/lib/api-client.ts` → `src/lib/api/*` y `src/lib/config-api.ts`).
+## Scripts
 
-- **Local contra backend local:** `VITE_API_URL` vacío + `DEV_API_PROXY_TARGET=http://127.0.0.1:8000` + uvicorn en el repo backend.
-- **Local contra Railway:** o bien `DEV_API_PROXY_TARGET=https://prometio-backend-production.up.railway.app` (sigue yendo por `/api-backend`), o `VITE_API_URL=https://prometio-backend-production.up.railway.app` (el browser habla directo; CORS del backend ya permite `http://localhost:5173`).
-- **Producción (Vercel):** hace falta `VITE_API_URL`. Sin esa variable el build de prod tira `Falta VITE_API_URL.`
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Servidor de desarrollo con proxy al backend |
+| `npm run build` | Typecheck, build de la app y build del sitio de documentación en `dist/docs` (es lo que corre Vercel) |
+| `npm run lint` | oxlint |
+| `npm run docs:dev` | Sitio de documentación en local, con recarga |
+| `npm run preview` | Sirve el build de producción |
 
-Los archivos `src/lib/mock-*.ts` son leftover de cuando el dominio vivía en `localStorage`. Ninguna página los importa para leer/escribir datos. No los uses para desarrollar pantallas nuevas.
+El CI (`.github/workflows/ci.yml`) corre en cada push a `main` y en cada PR: lint, typecheck, build y
+`npm audit --omit=dev --audit-level=high`. Dependabot propone actualizaciones cada lunes.
 
-## Sistema de diseño
+## Estructura
 
-No copies paletas de otros CRMs ni pongas hex en componentes. Referencia visual: Apollo.io templado con Linear/Notion. Detalle de pantallas: `docs/UI_GUIDE.md`.
+```
+src/
+├── pages/          Una pantalla por ruta (rutas y guards en App.tsx)
+├── components/     Por dominio (pipeline/, contratos/, dashboard/…) y ui/ (shadcn)
+├── lib/
+│   ├── api-client.ts   apiFetch / ApiError: JWT, errores 401/403/409/429
+│   ├── api/            Un cliente por dominio del backend
+│   └── *-visual.ts     Catálogos de ícono y color por tipo (los componentes solo los consumen)
+├── store/          Zustand: sesión, perfil y organización
+├── hooks/
+└── types/          Tipos de las respuestas de la API
+docs/               Fuente del sitio de documentación (VitePress)
+public/widget/      Widget embebible del formulario web
+```
 
-**Tokens** — viven en `src/index.css` (paleta D). Hex **solo ahí**. El theming de organización (`GET /organizacion`) pisa `--primary`, `--secondary`, `--highlight` y `--sidebar` vía `src/lib/theme.ts`. Cada usuario elige claro/oscuro (`perfil.tema_preferido`).
+## Despliegue
 
-Escala de tipo (no bajarla): `text-page` 28, `text-section` 16, `text-ui` / `text-ui-medium` 14, `text-kicker` 13, `text-micro` 12. Labels de form usan `text-kicker`. Cards `rounded-xl` + `ring-border` + `shadow-raised`. Badges: `outline` / `warning` / `success` / `destructive`, no `default`/`secondary` sólidos.
+Push a `main` → Vercel compila (`npm run build`) y publica. `vercel.json` define:
 
-**Íconos Kind** — Lucide, `strokeWidth={1.75}`. El color e ícono de un tipo de enum cerrado se definen **una sola vez** en un catálogo `src/lib/*-visual.ts`. Las pantallas solo consumen `KindMark` (o el wrapper del catálogo). Hoy:
+- **Rutas:** la SPA, el sitio `/docs` y la demo `/formulario-demo`.
+- **Headers de seguridad por ruta:** CSP (el CRM no permite scripts inline), HSTS, `X-Frame-Options`, `nosniff`,
+  `Referrer-Policy` y `Permissions-Policy`.
 
-- `src/lib/actividad-visual.ts` — tipos de actividad
-- `src/lib/calendario-visual.ts` — cumpleaños y vencimiento de cotización
-- `src/lib/salud-visual.ts` — servicios del panel de salud
+Las variables `VITE_*` se insertan al compilar: después de cambiar una en Vercel hay que volver a desplegar sin la
+caché del build.
 
-No logos de marca (WhatsApp, Meet, Claude). No una librería de íconos distinta. Vacío de datos: `EmptyState`, nunca una tabla en blanco.
+## Para contribuir
+
+- Antes de tocar código, lee [`CLAUDE.md`](CLAUDE.md): convenciones, sistema de diseño y reglas de negocio que la UI
+  respeta.
+- `npm run build` y `npm run lint` tienen que pasar antes de cada commit.
+- Commits en inglés, en imperativo y terminados en punto. Código y copy de la interfaz en español.
+- Si cambias cómo funciona algo, actualiza su página en `docs/`.
+- Los registros de seguridad están en [`HARDENING-CHANGELOG.md`](HARDENING-CHANGELOG.md).

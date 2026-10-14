@@ -32,6 +32,7 @@ import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
+import { mapConLimite } from "@/lib/concurrencia"
 import {
   etiquetaContacto,
   etiquetaEmpresa,
@@ -120,7 +121,8 @@ export function CotizacionesPage() {
       return
     }
     let cancelled = false
-    void Promise.all(rows.map(async (row) => [row.id, await listDocumentosAlcance(row.id)] as const))
+    // Una petición por cotización: de a pocas para no saturar al backend mientras se pinta la tabla.
+    void mapConLimite(rows, 4, async (row) => [row.id, await listDocumentosAlcance(row.id)] as const)
       .then((pares) => {
         if (!cancelled) {
           setDocsPorCotizacion(Object.fromEntries(pares))
