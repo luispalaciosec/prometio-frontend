@@ -31,7 +31,7 @@ import {
   type CotizacionConLineas,
   type CotizacionEstado,
 } from "@/types/cotizacion"
-import type { DocumentoAlcance } from "@/types/documento-alcance"
+import type { DocumentoAlcanceParaIndicador } from "@/types/documento-alcance"
 
 export function CotizacionLista({
   cotizaciones,
@@ -46,7 +46,7 @@ export function CotizacionLista({
   onAbrir: (id: string) => void
   onNueva?: () => void
   cargando?: boolean
-  docsPorCotizacion?: Record<string, DocumentoAlcance[]>
+  docsPorCotizacion?: Record<string, DocumentoAlcanceParaIndicador[]>
 }) {
   const [busqueda, setBusqueda] = useState("")
   const [estado, setEstado] = useState<CotizacionEstado | null>(null)

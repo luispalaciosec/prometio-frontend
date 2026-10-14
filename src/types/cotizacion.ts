@@ -1,3 +1,4 @@
+import type { DocumentoAlcanceResumen } from "./documento-alcance"
 import type { LineaCotizacionCalculada } from "./linea-cotizacion"
 
 export const COTIZACION_ESTADOS = [
@@ -52,6 +53,8 @@ export type Cotizacion = {
 }
 
 export type CotizacionConLineas = Cotizacion & {
+  /** Solo en el listado (`GET /cotizaciones`): resumen de sus documentos de alcance. */
+  documentos_alcance?: DocumentoAlcanceResumen[]
   lineas: LineaCotizacionCalculada[]
   /** Suma de subtotales de línea, sin IVA — uso en pantallas internas. */
   subtotal_cotizacion: number

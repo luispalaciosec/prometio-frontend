@@ -4,10 +4,12 @@ import { DocumentoAlcanceEstadoBadge } from "@/components/pipeline/DocumentoAlca
 import { Button } from "@/components/ui/button"
 import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { formatDateTime } from "@/lib/datetime-local"
-import type { DocumentoAlcance } from "@/types/documento-alcance"
+import type { DocumentoAlcanceParaIndicador } from "@/types/documento-alcance"
 
 export type DocumentoAlcancePendienteFila = {
-  documento: DocumentoAlcance
+  /** Del resumen del listado: id, estado, versión (la fecha puede no venir). */
+  documento: DocumentoAlcanceParaIndicador
+  cotizacionId: string
   cotizacionNumero: string
   oportunidadId: string
   contactoNombre: string
@@ -36,7 +38,8 @@ export function DocumentoAlcancePendientes({ filas }: { filas: DocumentoAlcanceP
                 <span className="ml-1.5 text-kicker">v{fila.documento.version}</span>
               </p>
               <p className="text-kicker">
-                {fila.contactoNombre} · {fila.empresaNombre} · {formatDateTime(fila.documento.created_at)}
+                {fila.contactoNombre} · {fila.empresaNombre}
+                {fila.documento.created_at ? ` · ${formatDateTime(fila.documento.created_at)}` : null}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -48,7 +51,7 @@ export function DocumentoAlcancePendientes({ filas }: { filas: DocumentoAlcanceP
                 onClick={() =>
                   navigate(
                     rutaConstructorCotizacion(
-                      fila.documento.cotizacion_id,
+                      fila.cotizacionId,
                       fila.documento.id,
                     ),
                   )

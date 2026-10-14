@@ -49,7 +49,7 @@ import {
   type CotizacionConLineas,
   type CotizacionEstado,
 } from "@/types/cotizacion"
-import type { DocumentoAlcance } from "@/types/documento-alcance"
+import type { DocumentoAlcanceParaIndicador } from "@/types/documento-alcance"
 
 type FilaCotizacion = CotizacionConLineas & {
   contactoNombre: string
@@ -67,7 +67,7 @@ export function CotizacionesPage() {
     const desdeUrl = searchParams.get("estado")
     return COTIZACION_ESTADOS.find((item) => item === desdeUrl) ?? null
   })
-  const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
+  const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcanceParaIndicador[]>>({})
   const [duplicarId, setDuplicarId] = useState<string | null>(null)
   const [duplicando, setDuplicando] = useState(false)
 
@@ -121,11 +121,18 @@ export function CotizacionesPage() {
       return
     }
     let cancelled = false
-    // Una petición por cotización: de a pocas para no saturar al backend mientras se pinta la tabla.
-    void mapConLimite(rows, 4, async (row) => [row.id, await listDocumentosAlcance(row.id)] as const)
+    // El listado ya trae el resumen de documentos de cada cotización. Solo si una fila no lo trae (backend viejo)
+    // se pide aparte, de a pocas para no saturar al backend.
+    const conResumen = rows.filter((row) => row.documentos_alcance != null)
+    const sinResumen = rows.filter((row) => row.documentos_alcance == null)
+    setDocsPorCotizacion(Object.fromEntries(conResumen.map((row) => [row.id, row.documentos_alcance ?? []])))
+    if (sinResumen.length === 0) {
+      return
+    }
+    void mapConLimite(sinResumen, 4, async (row) => [row.id, await listDocumentosAlcance(row.id)] as const)
       .then((pares) => {
         if (!cancelled) {
-          setDocsPorCotizacion(Object.fromEntries(pares))
+          setDocsPorCotizacion((prev) => ({ ...prev, ...Object.fromEntries(pares) }))
         }
       })
       .catch((error: unknown) => {
@@ -147,6 +154,7 @@ export function CotizacionesPage() {
         .filter((doc) => doc.estado === "pendiente_aprobacion")
         .map((documento) => ({
           documento,
+          cotizacionId: row.id,
           cotizacionNumero: row.numero,
           oportunidadId: row.oportunidad_id,
           contactoNombre: row.contactoNombre,

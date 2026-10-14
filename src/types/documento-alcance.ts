@@ -142,3 +142,14 @@ export type DocumentoAlcanceVersionListItem = {
   estado: DocumentoAlcanceEstado
   created_at: string
 }
+
+/** Lo que trae cada cotización en `GET /cotizaciones` (`documentos_alcance`), ordenado por versión. */
+export type DocumentoAlcanceResumen = {
+  id: string
+  estado: DocumentoAlcanceEstado
+  version: number
+}
+
+/** Lo mínimo para decidir el documento vigente y su badge: sirve tanto el resumen como el documento completo. */
+export type DocumentoAlcanceParaIndicador = DocumentoAlcanceResumen &
+  Partial<Pick<DocumentoAlcance, "created_at" | "generacion_ia_estado">>

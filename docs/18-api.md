@@ -109,7 +109,7 @@ que cuelga de ellas); el filtro se aplica dentro del handler. Ver [Roles y permi
 | Método | Ruta | Quién | Para qué |
 |---|---|---|---|
 | POST | `/cotizaciones` | Ventas | Crear en borrador para una oportunidad |
-| GET | `/cotizaciones` | Ventas | Listar |
+| GET | `/cotizaciones` | Ventas | Listar, con el cálculo de cada una y `documentos_alcance: [{id, estado, version}]`. Se calcula en bloque (unas 7 consultas, más 1 cada 80 cotizaciones). Paginación opcional `?limit=` (1–200) y `?offset=`, con el total filtrado en `X-Total-Count` |
 | GET | `/cotizaciones/{id}` | Ventas | Detalle con el cálculo completo |
 | GET | `/cotizaciones/{id}/versiones` | Ventas | Cadena de versiones |
 | POST | `/cotizaciones/{id}/nueva-version` | Ventas | Nueva versión a partir de esta |

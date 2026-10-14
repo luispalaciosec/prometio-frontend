@@ -1,6 +1,8 @@
-import type { DocumentoAlcance } from "@/types/documento-alcance"
+import type { DocumentoAlcance, DocumentoAlcanceParaIndicador } from "@/types/documento-alcance"
 
-export function generacionEnCurso(doc: DocumentoAlcance | null | undefined): boolean {
+export function generacionEnCurso(
+  doc: Partial<Pick<DocumentoAlcance, "generacion_ia_estado">> | null | undefined,
+): boolean {
   const estado = doc?.generacion_ia_estado
   return estado === "pendiente" || estado === "generando"
 }
@@ -24,7 +26,7 @@ export function documentoUsable(doc: DocumentoAlcance): boolean {
   return doc.generacion_ia_estado !== "pendiente"
 }
 
-export function documentoVigente(docs: DocumentoAlcance[]): DocumentoAlcance | null {
+export function documentoVigente<T extends DocumentoAlcanceParaIndicador>(docs: T[]): T | null {
   if (docs.length === 0) {
     return null
   }
@@ -34,7 +36,7 @@ export function documentoVigente(docs: DocumentoAlcance[]): DocumentoAlcance | n
     if (b.version !== a.version) {
       return b.version - a.version
     }
-    return b.created_at.localeCompare(a.created_at)
+    return (b.created_at ?? "").localeCompare(a.created_at ?? "")
   })[0]
 }
 

@@ -10,13 +10,13 @@ import { rutaConstructorCotizacion } from "@/lib/cotizacion-rutas"
 import { listDocumentosAlcance } from "@/lib/api/documento-alcance"
 import { useAuthStore } from "@/store/auth-store"
 import type { CotizacionConLineas } from "@/types/cotizacion"
-import type { DocumentoAlcance } from "@/types/documento-alcance"
+import type { DocumentoAlcanceParaIndicador } from "@/types/documento-alcance"
 
 export function CotizacionesSection({ oportunidadId }: { oportunidadId: string }) {
   const navigate = useNavigate()
   const perfil = useAuthStore((state) => state.perfil)
   const [cotizaciones, setCotizaciones] = useState<CotizacionConLineas[] | null>(null)
-  const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcance[]>>({})
+  const [docsPorCotizacion, setDocsPorCotizacion] = useState<Record<string, DocumentoAlcanceParaIndicador[]>>({})
   const [plantillaAbierta, setPlantillaAbierta] = useState(false)
   const [copiando, setCopiando] = useState(false)
 
@@ -32,12 +32,20 @@ export function CotizacionesSection({ oportunidadId }: { oportunidadId: string }
       return
     }
     let cancelled = false
-    void Promise.all(
-      cotizaciones.map(async (row) => [row.id, await listDocumentosAlcance(row.id)] as const),
+    // El listado ya trae el resumen; solo se pide aparte si una fila no lo trae (backend viejo).
+    const sinResumen = cotizaciones.filter((row) => row.documentos_alcance == null)
+    setDocsPorCotizacion(
+      Object.fromEntries(
+        cotizaciones.filter((row) => row.documentos_alcance != null).map((row) => [row.id, row.documentos_alcance ?? []]),
+      ),
     )
+    if (sinResumen.length === 0) {
+      return
+    }
+    void Promise.all(sinResumen.map(async (row) => [row.id, await listDocumentosAlcance(row.id)] as const))
       .then((pares) => {
         if (!cancelled) {
-          setDocsPorCotizacion(Object.fromEntries(pares))
+          setDocsPorCotizacion((prev) => ({ ...prev, ...Object.fromEntries(pares) }))
         }
       })
       .catch((error: unknown) => {
