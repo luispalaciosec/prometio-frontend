@@ -203,6 +203,14 @@ envío a una persona, se sigue con las demás. Las fallas solo quedan en el log 
 **Costo.** Cada perfil es una ejecución paga. Por eso la prospección tiene topes por corrida y un cooldown
 entre búsquedas, y la investigación de un lead no vuelve a consultar la empresa si ya la tiene.
 
+**Fotos y logos.** LinkedIn entrega las imágenes con URLs firmadas que vencen a las pocas semanas. Por eso, al
+enriquecer, el backend descarga la foto del contacto o el logo de la empresa en ese momento y guarda una copia en el
+bucket público `avatares` de Supabase Storage (PNG, JPEG o WebP, hasta 2 MB, nunca SVG). En `foto_url` y `logo_url`
+queda la URL del bucket, que no vence. Si una empresa no tiene logo en LinkedIn pero sí web, se guarda el ícono grande
+del sitio. Si la descarga falla, el campo queda vacío y la interfaz muestra las iniciales; un reintento fallido no
+borra una imagen propia ya guardada. Desde el 14/10/2026 no queda ninguna URL de LinkedIn guardada; las que ya habían
+vencido quedaron vacías y se recuperan re-enriqueciendo el contacto o la empresa.
+
 **Si falla.** En prospección, 502 con la cantidad de leads guardados antes del error. El
 enriquecimiento automático de empresas corre en segundo plano y no afecta el alta de la oportunidad. Salud hace un ping
 de alcance a la API de Apify sin ejecutar actores, para no gastar cuota.

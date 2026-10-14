@@ -249,6 +249,7 @@ quitó a `authenticated` y `anon` la escritura directa en las tablas de negocio;
 | Bucket | Público | Contenido | Escribe |
 |---|---|---|---|
 | `logos` | Sí | Logos de la organización, claro y oscuro (PNG, JPEG, WebP, SVG; 2 MB) | Admin, vía `POST /organizacion/logo` |
+| `avatares` | Sí | Copias propias de fotos de contacto y logos de empresa (PNG, JPEG o WebP, hasta 2 MB; nunca SVG). La URL lleva `?v=<timestamp>` para no servir una versión vieja tras re-enriquecer | Backend, al enriquecer |
 | `plantillas-documento` | Sí | Plantillas de `tipo_documento` | Admin, vía `POST /config/tipos-documento/{id}/plantilla` |
 | `documentos-alcance` | **No**, con la migración 0094 (por confirmar que esté aplicada en producción) | PDF aprobado y `.docx` subido del Documento de Alcance | Backend; se sirven por `GET /documentos-alcance/{id}/pdf` con control de acceso |
 
