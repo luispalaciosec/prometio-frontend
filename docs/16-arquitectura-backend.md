@@ -24,7 +24,7 @@ prometio-backend/
 │   └── templates/         Plantillas Jinja2 de PDF: cotizacion.html, documento_alcance.html, seo_informe.html
 ├── supabase/
 │   ├── migrations/        SQL numerado (0001 → 0094), aplicado en orden
-│   └── pendientes/        Migraciones que se aplican a mano tras una coordinación (hoy: 0093, ver sección 4)
+│   └── pendientes/        Migraciones que se aplican a mano tras una coordinación; aplicadas pasan a migrations/
 ├── tests/                 pytest; las pruebas de RLS levantan un Postgres local (tests/db/sandbox.py)
 ├── scripts/               cifrar_secretos_existentes.py
 ├── Dockerfile             python:3.11-slim fijado por digest + librerías nativas de WeasyPrint
@@ -133,7 +133,7 @@ autorización efectiva de la API vive en estas dependencias y en el filtrado de 
 
 Las políticas RLS de Postgres siguen activas y valen para cualquier acceso con la clave pública (el navegador con su
 JWT). Hoy el frontend solo lee `perfil` directo de Supabase. La migración
-`supabase/pendientes/0093_a2_revocar_escrituras_directas.sql` quita a los roles `authenticated` y `anon` el permiso de
+`supabase/migrations/0093_a2_revocar_escrituras_directas.sql` quita a los roles `authenticated` y `anon` el permiso de
 escribir en las tablas de negocio (cotización, oportunidad, líneas, documento de alcance, contratos, leads de LinkedIn),
 para que nadie pueda, por ejemplo, marcar su propia cotización como aprobada saltándose la API. **Se aplicó a mano en
 producción el 13/10/2026**, después de confirmar que el frontend no escribe directo en ninguna de esas tablas. El
@@ -338,7 +338,7 @@ autenticación por llamada; no se suma sobre este modelo.
 | 500 genérico | `railway logs` en el repo del backend: el detalle solo va al log, nunca a la respuesta |
 | PDF no se genera | Librerías nativas de WeasyPrint; `GET /salud` incluye un chequeo de WeasyPrint |
 | La IA responde 502 o "no configurado" | `ANTHROPIC_API_KEY` en Railway; límite de 10 llamadas cada 5 minutos por usuario |
-| El formulario web devuelve 503 | hCaptcha no respondió. Si devuelve 422 "Captcha inválido", revisar `HCAPTCHA_SECRET_KEY` y `HCAPTCHA_HOSTNAMES` |
+| El formulario web devuelve 503 | hCaptcha no respondió, o falta `HCAPTCHA_SECRET_KEY` («captcha no configurado en el servidor»). Si devuelve 422 «Captcha inválido», revisar `HCAPTCHA_HOSTNAMES` |
 | No se generaron las cotizaciones del mes | Workflow `generar-cotizaciones-contratos.yml` en GitHub y `CRON_SECRET` en Railway y en GitHub |
 | Un webhook saliente no llegó | Log de Railway: "webhook saliente falló tras 3 intentos" |
 | Una variable nueva tumbó el deploy | Debe ser opcional en `Settings` (sección 10) |

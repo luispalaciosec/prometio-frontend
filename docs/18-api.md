@@ -191,8 +191,8 @@ Ver [Documento de alcance](./04-documento-alcance.md).
 
 | Método | Ruta | Quién | Para qué |
 |---|---|---|---|
-| GET | `/facturas` | Ventas | Facturas de Contífico (solo lectura) |
-| GET | `/facturas/resumen` | Ventas | Totales sin IVA, separando "Medios" de "agencia" |
+| GET | `/facturas` | Ventas | Facturas de Contífico (solo lectura). `truncado: true` si había más de unos 3.000 documentos |
+| GET | `/facturas/resumen` | Ventas | Totales sin IVA, separando "Medios" de "agencia". También trae `truncado` |
 
 ---
 
@@ -288,9 +288,9 @@ Estas tres rutas aceptan cualquier origen (CORS abierto solo para ellas). Ver [B
 | GET | `/inicio/sugerencias` | Ventas | Sugerencias de IA (cacheadas; `refrescar=true` fuerza) |
 | GET | `/resumen` | Usuario | Conteos del resumen |
 | GET | `/resumen/series` | Usuario | Series diarias (30 días por defecto) |
-| GET | `/dashboard/kpis` | Ventas | KPIs comerciales |
+| GET | `/dashboard/kpis` | Ventas | KPIs comerciales. Si Contífico falla, `metas.valor_cerrado_total` y `metas.avance_total_pct` vienen en `null` con `metas.cerrado_no_disponible: true`; `metas.cerrado_truncado` si lo facturado puede estar incompleto |
 | GET | `/dashboard/detalle/{tarjeta}` | Ventas | Oportunidades detrás de una tarjeta |
-| GET | `/dashboard/tv-financiero` | Ventas | Datos financieros para `/tv` (consulta Contífico) |
+| GET | `/dashboard/tv-financiero` | Ventas | Datos financieros para `/tv` (consulta Contífico). `facturacion_truncada` si puede estar incompleto |
 | GET | `/metas-comerciales` | Sup/Admin | Listar metas |
 | POST | `/metas-comerciales` | Sup/Admin | Crear meta |
 | GET | `/metas-comerciales/{id}` | Sup/Admin | Detalle |
@@ -377,7 +377,8 @@ Solo admin, también para leer:
 | POST | `/config/ads-tracking/meta/probar` | Evento de prueba a Meta |
 | POST | `/config/ads-tracking/ga4/probar` | Validación contra el endpoint de debug de GA4 |
 | GET | `/config/ads-tracking/eventos` | Log de envíos (paginado) |
-| CRUD | `/config/organizacion-webhooks` | Webhooks salientes |
+| CRUD | `/config/organizacion-webhooks` | Webhooks salientes. El POST (201) devuelve `secreto` una sola vez; los GET nunca |
+| POST | `/config/organizacion-webhooks/{id}/rotar-secreto` | Secreto nuevo, devuelto una sola vez; invalida el anterior (solo admin) |
 
 ---
 
@@ -386,7 +387,7 @@ Solo admin, también para leer:
 | Método | Ruta | Quién | Para qué |
 |---|---|---|---|
 | GET | `/perfiles/me` | Usuario | Mi perfil |
-| PATCH | `/perfiles/me` | Usuario | Editar mis datos (no equipo, rol ni estado) |
+| PATCH | `/perfiles/me` | Usuario | Editar mis datos y `tema_preferido` (`light` / `dark`); no equipo, rol ni estado |
 | GET | `/perfiles` | Usuario | Directorio (filtro por `equipo`) |
 | POST | `/perfiles/invitar` | Admin | Invitar por email con equipo y rol |
 | GET | `/perfiles/{id}` | Admin | Detalle |

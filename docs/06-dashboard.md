@@ -60,6 +60,14 @@ Lo que cuenta como **"Cerrado"** depende de quién mira:
 
 `avance = cerrado / meta × 100`.
 
+Si Contífico no responde, la tarjeta «Cerrado» de la meta de agencia muestra **No disponible**, el avance queda en
+«—» y el resto del Dashboard carga igual. Si Contífico devolvió más documentos de los que se leen, la tarjeta avisa
+que puede faltar facturación.
+
+**El detalle de la meta.** Al abrir la meta de agencia, «Facturado (Contífico)» es la misma cifra de la tarjeta. La
+tabla de abajo son los cierres del CRM del período, con su suma aparte: no tienen por qué coincidir con lo facturado
+(una venta se puede facturar en otro mes, o en varias facturas).
+
 **Por qué la agencia usa Contífico.** Una oportunidad puede quedar sin mover a `cierre_ganado` aunque
 ya se haya facturado. Con el criterio del CRM, la meta de agencia mostraba $0 con facturación real
 encima. Lo facturado es el dato que no miente sobre la agencia. Para un vendedor, en cambio, Contífico

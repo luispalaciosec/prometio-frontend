@@ -138,8 +138,8 @@ Reglas que vienen de errores reales:
 - **Después de una migración de seguridad (RLS)**, abre Supabase Advisor (Security) y compara las políticas reales con
   las del repo. El repo no ve la base viva.
 - `supabase/pendientes/` guarda migraciones que se aplican a mano, fuera del flujo normal, después de una
-  coordinación. Hoy tiene la `0093` (quitar las escrituras directas a las tablas de dominio), que ya se aplicó el
-  13/10/2026.
+  coordinación. Una vez aplicadas pasan a `supabase/migrations/`, como la `0093` (quitar las escrituras directas a
+  las tablas de dominio), aplicada el 13/10/2026.
 
 ## CI y Dependabot
 

@@ -53,8 +53,7 @@ que hace falta en cada login para saber el equipo y el rol. Todo lo demás va po
 
 Por eso, el 13/10/2026 se quitaron los permisos `INSERT`, `UPDATE` y `DELETE` a `authenticated` y `anon` sobre
 `cotizacion`, `linea_cotizacion`, `linea_cotizacion_costo`, `oportunidad`, `documento_alcance`,
-`contrato_recurrente`, `contrato_recurrente_linea`, `cuenta_contrato` y `lead_linkedin` (migración `0093`, en
-`supabase/pendientes/`). Por qué: con esos permisos, un vendedor podía escribir directo en sus cotizaciones y saltarse
+`contrato_recurrente`, `contrato_recurrente_linea`, `cuenta_contrato` y `lead_linkedin` (migración `0093`). Por qué: con esos permisos, un vendedor podía escribir directo en sus cotizaciones y saltarse
 la aprobación de descuentos, el documento de alcance y el congelamiento de valores. El `SELECT` sobre `perfil` no se
 tocó: sin él nadie puede entrar.
 

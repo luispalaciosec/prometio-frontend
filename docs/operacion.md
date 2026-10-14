@@ -149,6 +149,9 @@ https, así que `http://127.0.0.1:5173` y `http://localhost:5173` solo funcionan
 | 502 `Contífico rechazó la consulta: …` en facturas o historial de precios | Contífico respondió con error. El texto que sigue es el de Contífico | Revisar `CONTIFICO_API_KEY` en Railway (va la clave cruda, sin `Bearer`) y el estado de la cuenta |
 | 422 `Este servicio no tiene un producto de Contífico mapeado` | El servicio no tiene `contifico_producto_id` | Mapearlo en la configuración del servicio |
 | Dashboard TV financiero sin datos de facturación | Mismo 502 de Contífico | Igual que la primera fila |
+| 502 «Contífico no respondió» | Timeout o caída de red hacia Contífico | Reintentar; si persiste, revisar el estado de Contífico |
+| La meta de agencia dice «No disponible» | Contífico no respondió al calcular lo facturado. El resto del Dashboard sigue andando | Reintentar más tarde |
+| Aviso «puede faltar facturación» o «incompleto» | Más de unos 3.000 documentos en el rango: el backend lee hasta 30 páginas | Achicar el rango de fechas en Facturas |
 
 prometIO solo **consulta** Contífico (API v2). La emisión de facturas no está construida.
 
@@ -182,7 +185,8 @@ Los PDF de cotización y de documento de alcance los genera el backend con Weasy
 
 | Síntoma | Causa | Qué hacer |
 |---|---|---|
-| 422 «Captcha inválido» en todos los envíos | Falta `HCAPTCHA_SECRET_KEY` en Railway, o el dominio del sitio no está en `HCAPTCHA_HOSTNAMES` | Cargar la clave o agregar el dominio (separados por coma) |
+| 503 «captcha no configurado en el servidor» | Falta `HCAPTCHA_SECRET_KEY` en Railway | Cargar la clave |
+| 422 «Captcha inválido» en todos los envíos | El dominio del sitio no está en `HCAPTCHA_HOSTNAMES`, o la clave no es la del sitio | Agregar el dominio (separados por coma) o revisar la clave |
 | 503 «No pudimos verificar el captcha ahora» | hCaptcha no respondió | El widget reinicia el captcha y vuelve a habilitar «Enviar». Reintentar |
 | 429 | Más de 10 envíos por minuto desde la misma IP | Esperar |
 | El widget no carga en `/formulario-demo` | CSP de esa ruta | Revisar la consola; la regla de `vercel.json` para `/formulario-demo` y `/widget/` es aparte |

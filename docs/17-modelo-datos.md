@@ -237,7 +237,7 @@ El trigger `perfil_proteger_columnas` (0091) impide que alguien que no es admin 
 ::: info El backend escribe con service_role
 La API usa la clave de servicio, que salta RLS. Por eso la autorización efectiva de la API está en las dependencias de
 FastAPI (ver [Arquitectura del backend](./16-arquitectura-backend.md#_4-autenticacion-y-autorizacion)). Las políticas
-protegen el acceso directo con la clave pública. La migración `supabase/pendientes/0093_a2_revocar_escrituras_directas.sql`
+protegen el acceso directo con la clave pública. La migración `0093_a2_revocar_escrituras_directas.sql`
 quitó a `authenticated` y `anon` la escritura directa en las tablas de negocio; **se aplicó a mano en producción el
 13/10/2026**.
 :::
@@ -256,8 +256,8 @@ quitó a `authenticated` y `anon` la escritura directa en las tablas de negocio;
 
 ## Migraciones
 
-- Viven en `prometio-backend/supabase/migrations/`, numeradas `0001_…` a `0094_…` y aplicadas en orden. La 0093 está
-  en `supabase/pendientes/` porque se aplica a mano tras una coordinación; se aplicó el 13/10/2026 (ver arriba).
+- Viven en `prometio-backend/supabase/migrations/`, numeradas `0001_…` a `0094_…` y aplicadas en orden. La 0093 se
+  aplicó a mano tras una coordinación el 13/10/2026 y después pasó de `supabase/pendientes/` a `migrations/`.
 - Una migración que siembra datos con `INSERT … SELECT` o `CROSS JOIN` verifica `ROW_COUNT` al final y falla si no
   insertó lo esperado: dos veces una siembra "exitosa" insertó 0 filas porque la tabla de la que dependía estaba vacía.
 - Las pruebas de RLS del backend aplican las migraciones reales sobre un Postgres local.

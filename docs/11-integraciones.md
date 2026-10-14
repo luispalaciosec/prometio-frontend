@@ -114,24 +114,26 @@ servicio. **Solo lectura.** Emitir facturas desde prometIO está diferido; "marc
 registro manual.
 
 **Cómo.** API v2 de Contífico, documentos de clientes por rango de fechas, con `CONTIFICO_API_KEY` en el
-header `Authorization`. Páginas de 100 documentos, **hasta 3 páginas** por consulta (unos 300
+header `Authorization`. Páginas de 100 documentos, **hasta 30 páginas** por consulta (unos 3.000
 documentos). Contífico puede devolver el mismo documento en dos páginas, así que se deduplica por número.
 El monto que se usa es `subtotal_0 + subtotal_12` (sin IVA).
 
 **Por qué no hay búsqueda ni orden del lado de Contífico.** Su API no los soporta en este endpoint: el
 filtro por cliente y el orden se hacen en el backend sobre lo ya traído.
 
-**Si falla.** Un rechazo de Contífico responde **502** con el mensaje de Contífico, nunca una lista vacía:
-"sin facturas" y "Contífico caído" no pueden verse igual.
+**Si falla.** Un rechazo de Contífico responde **502** con el mensaje de Contífico, y un timeout o caída de red,
+**502** «Contífico no respondió». Nunca una lista vacía: "sin facturas" y "Contífico caído" no pueden verse igual.
 
 - En **Facturas** y en el bloque de facturación del Dashboard se muestra el error o un vacío explícito.
 - En el **Panel TV**, se mantiene el último dato conocido con un aviso.
 - El **historial de 12 meses** avisa cuántos meses no se pudieron traer.
-- **Ojo:** la meta de agencia del Dashboard consulta Contífico dentro de `GET /dashboard/kpis`. Si
-  Contífico falla y hay meta de agencia vigente, falla el endpoint entero y el Dashboard (y la Bienvenida
-  del equipo) no cargan sus indicadores. Un vendedor no se ve afectado, porque su meta usa el CRM.
+- La meta de agencia del Dashboard consulta Contífico dentro de `GET /dashboard/kpis`. Si Contífico falla,
+  el resto del Dashboard carga igual: la meta muestra «No disponible» y el forecast avisa que no incluye lo
+  facturado (`metas.cerrado_no_disponible`). Un vendedor no se ve afectado, porque su meta usa el CRM.
 
-Con más de unos 300 documentos en el rango, el resultado queda **truncado** sin aviso.
+**Si hay más documentos que el tope.** Con más de unos 3.000 documentos en el rango, el backend lo deja en el log y
+marca la respuesta como truncada (`truncado` en `/facturas` y `/facturas/resumen`, `facturacion_truncada` en el
+Panel TV, `metas.cerrado_truncado` en el Dashboard). La interfaz avisa que los totales pueden estar incompletos.
 
 ## BackIO
 

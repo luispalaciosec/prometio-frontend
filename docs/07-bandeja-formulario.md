@@ -199,20 +199,20 @@ Respuestas que ve el visitante:
 |---|---|---|
 | 422 | Captcha inválido, campo requerido vacío, email o teléfono con formato inválido | El `detail` del backend, y reinicia el captcha |
 | 429 | Demasiados envíos seguidos | "Recibimos muchos envíos seguidos. Esperá un minuto y volvé a intentar." |
-| 503 | hCaptcha no respondió del lado del servidor | "No pudimos verificar el captcha en este momento…" |
+| 503 | hCaptcha no respondió, o el servidor no tiene la clave de hCaptcha («captcha no configurado en el servidor») | "No pudimos verificar el captcha en este momento…" |
 
 En 429 y 503 el token de captcha ya se gastó, así que el widget lo reinicia para poder reintentar.
 
-Si el backend no tiene configurada la clave secreta de hCaptcha, **todo envío se rechaza con 422**. La
-pestaña Medición muestra si está activa.
+Si el backend no tiene configurada la clave secreta de hCaptcha, **todo envío se rechaza con 503** «captcha no
+configurado en el servidor», distinto del 422 de captcha inválido, para que se pueda diagnosticar. La pestaña
+Medición muestra si está activa.
 
 ### UTM y click IDs
 
 Al enviar, el widget lee de la URL de la página anfitriona `utm_source`, `utm_medium`, `utm_campaign`,
 `utm_content`, `utm_term`, `gclid` y el click id de Meta, y los guarda en el contacto. Meta agrega su click id como
-`fbclid`; la API lo recibe en el campo `fclid`, así que el widget toma `fbclid` y, si no está, un `fclid` armado a
-mano. Si un parámetro no está en la
-URL, no se manda. No se guardan entre páginas: tienen que estar en la URL de la página donde está el
+`fbclid`, y así lo manda el widget; también acepta `fclid` para enlaces armados a mano (si llegan los dos, gana
+`fclid`). Se guarda en la columna `fclid`. Si un parámetro no está en la URL, no se manda. No se guardan entre páginas: tienen que estar en la URL de la página donde está el
 formulario.
 
 ### Medición (Meta y GA4)
@@ -248,14 +248,13 @@ La pestaña Webhooks configura un POST saliente cuando se crea un contacto desde
   empresa del contacto.
 - Firma: `X-Prometio-Signature: sha256=<HMAC-SHA256 del cuerpo con el secreto>`, más
   `X-Prometio-Timestamp`.
-- El secreto lo genera el servidor al crear el webhook y se guarda cifrado. No se devuelve por ningún
-  GET; si se pierde, hay que borrar el webhook y crearlo de nuevo.
+- El secreto (64 caracteres hexadecimales) lo genera el servidor y se guarda cifrado. Se muestra **una sola vez**, al
+  crear el webhook, para copiarlo al receptor. Ningún GET lo devuelve. Si se pierde, **«Rotar secreto»** genera uno
+  nuevo (también visible una sola vez) e invalida el anterior al instante: hasta actualizar el receptor, este
+  rechaza los envíos.
 - Entrega con 3 intentos (inmediato, a los 5 s y a los 30 s), sin seguir redirecciones. Si los tres
   fallan, solo queda un log en el backend: no hay reintento posterior ni registro visible en la UI.
 
 El mismo mecanismo (`organizacion_webhook`) emite `cotizacion.aprobada`, `empresa.creada` y
 `empresa.actualizada`, que consume BackIO. Ver [Integraciones](./11-integraciones.md#backio).
 
-**Por confirmar:** la pantalla muestra el secreto "solo al crear" si la respuesta lo trae, pero el
-modelo de respuesta del backend no incluye el secreto. Falta confirmar cómo se obtiene hoy el valor para
-configurarlo en el receptor.
