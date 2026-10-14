@@ -6,13 +6,14 @@ Alcance: seguridad + repo del frontend (#18, #19 y #20 en su parte frontend, y l
 | Ítem | Estado |
 |---|---|
 | Coordinación #1 — escrituras directas a Supabase | **Hecho** — no hay escrituras de dominio |
-| Coordinación #2 — dominio de producción para CORS | **Hecho** — informado, falta que el backend lo aplique |
-| Coordinación #3 — URLs para connect-src | **Hecho** — tomadas del README y del `.env`; falta que el backend las confirme |
+| Coordinación #2 — dominio de producción para CORS | **Hecho** — el backend ya lo aplicó |
+| Coordinación #3 — URLs para connect-src | **Hecho** — el backend confirmó que Railway es la única URL pública del API |
 | Coordinación #4 — Sentry propio del frontend | **Pendiente-humano** (DSN) |
 | #18 — headers de seguridad + script inline | **Hecho** (falta validar en el deploy) |
 | #20 — dependencias | **Hecho**, con pendientes en dependencias de desarrollo |
 | #19 — https en URLs | **Hecho** |
 | Fase 4 — `.env.example`, CI, Dependabot, Sentry | **Hecho** (falta el DSN) |
+| Respuestas nuevas del backend (429, 409, 503, 403, SVG) | **Hecho** |
 
 ---
 
@@ -151,6 +152,36 @@ Las tablas de dominio (`cotizacion`, `linea_cotizacion`, `linea_cotizacion_costo
 - **[PENDIENTE-HUMANO]** El CI se activa cuando se haga push de la rama o del merge; no se pudo ver correr desde aquí. Conviene marcarlo como check obligatorio en la protección de `main`.
 
 **Cómo se verificó:** `tsc`, `lint` y `build` ok. `npm audit --omit=dev --audit-level=high` sale con 0, que es el mismo paso que corre el CI.
+
+---
+
+## Respuesta de la sesión backend y ajustes del frontend · Hecho
+
+**Lo que confirmó el backend (rama `hardening/2026-10-13` del backend):**
+- **A2:** el REVOKE de `INSERT`/`UPDATE`/`DELETE` a `authenticated`/`anon` ya corre en producción sobre `cotizacion`, `linea_cotizacion`, `linea_cotizacion_costo`, `oportunidad`, `documento_alcance`, `contrato_recurrente`, `contrato_recurrente_linea`, `cuenta_contrato` y `lead_linkedin`. El `SELECT` sobre `perfil` no se tocó.
+- **CORS:** en producción solo acepta `https://prometio.vercel.app`; en desarrollo agregó `http://127.0.0.1:5173`.
+- **CSP:** Railway es la única URL pública del API, así que `connect-src` no cambia.
+- **https:** `organizacion_webhook.url` y `formulario_redirect_url` devuelven 422 si no son https. Es el mismo criterio que usa el frontend.
+
+**Cómo se adaptó el frontend** (`45e79b1`):
+
+| Respuesta del backend | Qué hace el frontend | Archivos |
+|---|---|---|
+| **429** con `Retry-After` (POST /formulario, verificar, pdf-cliente, SEO, IA) | `apiFetch` y `apiFetchBlob` muestran «Hiciste muchas solicitudes seguidas. Probá de nuevo en N s.» (o «esperá un momento» si no viene el header). `ApiError.detail` **conserva el texto original del backend**, porque el cooldown de Prospección LinkedIn lo parsea. Además `ApiError` expone `retryAfter` | `src/lib/api-client.ts` |
+| **409** en transiciones de cotización y documento de alcance | Nuevo helper `esConflicto()`. Muestra el `detail` y **recarga el registro**: constructor de cotización (transiciones y marcar facturada), detalle de contrato (marcar facturado un mes), sección de documento de alcance (enviar, aprobar, rechazar, nueva versión, reabrir) y wizard de documento (enviar a aprobación) | `CotizacionConstructor.tsx`, `ContratoPage.tsx`, `DocumentoAlcanceSection.tsx`, `DocumentoAlcanceWizard.tsx` |
+| **403 «Tu cuenta está desactivada»** en cualquier endpoint | `apiFetch` lo detecta, muestra el mensaje (un solo toast, con id fijo, aunque fallen varias peticiones a la vez) y **cierra la sesión**, que lleva al login | `src/lib/api-client.ts` |
+| **503** en POST /formulario (hCaptcha no responde) y 429 | El widget muestra un mensaje claro, **reinicia el captcha** (el token ya se gastó) y vuelve a habilitar «Enviar». Ante cualquier otro error de red también se reinicia el captcha, que antes quedaba con un token inválido | `public/widget/prometio-form.js` |
+| **422** SVG de logo con scripts o recursos externos | El error del backend ya se mostraba. Se agregó la aclaración «sin scripts ni recursos externos» en la ayuda del logo claro | `src/pages/MarcaPage.tsx` |
+
+**Cómo se verificó.** `tsc`, `lint` (0 errores) y `build` ok; `node --check` sobre el widget. Además cargué el `api-client` real en el servidor de desarrollo y simulé las respuestas en el navegador:
+- **429 con `Retry-After: 30`:** mensaje con «30 s», `detail` intacto y `retryAfter` 30.
+- **429 sin el header:** sale el mensaje genérico.
+- **409:** `esConflicto` da verdadero.
+- **403 de cuenta desactivada:** cierra la sesión. Probé cuatro 403 seguidos y sale **un solo** aviso.
+
+No se probaron con sesión los flujos de 409 en pantalla, ni el widget contra un 503 real.
+
+**[PENDIENTE-COORDINACIÓN] Bucket privado de documentos de alcance.** El backend va a pasar el bucket a privado, con URLs firmadas, y avisa antes de hacerlo. Eso cambia cómo se abre el PDF aprobado (`descargarPdfDocumentoAlcance` y los enlaces a `pdf_url`). No se tocó todavía.
 
 ---
 
