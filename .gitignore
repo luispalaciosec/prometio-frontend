@@ -30,3 +30,8 @@ tmp/
 *.njsproj
 *.sln
 *.sw?
+
+# Manual de usuario: se versionan las fuentes (docs/manual-prometio*.html, scripts/).
+# El PDF y las capturas se regeneran en local y llevan datos reales de producción.
+docs/Manual-PrometIO.pdf
+docs/manual-screenshots/

@@ -1,0 +1,289 @@
+<!-- Portada renderizada por scripts/generate-prometio-manual.py -->
+<br pagebreak="true"/>
+
+<h2>1. Introducción</h2>
+<p><b>prometIO</b> es el CRM interno de Geeks Ecuador. Centraliza contactos, empresas, oportunidades comerciales, cotizaciones, actividades, marketing y configuración de la agencia. Está pensado para equipos de <b>ventas</b>, <b>administración</b>, <b>marketing</b> y <b>proveedores</b> (alcance limitado).</p>
+<p>El sistema consta de un frontend web (React, desplegado en Vercel) y un backend API (FastAPI, desplegado en Railway) con base de datos Supabase. Cada organización tiene logo, colores y preferencias propias.</p>
+
+<h3>1.1 Qué incluye este manual</h3>
+<ul>
+  <li>Acceso, roles y navegación por módulo.</li>
+  <li>Flujos operativos: pipeline, cotizaciones, contactos, agenda.</li>
+  <li>Panel de configuración (solo administradores).</li>
+  <li>Formulario web embebible, medición Meta/GA4 y webhooks.</li>
+  <li>Funciones en desarrollo o pendientes, claramente marcadas.</li>
+</ul>
+
+<h2>2. Acceso e inicio de sesión</h2>
+<h3>2.1 Ingresar al sistema</h3>
+<ol>
+  <li>Abrí <code>https://prometio.vercel.app</code> en Chrome, Edge o Safari (desktop o móvil).</li>
+  <li>En <b>/login</b>, iniciá sesión con <b>Google</b> o email/contraseña (según tu cuenta invitada).</li>
+  <li>Tras autenticarte, la app carga tu perfil, tema (claro/oscuro) y permisos según tu rol.</li>
+</ol>
+<h3>2.2 Invitaciones</h3>
+<p>Los administradores invitan usuarios desde <b>Configuración → Usuarios</b> (<code>/usuarios</code>). El invitado recibe un enlace a <code>/auth/invitacion</code> para completar el registro.</p>
+<h3>2.3 Cerrar sesión y tema</h3>
+<p>En el pie del sidebar: <b>Cerrar sesión</b> y el selector de tema claro/oscuro (preferencia individual, no de la organización).</p>
+
+<h2>3. Roles y permisos</h2>
+<table>
+  <tr><th>Rol / equipo</th><th>Acceso principal</th></tr>
+  <tr><td>administrativo</td><td>Todo: ventas, configuración, usuarios, salud, auditoría, proveedores.</td></tr>
+  <tr><td>ventas</td><td>CRM, pipeline, cotizaciones, alertas, dashboard, agenda. Ve solo sus oportunidades salvo rol supervisor.</td></tr>
+  <tr><td>marketing</td><td>Herramientas SEO y Modo TV. Sin pipeline ni cotizaciones.</td></tr>
+  <tr><td>proveedores</td><td>Solo módulo Proveedores (catálogo de proveedores externos).</td></tr>
+</table>
+<blockquote><b>Nota:</b> Si tu sidebar muestra «Este perfil no tiene módulos asignados», contactá a un administrador para revisar tu equipo en Usuarios.</blockquote>
+
+<h2>4. Navegación general</h2>
+<p>El menú lateral agrupa los módulos según tu rol:</p>
+<table>
+  <tr><th>Sección</th><th>Rutas</th></tr>
+  <tr><td>Bienvenida</td><td>/ — inicio con accesos rápidos.</td></tr>
+  <tr><td>CRM</td><td>Resumen, Contactos, Empresas, Bandeja, Cumpleaños.</td></tr>
+  <tr><td>Negocios</td><td>Pipeline, Cotizaciones, Facturas, Alertas, Dashboard, Proveedores (admin).</td></tr>
+  <tr><td>Agenda</td><td>Actividades, Calendario, Timeline.</td></tr>
+  <tr><td>Herramientas</td><td>SEO, Modo TV (marketing).</td></tr>
+  <tr><td>Salud del sistema</td><td>Servicios, Auditoría (admin).</td></tr>
+  <tr><td>Configuración</td><td>Submenú con catálogo, reglas, marca, formulario web, etc.</td></tr>
+  <tr><td>Mi cuenta</td><td>/cuenta — perfil, Google Calendar, Basecamp.</td></tr>
+</table>
+<p>En móvil, el sidebar se abre con el ícono hamburger; las tablas hacen scroll horizontal.</p>
+
+<br pagebreak="true"/>
+
+<h2>5. Módulo CRM</h2>
+
+<h3>5.1 Resumen (<code>/resumen</code>)</h3>
+<p>Vista ejecutiva con KPIs de contactos, empresas, conversaciones y series diarias. Útil para ver tendencias de captación y actividad reciente.</p>
+
+<h3>5.2 Contactos (<code>/contactos</code>)</h3>
+<p>Listado con búsqueda y filtros. Desde acá podés:</p>
+<ul>
+  <li>Crear y editar contactos (nombre, email, teléfono, empresa, etapa de ciclo de vida).</li>
+  <li>Abrir el detalle <code>/contactos/:id</code> con timeline y oportunidades vinculadas.</li>
+  <li>Desactivar contactos (no se borran físicamente por integridad de datos).</li>
+</ul>
+<blockquote><b>Nota:</b> Un lead del formulario web crea un contacto automáticamente; la bandeja NO convierte conversaciones sin acción explícita del usuario.</blockquote>
+
+<h3>5.3 Empresas (<code>/empresas</code>)</h3>
+<p>Catálogo de empresas cliente/prospecto. Al crear una oportunidad con empresa, puede dispararse enriquecimiento automático (LinkedIn + Google vía Apify) en segundo plano.</p>
+
+<h3>5.4 Bandeja (<code>/bandeja</code>)</h3>
+<p>Conversaciones multicanal (estructura lista; conexión a WhatsApp/Instagram/chat web en evolución).</p>
+<ul>
+  <li>Lista de hilos con canal y SLA.</li>
+  <li>Detalle <code>/bandeja/:id</code> estilo chat.</li>
+  <li><b>Convertir a contacto</b>: acción manual — abre formulario pre-llenado; nunca es automático.</li>
+  <li>Al convertir con empresa, puede aplicarse asignación automática de ejecutivo (round-robin, geografía o carga).</li>
+</ul>
+
+<h3>5.5 Cumpleaños (<code>/cumpleanos</code>)</h3>
+<p>Contactos con cumpleaños próximos según ventana configurable en Configuración general. Tarjetas visuales con well de ícono (patrón Fase C).</p>
+
+<br pagebreak="true"/>
+
+<h2>6. Módulo Negocios</h2>
+
+<h3>6.1 Pipeline (<code>/pipeline</code>)</h3>
+<p>Tablero Kanban con <b>9 etapas fijas</b> de oportunidad. Arrastrá tarjetas entre columnas para cambiar etapa.</p>
+<ul>
+  <li>Cada tarjeta muestra: contacto, empresa, ejecutivo, valor (etiquetado <i>estimado</i> o <i>cotizado</i>), días en etapa.</li>
+  <li>Filtro por servicio sobre el mismo tablero (no es otra pantalla).</li>
+  <li>Vista lista/tabla para supervisores con scope «todo el equipo» vs «lo mío».</li>
+  <li>Detalle <code>/pipeline/:id</code>: datos, actividades, cotizaciones, cierre ganado/perdido.</li>
+</ul>
+<p><b>Cierre ganado</b> congela fecha de cierre. <b>Cierre perdido</b> exige causa principal (y secundaria si aplica) del catálogo configurado.</p>
+
+<h3>6.2 Cotizaciones (<code>/cotizaciones</code>)</h3>
+<p>Lista global con búsqueda (<code>q</code>: contacto, empresa, número) y filtro por estado.</p>
+<ul>
+  <li>Estados: borrador → preparación → enviada → aprobada / rechazada / vencida.</li>
+  <li>Click en fila abre el constructor en <code>/pipeline/:id?cotizacion=:id</code>.</li>
+</ul>
+<h3>6.3 Constructor de cotización</h3>
+<ol>
+  <li>Agregá líneas: servicio del catálogo, proveedor opcional, costo proveedor.</li>
+  <li>La calculadora muestra en vivo: costo → margen agencia → comisión → impuestos → total.</li>
+  <li>Comisión sugerida 13–20 %. Si baja del rango (fee recurrente) o descuento total &gt; 10 %, el envío pasa a <b>Enviar a aprobación</b>.</li>
+  <li>PDF interno (con desglose, según permisos) y PDF cliente (solo total, nunca margen).</li>
+  <li>QR de verificación pública en PDF cliente (<code>GET /cotizaciones/{id}/verificar</code>).</li>
+  <li>Documento de alcance (IA): complemento sin precios; aprobación admin/supervisor si está activado el gate.</li>
+</ol>
+<blockquote><b>Importante:</b> El PDF para el cliente nunca muestra desglose de costo/margen. La vista interna depende de permisos, no de un toggle libre.</blockquote>
+
+<h3>6.4 Facturas (<code>/facturas</code>)</h3>
+<p>Consulta de histórico Contífico (solo lectura): facturas FAC de la agencia, filtros por periodo y cliente. Requiere cuenta Contífico verificada en backend.</p>
+
+<h3>6.5 Alertas (<code>/alertas</code>)</h3>
+<p>Oportunidades que superan el umbral de horas en su etapa (configurable por etapa). Acciones sugeridas: evaluar descuento, agendar visita, ofrecer otro servicio.</p>
+
+<h3>6.6 Dashboard (<code>/dashboard</code>)</h3>
+<p>KPIs para admin/supervisor: pipeline por etapa, valor en juego, conversión, cotizaciones por estado, actividades por vendedor, causas de pérdida, metas comerciales vs avance.</p>
+
+<h3>6.7 Proveedores (<code>/proveedores</code>)</h3>
+<p>Catálogo de proveedores externos (admin y equipo proveedores). Usado al armar líneas de cotización con costo de terceros.</p>
+
+<br pagebreak="true"/>
+
+<h2>7. Agenda</h2>
+
+<h3>7.1 Actividades (<code>/agenda/actividades</code>)</h3>
+<p>Registro de llamadas, WhatsApp, visitas, videollamadas, emails y comentarios. Podés vincular actividad a oportunidad y contacto.</p>
+<p>Si conectaste Google Calendar en Mi cuenta, las actividades programadas pueden sincronizarse y generar link de Google Meet.</p>
+
+<h3>7.2 Calendario (<code>/agenda/calendario</code>)</h3>
+<p>Vista unificada: actividades, cumpleaños próximos y vencimiento de cotizaciones enviadas en el rango de fechas seleccionado.</p>
+
+<h3>7.3 Timeline (<code>/agenda/timeline</code>)</h3>
+<p>Feed de eventos del equipo: actividades reportadas, leads convertidos, cierres, cotizaciones aprobadas, asignaciones automáticas. Filtrable; valores sensibles enmascarados para quien no es dueño.</p>
+
+<br pagebreak="true"/>
+
+<h2>8. Herramientas (Marketing)</h2>
+
+<h3>8.1 SEO (<code>/seo</code>)</h3>
+<ul>
+  <li><b>Crawl técnico</b>: sitemap, títulos, meta, H1, canonical, robots, alt, enlaces rotos.</li>
+  <li><b>Core Web Vitals</b>: PageSpeed Insights mobile/desktop (CrUX + Lighthouse).</li>
+  <li>Informes descargables en PDF desde la pantalla.</li>
+</ul>
+
+<h3>8.2 Modo TV (<code>/tv</code>)</h3>
+<p>Pantalla kiosko para sala comercial: ranking, pipeline, cierres, meta del mes. Requiere sesión; rotación automática (alcance en evolución).</p>
+
+<h3>8.3 Email (Resend)</h3>
+<p>No hay UI de campañas en prometIO. Marketing usa el dashboard de Resend (link en configuración). prometIO recibe webhooks de estadísticas y sincroniza bajas (<code>elegible_marketing=false</code>).</p>
+
+<br pagebreak="true"/>
+
+<h2>9. Configuración (solo administradores)</h2>
+<p>Acceso: sidebar → Configuración o <code>/configuracion</code>. Subsecciones:</p>
+
+<h3>9.1 Catálogo y precios</h3>
+<table>
+  <tr><th>Pantalla</th><th>Función</th></tr>
+  <tr><td>Servicios</td><td>Catálogo, categorías, pilares. Wizard 8 pasos: borrador → activo (solo administrativo puede activar).</td></tr>
+  <tr><td>Tarifas internas</td><td>Costo/hora por rol (no por persona). Base del costeo en wizard y cotizador.</td></tr>
+  <tr><td>Tipos de documento</td><td>Plantillas asociables a servicios (alcance, contratos, etc.).</td></tr>
+</table>
+
+<h3>9.2 Reglas de negocio</h3>
+<table>
+  <tr><th>Pantalla</th><th>Función</th></tr>
+  <tr><td>Etapas y alertas</td><td>Probabilidad de cierre, umbral de alerta (horas), multiplicador de escalamiento.</td></tr>
+  <tr><td>Márgenes e impuestos</td><td>Margen agencia default, rango comisión, tasa IVA (15 % Ecuador).</td></tr>
+  <tr><td>Meta comercial</td><td>Meta agencia + por vendedor, mensual o trimestral.</td></tr>
+  <tr><td>Causas de pérdida</td><td>Catálogo para Cierre Perdido («Competencia» habilita competidor mencionado).</td></tr>
+</table>
+
+<h3>9.3 Marca e integraciones</h3>
+<table>
+  <tr><th>Pantalla</th><th>Función</th></tr>
+  <tr><td>Marca</td><td>Logo claro/oscuro, 4 colores, contacto. Alimenta tema de la app y widget del formulario.</td></tr>
+  <tr><td>Conectores</td><td>Claude vía MCP stdio (solo lectura). ChatGPT/Gemini: próximamente.</td></tr>
+  <tr><td>Formulario web</td><td>Ver sección 10.</td></tr>
+</table>
+
+<h3>9.4 Organización</h3>
+<p><b>Usuarios</b> (<code>/usuarios</code>): invitar, cambiar equipo/rol, activar/desactivar perfiles.</p>
+
+<br pagebreak="true"/>
+
+<h2>10. Formulario web (<code>/configuracion/formulario-web</code>)</h2>
+<p>Widget público embebible en landings de clientes. Cinco pestañas:</p>
+
+<h3>10.1 Embed</h3>
+<ul>
+  <li>Snippet HTML para pegar en la landing (<code>&lt;script&gt;</code> + <code>&lt;prometio-formulario&gt;</code>).</li>
+  <li>Demo pública: <code>/formulario-demo</code>.</li>
+  <li>Endpoints públicos: POST contacto, GET marca/estilos, GET campos.</li>
+  <li>UTM y click IDs: utm_source, utm_medium, utm_campaign, utm_content, utm_term, fclid, gclid.</li>
+  <li>Site key hCaptcha (pública). Estado del secret: pestaña Medición.</li>
+</ul>
+
+<h3>10.2 Campos</h3>
+<ul>
+  <li><b>Nombre completo</b>: fijo, siempre requerido (no editable).</li>
+  <li>Campos dinámicos: clave, etiqueta, tipo (texto, email, teléfono, select, textarea), orden, obligatorio, activo.</li>
+  <li>Reordenar con flechas ↑↓.</li>
+</ul>
+
+<h3>10.3 Apariencia</h3>
+<ul>
+  <li>Título, texto del botón, mensaje de éxito.</li>
+  <li>Radio de bordes (px), tipografía (sistema / Inter / Poppins).</li>
+  <li>URL de redirección post-envío (~400 ms tras éxito).</li>
+  <li>Logo y colores: en Marca.</li>
+</ul>
+
+<h3>10.4 Webhooks</h3>
+<ul>
+  <li>CRUD de URLs salientes para evento <code>contacto.creado_formulario</code>.</li>
+  <li>Firma HMAC en header <code>X-Prometio-Signature</code>.</li>
+  <li>El secreto se genera al crear; no es recuperable por API después.</li>
+</ul>
+
+<h3>10.5 Medición</h3>
+<p><b>Estado operativo</b>: hCaptcha, Meta CAPI, GA4 servidor (desde <code>/config/formulario-meta</code>).</p>
+<p><b>Configuración ads</b>:</p>
+<ul>
+  <li>Meta: Pixel ID, access token, test event code. Botón Probar Meta.</li>
+  <li>GA4: Measurement ID, API secret. Botón Probar GA4.</li>
+  <li>Los secretos nunca se devuelven en GET; placeholders «Configurado — dejá vacío para no cambiar».</li>
+</ul>
+<blockquote><b>Contrato de tracking:</b> Meta: el widget dispara fbq Lead con eventID del POST, solo si lead_creado es true. GA4: el widget NO dispara generate_lead; solo lee client_id y lo envía como ga_client_id. La conversión sale únicamente del backend (Measurement Protocol).</blockquote>
+<p><b>Actividad reciente</b>: log paginado de envíos Meta/GA4 con filtros por plataforma y éxito/error.</p>
+
+<h3>10.6 Flujo del visitante (landing)</h3>
+<ol>
+  <li>La landing carga el script del widget y opcionalmente Meta Pixel / gtag base.</li>
+  <li>El widget obtiene marca, campos y renderiza formulario + hCaptcha.</li>
+  <li>Al enviar: POST <code>/formulario</code> con datos, UTMs, <code>event_id</code>, <code>ga_client_id</code>, token captcha.</li>
+  <li>Backend crea contacto, auto-asigna oportunidad si hay empresa, dispara webhooks, Meta CAPI y GA4 MP.</li>
+  <li>Widget muestra éxito; opcional redirect; Meta Lead en navegador si configurado.</li>
+</ol>
+
+<br pagebreak="true"/>
+
+<h2>11. Mi cuenta (<code>/cuenta</code>)</h2>
+<ul>
+  <li>Editar nombre, teléfono, LinkedIn, tema preferido.</li>
+  <li><b>Google Calendar</b>: conectar para sincronizar actividades y Meet.</li>
+  <li><b>Basecamp</b>: OAuth por vendedor; foto/nombre en integraciones.</li>
+</ul>
+
+<h2>12. Salud del sistema y auditoría</h2>
+<h3>12.1 Servicios (<code>/salud</code>)</h3>
+<p>Estado de Railway, Vercel, Supabase, WeasyPrint, Resend, Basecamp (latencia). Semáforo por servicio.</p>
+<h3>12.2 Auditoría (<code>/auditoria</code>)</h3>
+<p>Log de acciones sensibles (admin). Filtros por usuario, acción, entidad, rango de fechas.</p>
+
+<h2>13. Consejos operativos</h2>
+<ul>
+  <li>Usá el pipeline como fuente de verdad del estado comercial; no dupliques etapas fuera del sistema.</li>
+  <li>Registrá actividades el mismo día — alimentan alertas, timeline y dashboard.</li>
+  <li>Antes de activar un servicio nuevo, completá las 8 etapas del wizard y revisá tarifas internas.</li>
+  <li>Para cotizaciones con descuento agresivo, esperá aprobación antes de enviar PDF al cliente.</li>
+  <li>Probá el formulario web en <code>/formulario-demo</code> con UTMs antes de publicar en producción.</li>
+  <li>Revisá Medición → Actividad reciente si Meta o GA4 fallan tras un envío real.</li>
+</ul>
+
+<h2>14. Funcionalidad pendiente o en evolución</h2>
+<table>
+  <tr><th>Función</th><th>Estado</th></tr>
+  <tr><td>Bandeja con WhatsApp/Instagram/chat web en vivo</td><td>Backend listo; canales externos en integración</td></tr>
+  <tr><td>Conectores ChatGPT / Gemini</td><td>Próximamente (OAuth per-user)</td></tr>
+  <tr><td>Google Ads conversion tracking</td><td>En standby por decisión de negocio</td></tr>
+  <tr><td>Panel TV kiosko completo</td><td>Arquitectura aprobada; frontend pendiente</td></tr>
+  <tr><td>Score automático de lead</td><td>Arquitectura aprobada (ADR-020)</td></tr>
+  <tr><td>Transcripción / copiloto de llamadas</td><td>Fase 3 — no iniciado</td></tr>
+  <tr><td>Zapier bidireccional</td><td>Fase 3 — webhooks salientes parciales vía Formulario web</td></tr>
+</table>
+
+<h2>15. Soporte y contacto</h2>
+<p>Para incidencias de producción, errores 422/500 en formulario o cotizaciones, o permisos de usuario, contactá al equipo de administración de Geeks Ecuador o al responsable técnico del deploy (Railway/Vercel/Supabase).</p>
+<p>Documentación técnica adicional: repositorios <code>prometio-frontend</code> y <code>prometio-backend</code>, archivos <code>docs/ROADMAP.md</code>, <code>docs/DECISIONS.md</code> y <code>docs/DATA_MODEL.md</code>.</p>
+
+<p><i>— Fin del manual —</i></p>
