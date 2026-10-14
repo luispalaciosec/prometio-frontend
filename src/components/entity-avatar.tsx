@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 import { cn } from "@/lib/utils"
 
 const TONOS = [
@@ -65,11 +67,16 @@ export function EntityAvatar({
   size?: keyof typeof CAJA
   src?: string | null
 }) {
-  if (src) {
+  // Las fotos y logos enriquecidos desde LinkedIn son URLs firmadas que vencen: si no cargan, van las iniciales.
+  const [fallida, setFallida] = useState<string | null>(null)
+  if (src && fallida !== src) {
     return (
       <img
         src={src}
         alt=""
+        loading="lazy"
+        referrerPolicy="no-referrer"
+        onError={() => setFallida(src)}
         className={cn(
           "inline-block shrink-0 bg-muted object-cover",
           kind === "empresa" ? "rounded-md" : "rounded-full",
