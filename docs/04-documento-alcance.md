@@ -29,8 +29,7 @@ envío nunca confía en él, porque un servicio se puede marcar después de arma
 **Por qué un interruptor general.** Es un apagado de emergencia. Con el interruptor en falso, ningún servicio
 marcado bloquea nada, y toda cotización se comporta como antes de existir esta regla.
 
-Por confirmar: no hay un control en la pantalla de Configuración para encender el interruptor; hoy se cambia por API
-(`PATCH /config/general`).
+El interruptor y los textos por defecto del documento se editan en Configuración → **Parámetros generales**.
 
 ## El wizard
 

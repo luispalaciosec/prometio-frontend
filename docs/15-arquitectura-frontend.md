@@ -214,8 +214,10 @@ El estado global es deliberadamente chico. Cada página carga sus datos y los gu
 `apiFetch` lee la sesión con `useAuthStore.getState()`, fuera de React, para no depender de un hook.
 
 **Tema claro/oscuro.** `ThemeProvider` guarda la elección en `localStorage` (`prometio-theme`: `light`, `dark` o
-`system`) y `public/theme-init.js` la aplica antes del primer render. `perfil.tema_preferido` se lee junto con el
-perfil, pero hoy no se sincroniza con el selector: **Por confirmar** si debe hacerlo.
+`system`) y `public/theme-init.js` la aplica antes del primer render. El tema también vive en `perfil.tema_preferido`
+para seguir al usuario entre equipos: `TemaPerfilSync` lo aplica al iniciar sesión si ese navegador todavía no tiene
+una elección, y `ModeToggle` guarda claro u oscuro en el perfil (`PATCH /perfiles/me`). «Sistema» solo existe en el
+navegador.
 
 ---
 
@@ -267,7 +269,6 @@ reglas completas están en [Sistema de diseño](./19-sistema-diseno.md).
 | `MOCK_ORGANIZACION_ID` | Sale de `mock-config.ts`, se reexporta en `config-api.ts` y `ServicioWizardPage` lo usa como respaldo si el perfil no tiene `organizacion_id` | Es lo único que mantiene vivo `mock-config.ts`. Debería salir del perfil siempre |
 | Componentes grandes | `DocumentoAlcanceWizard.tsx` (~1.000 líneas), `LineaCotizacionForm.tsx` (~890), `wizard-pasos.tsx` (~650), `ProspeccionLinkedInPage.tsx` (~650), `FacturasPage.tsx` (~560) | Difíciles de revisar y de probar |
 | Bundle único | Todas las páginas se importan de forma estática en `App.tsx` (sin `React.lazy`). El build genera un solo JS de unos 2 MB sin comprimir | Primera carga lenta en móvil. Partir por ruta es el arreglo obvio |
-| `perfil.tema_preferido` | Se lee pero el tema real vive en `localStorage` | Por confirmar si se quiere sincronizar |
 | `README.md` desactualizado en theming | Dice que la organización pisa `--primary`; desde ADR-022 pisa solo `--brand-*` | Documentación, no código |
 
 ---

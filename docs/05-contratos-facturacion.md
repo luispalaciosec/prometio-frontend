@@ -100,8 +100,7 @@ La vigencia no se guarda: se calcula cada vez, con la fecha de hoy en hora de Ec
 `dias_para_vencer = fecha_fin − hoy` (negativo si ya venció).
 
 **Aviso de renovación.** Los días de aviso salen de `configuracion_general.contrato_dias_aviso_renovacion`
-(30 por defecto). Se cambia con `PATCH /config/general`; hoy no tiene un campo propio en la pantalla
-de Configuración.
+(30 por defecto). Se cambia en Configuración → **Parámetros generales** (solo admin).
 
 En la lista, el filtro **Vigentes** muestra los contratos en `vigente` o `por_renovar`; **No vigentes**,
 los demás.

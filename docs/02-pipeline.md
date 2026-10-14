@@ -116,8 +116,8 @@ Competencia, Falta de presupuesto y Pérdida de contacto.
 **Por qué es obligatoria.** Una pérdida sin causa no enseña nada. Con la causa registrada, el equipo puede ver si
 pierde por precio, por competencia o por seguimiento.
 
-La oportunidad tiene un campo `competidor_mencionado` pensado para la causa "Competencia". La API lo acepta, pero el
-diálogo de cierre todavía no lo pide.
+El diálogo también pide, opcional, el **competidor que ganó** (`competidor_mencionado`), si el cliente lo mencionó.
+Sirve para saber contra quién se pierde cuando la causa es "Competencia".
 
 ## Valor estimado y valor cotizado
 
@@ -214,16 +214,16 @@ servicio, el selector de alcance y el cambio de vista tablero/lista.
 |---|---|---|
 | Alcance **Mío / Equipo** | Mío: solo tus oportunidades. Equipo: todas | Supervisor y admin. El vendedor siempre ve "Mío" |
 | Ejecutivo | Filtra por dueño | Supervisor y admin |
-| Servicio | Filtra por los servicios activos asociados a la oportunidad (`servicios_ids`) | Todos |
+| Servicio | Oportunidades con ese servicio asociado, o cuya categoría de interés es la del servicio | Todos |
 | Etapa y búsqueda | Filtro local sobre lo cargado | Todos |
 
 El alcance no es solo visual. El backend ya devuelve al vendedor únicamente sus oportunidades
 (`es_solo_lo_propio` en `app/core/security.py`); el selector solo decide si un supervisor o admin quiere ver lo suyo o
 lo de todos. Ver [Roles y permisos](./01-roles-permisos.md).
 
-El filtro por servicio usa el campo `servicios_ids` de la oportunidad. Por confirmar: hoy ni el alta ni la edición de
-oportunidad cargan ese campo desde la pantalla, así que el filtro solo encuentra oportunidades que lo tengan cargado
-por otra vía.
+**Cómo filtra por servicio.** Al crear una oportunidad se elige solo la **categoría de interés**: el servicio concreto
+se decide al cotizar. Por eso el filtro coincide con una oportunidad si tiene el servicio asociado (`servicios_ids`)
+**o** si su categoría de interés es la categoría de ese servicio.
 
 Si no hay oportunidades en el alcance, o ningún resultado pasa los filtros, la pantalla muestra un estado vacío, nunca
 un tablero en blanco.

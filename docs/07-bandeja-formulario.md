@@ -149,8 +149,8 @@ Lo que se guarda en la organización y el widget lee de `GET /formulario/marca`:
 
 Una vista previa en vivo muestra el resultado antes de guardar.
 
-**Por confirmar:** la pantalla dice que, con URL de redirección, el widget redirige unos 400 ms después
-del mensaje de éxito. El widget actual (`public/widget/prometio-form.js`) no implementa esa redirección.
+Con URL de redirección, el widget muestra el mensaje de éxito y unos 400 ms después navega a esa URL. Vuelve a
+validar que sea `https://` antes de redirigir.
 
 ### Qué pasa en un envío
 
@@ -209,7 +209,9 @@ pestaña Medición muestra si está activa.
 ### UTM y click IDs
 
 Al enviar, el widget lee de la URL de la página anfitriona `utm_source`, `utm_medium`, `utm_campaign`,
-`utm_content`, `utm_term`, `fclid` y `gclid`, y los guarda en el contacto. Si un parámetro no está en la
+`utm_content`, `utm_term`, `gclid` y el click id de Meta, y los guarda en el contacto. Meta agrega su click id como
+`fbclid`; la API lo recibe en el campo `fclid`, así que el widget toma `fbclid` y, si no está, un `fclid` armado a
+mano. Si un parámetro no está en la
 URL, no se manda. No se guardan entre páginas: tienen que estar en la URL de la página donde está el
 formulario.
 

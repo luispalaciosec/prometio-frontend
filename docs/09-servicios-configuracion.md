@@ -23,7 +23,8 @@ las necesitan.
 | | Tipos de documento | Catálogo de documentos que un servicio puede requerir |
 | Reglas de negocio | Etapas y alertas | Probabilidad por etapa, umbral de alerta, multiplicador de escalamiento |
 | | Márgenes e impuestos | Margen y comisión por defecto, umbral de aprobación, tasa de impuesto, horas laborales del mes |
-| | Meta comercial | Meta de la agencia y por vendedor |
+| | Parámetros generales | Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn y reparto de leads |
+| | Meta comercial | Meta de la agencia y por vendedor (también supervisor de ventas) |
 | | Causas de pérdida | Catálogo para Cierre Perdido |
 | Marca e integraciones | Marca | Logos, colores y datos de contacto de la organización |
 | | Conectores | Conexión de Claude por MCP |
@@ -95,9 +96,11 @@ En el paso 7, "Requiere Documento de Alcance" solo bloquea el envío de cotizaci
 interruptor general de la organización (ver [Documento de alcance](./04-documento-alcance.md)). Desde ese paso se
 puede crear un tipo de documento nuevo sin salir del wizard.
 
-Por confirmar: el wizard no tiene un campo para el precio de catálogo (`precio_base_cliente`) ni para el mapeo al
-producto de Contífico (`contifico_producto_id`). Los servicios de fee toman su precio del monto del paso 4; para un
-servicio por hora sin precio de catálogo, la línea de cotización necesita proveedor o precio manual.
+En el paso de márgenes también se cargan, opcionales, el **precio de catálogo** sin IVA (`precio_base_cliente`), que
+usa una línea sin proveedor, y el **producto de Contífico** (`contifico_producto_id`), que habilita el historial de
+precios facturados. El producto de Contífico se mapea una vez que el servicio existe (el alta no lo acepta). Si un
+servicio de fee no tiene precio de catálogo, se usa el monto del fee del paso 4; uno por hora sin precio de catálogo
+necesita proveedor o precio manual en la línea.
 
 ### Costo interno estimado
 
@@ -176,10 +179,15 @@ lo haya confirmado. Sin fila, el error es visible; con un default equivocado, ca
 Cambiar un valor no reescribe nada guardado: las líneas ya creadas conservan su margen y comisión, y las cotizaciones
 enviadas conservan su tasa congelada.
 
-La misma fila guarda otros parámetros que esta pantalla no muestra: textos por defecto del Documento de Alcance,
-condiciones comerciales del PDF, el interruptor de Documento de Alcance obligatorio, el método de asignación de leads y
-los límites de la prospección en LinkedIn. Por confirmar en qué pantalla se editan los textos por defecto; el
-interruptor y el resto se cambian por API (`PATCH /config/general`).
+La misma fila guarda otros parámetros, que se editan en Configuración → **Parámetros generales**:
+
+| Sección | Parámetros |
+|---|---|
+| Cotizaciones | Días de validez de la oferta y condiciones comerciales del PDF |
+| Documento de alcance | Interruptor de documento obligatorio y los textos por defecto (exclusiones, consideraciones, «por qué Geeks») |
+| Contratos de fee | Días de aviso de renovación |
+| Prospección en LinkedIn | Horas entre búsquedas, criterios y perfiles por búsqueda |
+| Leads y agenda | Método de asignación de leads y días de anticipación de cumpleaños |
 
 ## Etapas y alertas
 
@@ -213,8 +221,9 @@ Metas de venta para el dashboard (ver [Dashboard, metas y forecast](./06-dashboa
 - **Período:** mensual o trimestral.
 - Después de creada, **solo se edita el monto**. Si el período o el alcance están mal, se borra y se crea de nuevo.
 
-La pantalla está en el Panel de Configuración, solo para admin. La API también acepta a un supervisor de ventas
-(`require_supervisor_o_admin`).
+Es la única pantalla del Panel de Configuración que también puede abrir un supervisor de ventas, igual que la API
+(`require_supervisor_o_admin`). El supervisor no ve el resto del panel: entra con «Gestionar metas» desde el
+Dashboard.
 
 ## Marca de la organización
 

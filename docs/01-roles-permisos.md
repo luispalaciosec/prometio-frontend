@@ -53,8 +53,10 @@ Notas sobre la tabla:
 - **Marketing y la bandeja.** La base permite que marketing vea conversaciones sin asignar o asignadas a sí, y que
   lea contactos y empresas. La interfaz hoy no le muestra esas pantallas: `/bandeja`, `/contactos` y `/empresas` están
   dentro del módulo de ventas.
-- **Meta comercial.** La API la abre a admin y supervisor; la pantalla de Configuración que la edita es solo de admin.
-- **Modo TV.** Lee los mismos datos del dashboard, así que necesita una cuenta con acceso a ventas. La decisión es usar
+- **Meta comercial.** Admin y supervisor de ventas la gestionan (`/configuracion/meta-comercial`, con «Gestionar
+  metas» desde el Dashboard), igual que permite la API.
+- **Modo TV.** Lee los mismos datos del dashboard, así que necesita una cuenta con acceso a ventas: el menú lo muestra
+  a admin y ventas, no a marketing. La decisión es usar
   una cuenta dedicada de equipo `administrativo`, logueada una vez en el navegador de la sala
   ([ADR-021](./decisiones.md#adr-021)).
 - **Proveedores.** Cualquier usuario autenticado puede leer la lista (la usa el cotizador); crear, editar y desactivar

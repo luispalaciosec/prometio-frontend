@@ -178,7 +178,8 @@ crea su `*-visual.ts`; si necesita un color que no existe, se agrega el token en
   Los `--brand-*` no cambian: son de la organización.
 - El selector (`ModeToggle`) ofrece claro, oscuro y sistema. La elección se guarda en `localStorage` (`prometio-theme`)
   y `public/theme-init.js` la aplica antes del primer render para evitar el destello claro.
-- `perfil.tema_preferido` existe en la base, pero hoy el tema no se sincroniza con el perfil: **Por confirmar**.
+- Claro y oscuro también se guardan en `perfil.tema_preferido`, así el tema sigue al usuario en otro equipo. «Sistema»
+  queda solo en el navegador.
 - Todo color nuevo se define en `:root` **y** en `.dark`.
 
 ---

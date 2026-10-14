@@ -48,8 +48,8 @@ La conversión no tiene ventana de tiempo: cuenta todas las cerradas que siguen 
 ### 2. Meta comercial
 
 Muestra la meta vigente **hoy** (la que cubre la fecha actual) y cuánto se avanzó. Las metas son
-mensuales o trimestrales y se cargan en Configuración → Meta comercial (pantalla de `administrativo`;
-la API también acepta supervisores de ventas). El rango del dashboard no cambia este período.
+mensuales o trimestrales y las cargan el admin o un supervisor de ventas en Configuración → Meta comercial (el
+supervisor entra con «Gestionar metas» desde esta sección). El rango del dashboard no cambia este período.
 
 Lo que cuenta como **"Cerrado"** depende de quién mira:
 
@@ -270,5 +270,5 @@ tabla `contifico_producto_pilar`. Lo que no coincide va a **sin clasificar**: nu
 le inventa un pilar. El mapeo se mantiene en Configuración. El monto de la línea es
 `cantidad × precio × (1 − descuento)`, sin IVA.
 
-**Por confirmar:** algunos textos del panel todavía dicen "IVA incluido" junto a Facturado mes y
-Facturación por pilar, pero el backend devuelve montos sin IVA desde el 23/09/2026.
+Los montos del panel son **sin IVA**, igual que el resto de prometIO (el backend los devuelve así desde el
+23/09/2026; las etiquetas del panel lo dicen desde el 13/10/2026).

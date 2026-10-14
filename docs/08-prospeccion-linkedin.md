@@ -56,8 +56,7 @@ flowchart TD
 | Criterios por corrida | 5 (los primeros por orden alfabético) | `linkedin_max_criterios_por_corrida` |
 | Perfiles por corrida | 25 en total, sumando todos los criterios | `linkedin_max_perfiles_por_corrida` |
 
-Los tres parámetros se cambian por API (`PATCH /config/general`); hoy no tienen un campo en la pantalla
-de Configuración.
+Los tres se cambian en Configuración → **Parámetros generales** (solo admin).
 
 **Cooldown.** Es por organización, no por persona: si alguien corrió una búsqueda hace menos de 6 horas,
 nadie puede correr otra. El backend responde 429 con la hora del próximo intento y la pantalla
