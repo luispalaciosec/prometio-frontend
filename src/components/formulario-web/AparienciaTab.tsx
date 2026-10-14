@@ -24,21 +24,13 @@ import {
 import { getOrganizacion, updateOrganizacion } from "@/lib/api/organizacion"
 import { applyOrganizationBrandTheme } from "@/lib/theme"
 import { formularioDemoUrl } from "@/lib/formulario-web-urls"
+import { esUrlHttps, MENSAJE_URL_HTTPS } from "@/lib/url-https"
 import { cn } from "@/lib/utils"
 import type { Organizacion, TemaFormulario, TipografiaFormulario } from "@/types/organizacion"
 
 function vacio(value: string): string | null {
   const trimmed = value.trim()
   return trimmed === "" ? null : trimmed
-}
-
-function esUrlValida(value: string): boolean {
-  try {
-    const url = new URL(value)
-    return url.protocol === "http:" || url.protocol === "https:"
-  } catch {
-    return false
-  }
 }
 
 function VistaPreviaWidget({
@@ -193,8 +185,8 @@ export function AparienciaTab() {
       toast.error("El ancho máximo debe estar entre 16 y 48 rem.")
       return
     }
-    if (redirect && !esUrlValida(redirect)) {
-      toast.error("La URL de redirección debe ser http:// o https://.")
+    if (redirect && !esUrlHttps(redirect)) {
+      toast.error(`URL de redirección: ${MENSAJE_URL_HTTPS}`)
       return
     }
 
@@ -361,9 +353,10 @@ export function AparienciaTab() {
               value={redirectUrl}
               onChange={(event) => setRedirectUrl(event.target.value)}
               placeholder="https://tusitio.com/gracias"
+              aria-invalid={redirectUrl.trim() !== "" && !esUrlHttps(redirectUrl)}
             />
             <p className="text-kicker text-muted-foreground">
-              Tras el mensaje de éxito, redirige ~400 ms si está configurada.
+              Solo https://. Tras el mensaje de éxito, redirige ~400 ms si está configurada.
             </p>
           </div>
         </section>

@@ -31,6 +31,7 @@ import {
   listOrganizacionWebhooks,
   updateOrganizacionWebhook,
 } from "@/lib/api/formulario-config"
+import { esUrlHttps, MENSAJE_URL_HTTPS } from "@/lib/url-https"
 import {
   EVENTO_WEBHOOK_FORMULARIO,
   type OrganizacionWebhook,
@@ -46,15 +47,6 @@ type Draft = {
 
 function draftVacio(): Draft {
   return { url: "", activo: true }
-}
-
-function esUrlValida(value: string): boolean {
-  try {
-    const url = new URL(value)
-    return url.protocol === "http:" || url.protocol === "https:"
-  } catch {
-    return false
-  }
 }
 
 export function WebhooksTab() {
@@ -83,8 +75,8 @@ export function WebhooksTab() {
       toast.error("La URL es obligatoria.")
       return
     }
-    if (!esUrlValida(url)) {
-      toast.error("La URL debe ser http:// o https://.")
+    if (!esUrlHttps(url)) {
+      toast.error(MENSAJE_URL_HTTPS)
       return
     }
 
@@ -215,7 +207,9 @@ export function WebhooksTab() {
                 value={draft.url}
                 onChange={(event) => setDraft((prev) => ({ ...prev, url: event.target.value }))}
                 placeholder="https://hooks.zapier.com/…"
+                aria-invalid={draft.url.trim() !== "" && !esUrlHttps(draft.url)}
               />
+              <p className="text-kicker text-muted-foreground">Solo https://.</p>
             </div>
             <label className="flex items-center gap-2 text-kicker">
               <Checkbox
