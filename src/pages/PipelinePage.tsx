@@ -325,6 +325,7 @@ export function PipelinePage() {
           etapas={etapas}
           alertasPorId={alertasPorId}
           mostrarEjecutivo={mostrarAlcance}
+          mostrarEtapa={etapaId == null}
           onReasignar={mostrarAlcance ? setPendienteReasignar : undefined}
           onAbrir={(id) => navigate(`/pipeline/${id}`)}
         />
