@@ -127,7 +127,9 @@ export function PipelineLista({
                 <OportunidadValor valor_referencial={row.valor_referencial} valor_cotizado={row.valor_cotizado} />
               </TableCell>
               <TableCell className="text-right" onClick={(event) => event.stopPropagation()}>
-                <DropdownMenu>
+                {/* No modal: "Reasignar" abre un diálogo al cerrarse el menú, y el modo modal de Radix puede dejar el
+                    body con pointer-events bloqueado al cerrar ese diálogo. */}
+                <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
                     <Button type="button" variant="ghost" size="sm" aria-label="Acciones de la oportunidad">
                       <MoreHorizontal className="size-4" strokeWidth={1.75} aria-hidden />
