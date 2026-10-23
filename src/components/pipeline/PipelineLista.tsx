@@ -18,34 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { oportunidadNombreLibre } from "@/lib/oportunidad-presentacion"
+import {
+  diasSinActividad,
+  oportunidadNombreLibre,
+  textoDiasSinActividad,
+} from "@/lib/oportunidad-presentacion"
 import type { EstadoAlerta } from "@/types/alerta"
 import type { EtapaPipeline } from "@/types/etapa-pipeline"
 import type { OportunidadKanban } from "@/types/oportunidad"
-
-const DIA_MS = 86_400_000
-
-/**
- * Días sin actividad: desde la última actividad o, si nunca hubo, desde la creación. Es la misma referencia con la que
- * el backend calcula la alerta de estancamiento contra el umbral de la etapa.
- */
-function diasSinActividad(row: OportunidadKanban, ahora: number): number | null {
-  const referencia = Date.parse(row.fecha_ultima_actividad ?? row.created_at)
-  if (Number.isNaN(referencia)) {
-    return null
-  }
-  return Math.max(0, Math.floor((ahora - referencia) / DIA_MS))
-}
-
-function textoDias(dias: number | null): string {
-  if (dias == null) {
-    return "—"
-  }
-  if (dias === 0) {
-    return "Hoy"
-  }
-  return dias === 1 ? "1 día" : `${dias} días`
-}
 
 export function PipelineLista({
   items,
@@ -112,7 +92,7 @@ export function PipelineLista({
               <TableCell>
                 <span className="inline-flex items-center gap-2">
                   <span className={alerta ? "tabular-nums text-ui" : "tabular-nums text-muted-foreground"}>
-                    {textoDias(dias)}
+                    {textoDiasSinActividad(dias)}
                   </span>
                   {alerta ? <AlertaEstadoBadge estado={alerta} /> : null}
                 </span>

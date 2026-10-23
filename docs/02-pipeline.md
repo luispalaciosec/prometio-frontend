@@ -70,6 +70,15 @@ El tablero es un Kanban con columnas en el orden de la tabla. Mueves una oportun
 columna. En móvil y en pantallas angostas el tablero hace scroll horizontal; también existe la vista de **lista**, y
 la preferencia queda guardada en el navegador.
 
+**Qué muestra.** Cada columna lleva la cantidad de oportunidades y la suma de su valor (cotizado o, si no hay,
+estimado). Cada tarjeta muestra el nombre de la oportunidad, el contacto, la empresa, el lead score, los días sin
+actividad con su alerta y el valor si lo tiene; el ejecutivo aparece solo al ver «Todo el equipo». Abrir y reasignar
+están en el menú «⋯» de la tarjeta.
+
+**Ganado y Perdido muestran solo los últimos 30 días.** Si no, esas columnas crecerían para siempre con negocios que
+ya no están en juego. «Ver todas» abre la vista de lista filtrada por esa etapa, con el historial completo. Una
+oportunidad cerrada sin fecha de cierre (datos viejos) cuenta como antigua.
+
 El movimiento es libre: puedes avanzar, retroceder o reabrir una oportunidad cerrada. No hay orden obligatorio entre
 etapas ni reglas que bloqueen un salto.
 

@@ -318,6 +318,11 @@ export function PipelinePage() {
           onPedirCierrePerdido={setPendientePerdido}
           onReasignar={mostrarAlcance ? setPendienteReasignar : undefined}
           onAbrir={(id) => navigate(`/pipeline/${id}`)}
+          mostrarEjecutivo={mostrarAlcance && scope === "equipo"}
+          onVerCerradas={(etapa) => {
+            setEtapaId(etapa)
+            cambiarVista("lista")
+          }}
         />
       ) : (
         <PipelineLista

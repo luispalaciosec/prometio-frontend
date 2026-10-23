@@ -2,13 +2,21 @@ import { useRef } from "react"
 import { DndContext, PointerSensor, closestCorners, useSensor, useSensors } from "@dnd-kit/core"
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core"
 
-import { PipelineColumn } from "@/components/pipeline/PipelineColumn"
+import { DIAS_CIERRES_RECIENTES, PipelineColumn } from "@/components/pipeline/PipelineColumn"
 import { ETAPA_PIPELINE_CODIGOS, type EtapaPipeline, type EtapaPipelineCodigo } from "@/types/etapa-pipeline"
 import type { EstadoAlerta } from "@/types/alerta"
 import type { OportunidadKanban } from "@/types/oportunidad"
 
 function isEtapaCodigo(value: string): value is EtapaPipelineCodigo {
   return (ETAPA_PIPELINE_CODIGOS as readonly string[]).includes(value)
+}
+
+const ETAPAS_CERRADAS: EtapaPipelineCodigo[] = ["cierre_ganado", "cierre_perdido"]
+
+/** Cerrada dentro de la ventana reciente. Sin fecha de cierre (datos viejos) cuenta como antigua. */
+function cierreReciente(row: OportunidadKanban, desde: number): boolean {
+  const fecha = row.fecha_cierre ? Date.parse(row.fecha_cierre) : Number.NaN
+  return !Number.isNaN(fecha) && fecha >= desde
 }
 
 export function PipelineBoard({
@@ -19,6 +27,8 @@ export function PipelineBoard({
   onPedirCierrePerdido,
   onReasignar,
   onAbrir,
+  mostrarEjecutivo,
+  onVerCerradas,
 }: {
   etapas: EtapaPipeline[]
   items: OportunidadKanban[]
@@ -27,6 +37,9 @@ export function PipelineBoard({
   onPedirCierrePerdido: (id: string) => void
   onReasignar?: (id: string) => void
   onAbrir: (id: string) => void
+  mostrarEjecutivo: boolean
+  /** Abre la vista Lista filtrada por esa etapa cerrada, con todo su historial. */
+  onVerCerradas: (etapa: EtapaPipelineCodigo) => void
 }) {
   const dragDidActivate = useRef(false)
   const sensors = useSensors(
@@ -72,6 +85,7 @@ export function PipelineBoard({
   }
 
   const ordered = [...etapas].sort((a, b) => a.orden - b.orden)
+  const desde = Date.now() - DIAS_CIERRES_RECIENTES * 86_400_000
 
   return (
     <DndContext
@@ -86,16 +100,24 @@ export function PipelineBoard({
       }}
     >
       <div className="flex gap-3 overflow-x-auto pb-4">
-        {ordered.map((etapa) => (
-          <PipelineColumn
-            key={etapa.id}
-            etapa={etapa}
-            items={items.filter((row) => row.etapa === etapa.codigo)}
-            alertasPorId={alertasPorId}
-            onReasignar={onReasignar}
-            onAbrir={handleAbrir}
-          />
-        ))}
+        {ordered.map((etapa) => {
+          const deEtapa = items.filter((row) => row.etapa === etapa.codigo)
+          const cerrada = ETAPAS_CERRADAS.includes(etapa.codigo)
+          const visibles = cerrada ? deEtapa.filter((row) => cierreReciente(row, desde)) : deEtapa
+          return (
+            <PipelineColumn
+              key={etapa.id}
+              etapa={etapa}
+              items={visibles}
+              ocultas={deEtapa.length - visibles.length}
+              alertasPorId={alertasPorId}
+              mostrarEjecutivo={mostrarEjecutivo}
+              onReasignar={onReasignar}
+              onAbrir={handleAbrir}
+              onVerTodas={cerrada ? () => onVerCerradas(etapa.codigo) : undefined}
+            />
+          )
+        })}
       </div>
     </DndContext>
   )
