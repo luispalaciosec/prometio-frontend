@@ -98,7 +98,35 @@ que cuelga de ellas); el filtro se aplica dentro del handler. Ver [Roles y permi
 | Método | Ruta | Quién | Para qué |
 |---|---|---|---|
 | GET | `/alertas` | Ventas | Oportunidades que superaron el umbral de su etapa (y las que escalan al supervisor), calculadas al vuelo |
-| GET | `/timeline` | Ventas | Eventos comerciales |
+| GET | `/timeline` | Ventas | Eventos comerciales. Filtros: `entidad_id`, `perfil_id`, `tipo_evento`, `limit` (hasta 200) |
+
+### Exportación
+
+| Método | Ruta | Quién | Para qué |
+|---|---|---|---|
+| GET | `/exportar/opciones` | Ventas | Columnas, agrupaciones, columnas sumables y filtros de cada exportación, más los topes. Los filtros vienen recortados por rol: un vendedor no recibe `ejecutivo_id` |
+| GET | `/exportar/oportunidades` | Ventas | Vista previa (`formato=vista`) o archivo (`xlsx`, `pdf`) |
+| GET | `/exportar/cotizaciones` | Ventas | Ídem. Sin costos, márgenes ni comisiones |
+| GET | `/exportar/contratos` | Ventas | Ídem |
+
+Parámetros de salida comunes: `columnas` (claves en orden), `orden_por` + `orden`, `agrupar_por` + `orden_grupos`, más los
+filtros que liste `/opciones`. Topes: los que devuelve `limites` (hoy 5.000 filas en Excel y 1.500 en PDF; más es 422).
+La vista previa admite 60 pedidos por minuto; las descargas, 10.
+
+**En la interfaz.** El botón **Exportar** de Pipeline, Cotizaciones y Contratos abre un panel con los filtros de la
+pantalla precargados (y editables), columnas para marcar y reordenar, orden, agrupación y una vista previa en vivo: conteo,
+resumen, grupos con subtotales, totales y las primeras filas. La vista previa se pide 400 ms después del último cambio y
+cancela la anterior. Las descargas quedan deshabilitadas si no hay filas o si se pasa el tope del formato. El navegador
+recuerda columnas, orden y agrupación por pantalla; los filtros siempre arrancan con los de la pantalla. La búsqueda y el
+filtro de servicio de Pipeline no tienen equivalente en el endpoint: el panel lo avisa.
+
+### Atención de leads
+
+| Método | Ruta | Quién | Para qué |
+|---|---|---|---|
+| GET | `/atencion-leads/pendientes` | Ventas | Leads sin primer contacto, de lo más urgente a lo menos. Un vendedor ve los suyos |
+| GET | `/atencion-leads/resumen` | Ventas | Cumplimiento total y por vendedor. `desde` y `hasta` opcionales (30 días por defecto); 422 si `desde` no es anterior a `hasta` |
+| POST | `/atencion-leads/procesar` | Cron o supervisor | Dispara los avisos. La interfaz no lo llama |
 
 ---
 

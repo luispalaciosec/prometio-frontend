@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { FileText } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
+import { ExportarBoton } from "@/components/exportar/ExportarBoton"
 import { PageHeader } from "@/components/page-header"
 import { CotizacionEstadoBadge } from "@/components/pipeline/CotizacionEstadoBadge"
 import { DocumentoAlcanceIndicador } from "@/components/pipeline/DocumentoAlcanceEstadoBadge"
@@ -187,6 +188,7 @@ export function CotizacionesPage() {
       <PageHeader
         title="Cotizaciones"
         description="Todas las cotizaciones, sin entrar oportunidad por oportunidad."
+        action={<ExportarBoton recurso="cotizaciones" filtrosIniciales={{ q: qDebounced.trim(), estado: estado ?? "" }} />}
       />
       {perfil && puedeVerEquipo(perfil) ? <DocumentoAlcancePendientes filas={pendientes} /> : null}
       <div className="filter-bar">

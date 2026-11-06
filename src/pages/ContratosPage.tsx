@@ -6,6 +6,7 @@ import { toast } from "sonner"
 import type { ContratosOutletContext } from "@/components/contratos/ContratosLayout"
 import { ContratoVigenciaBadge } from "@/components/contratos/ContratoVigenciaBadge"
 import { EmptyState } from "@/components/empty-state"
+import { ExportarBoton } from "@/components/exportar/ExportarBoton"
 import { TableSkeleton } from "@/components/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -110,6 +111,16 @@ export function ContratosPage() {
               <SelectItem value="inactivos">Desactivados</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div className="sm:ml-auto">
+          <ExportarBoton
+            recurso="contratos"
+            filtrosIniciales={{
+              q: qDebounced.trim(),
+              vigente: vigencia === "todos" ? "" : String(vigencia === "vigentes"),
+              activo: String(activo === "activos"),
+            }}
+          />
         </div>
       </div>
       {rows == null ? (

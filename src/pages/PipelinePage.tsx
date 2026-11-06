@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
+import { ExportarBoton } from "@/components/exportar/ExportarBoton"
 import { PipelineSkeleton } from "@/components/skeleton"
 import { CierrePerdidoDialog } from "@/components/pipeline/CierrePerdidoDialog"
 import { OportunidadAltaDialog } from "@/components/pipeline/OportunidadAltaDialog"
@@ -178,6 +179,17 @@ export function PipelinePage() {
 
   const hayFiltroLocal = Boolean(busqueda.trim() || etapaId || ejecutivoId)
 
+  // La exportación arranca con etapa y ejecutivo. «Solo lo mío» de un supervisor o admin es su propio ejecutivo;
+  // a un vendedor el backend ya lo limita a lo suyo (y no le ofrece el filtro).
+  const filtrosExportacion: Record<string, string> = {
+    etapa: etapaId ?? "",
+    ejecutivo_id: ejecutivoId ?? (mostrarAlcance && scope === "mio" ? (perfil?.id ?? "") : ""),
+  }
+  const avisoExportacion =
+    busqueda.trim() || servicioId
+      ? "La búsqueda y el filtro de servicio de Pipeline no se aplican en la exportación: revisá el conteo de la vista previa."
+      : null
+
   async function crear(input: OportunidadCreate) {
     if (!perfil) {
       return
@@ -254,6 +266,8 @@ export function PipelinePage() {
         title="Pipeline"
         description="9 etapas fijas. El valor cotizado manda; si no hay, se muestra el referencial como estimado."
         action={
+          <div className="flex flex-wrap gap-2">
+          <ExportarBoton recurso="oportunidades" filtrosIniciales={filtrosExportacion} aviso={avisoExportacion} />
           <Button
             type="button"
             onClick={() => {
@@ -272,6 +286,7 @@ export function PipelinePage() {
           >
             Nueva oportunidad
           </Button>
+          </div>
         }
       />
       <div className="mb-6">
