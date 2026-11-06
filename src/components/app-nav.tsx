@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom"
 import {
   Activity,
+  AlarmClock,
   Bell,
   Building2,
   Cake,
@@ -38,6 +39,7 @@ type NavItem = { to: string; label: string; icon: LucideIcon; end?: boolean; adm
 
 const crmNav: NavItem[] = [
   { to: "/resumen", label: "Resumen", icon: LayoutList },
+  { to: "/leads", label: "Leads por atender", icon: AlarmClock },
   { to: "/prospeccion-linkedin", label: "LinkedIn", icon: UserSearch },
   { to: "/contactos", label: "Contactos", icon: Users },
   { to: "/empresas", label: "Empresas", icon: Building2 },

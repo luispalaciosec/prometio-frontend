@@ -109,11 +109,20 @@ endpoint público para crear datos. Ver [Bandeja y formulario](./07-bandeja-form
 aplica sobre el subtotal. Mientras la cotización es un borrador se lee en vivo; al enviarla queda congelada en la
 cotización y ya no cambia aunque la tasa de Configuración cambie.
 
+**Atender lead** (`atender_lead`). Actividad que crea el sistema cuando entra un lead nuevo por el formulario. Sostiene
+el reloj de respuesta y se cierra con el primer contacto reportado.
+
 **Lead.** Una de las tres etapas de ciclo de vida de un contacto. No es una tabla aparte.
 
 **Lead de LinkedIn** (`lead_linkedin`). Un perfil de LinkedIn encontrado por la prospección, con estado `nuevo`,
 `revisado`, `descartado` o `convertido`. Es un pool compartido de ventas, invisible para marketing. Ver
 [Prospección LinkedIn](./08-prospeccion-linkedin.md).
+
+**Minutos hábiles.** Los que cuenta el reloj de respuesta a leads: de lunes a viernes, dentro del horario laboral
+configurado, hora de Ecuador.
+
+**Recorrido.** Bloque de la ficha del contacto con cada vez que entró por el formulario web: fecha, número de envío,
+producto pedido y campaña.
 
 **Lead score** (`lead_score`). Puntaje de 0 a 100 de una oportunidad, calculado con reglas fijas: frescura del último
 contacto, seguimiento reportado, velocidad de primera respuesta en la bandeja, tamaño del negocio y datos de la

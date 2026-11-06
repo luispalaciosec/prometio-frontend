@@ -5,6 +5,7 @@ export const TIPOS_ACTIVIDAD = [
   "videollamada",
   "email",
   "tarea_interna",
+  "atender_lead",
 ] as const
 
 export type TipoActividad = (typeof TIPOS_ACTIVIDAD)[number]
@@ -16,7 +17,11 @@ export const TIPO_ACTIVIDAD_LABELS: Record<TipoActividad, string> = {
   videollamada: "Videollamada",
   email: "Email",
   tarea_interna: "Tarea interna",
+  atender_lead: "Atender lead",
 }
+
+/** `atender_lead` lo crea el sistema cuando entra un lead: no se ofrece al crear una actividad a mano. */
+export const TIPOS_ACTIVIDAD_MANUALES = TIPOS_ACTIVIDAD.filter((tipo) => tipo !== "atender_lead")
 
 export type Actividad = {
   id: string

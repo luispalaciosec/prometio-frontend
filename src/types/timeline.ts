@@ -5,6 +5,7 @@ export const TIPOS_TIMELINE = [
   "cotizacion_aprobada",
   "lead_convertido",
   "oportunidad_asignada_automatica",
+  "formulario_web_enviado",
 ] as const
 
 export type TipoTimeline = (typeof TIPOS_TIMELINE)[number]
@@ -16,11 +17,13 @@ export const TIPO_TIMELINE_LABELS: Record<TipoTimeline, string> = {
   cotizacion_aprobada: "Cotización aprobada",
   lead_convertido: "Lead convertido",
   oportunidad_asignada_automatica: "Asignación automática",
+  formulario_web_enviado: "Entró por el formulario web",
 }
 
 export type TimelineEvento = {
   id: string
-  perfil_id: string
+  /** null en los eventos que genera el sistema: `perfil_nombre` llega como «Sistema». */
+  perfil_id: string | null
   perfil_nombre: string
   tipo_evento: string
   entidad_tipo: string
@@ -43,4 +46,12 @@ export function labelTipoTimeline(value: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ")
+}
+
+/** Como `labelTipoTimeline`, pero distingue el reingreso de un contacto que ya existía. */
+export function labelEventoTimeline(row: Pick<TimelineEvento, "tipo_evento" | "detalle">): string {
+  if (row.tipo_evento === "formulario_web_enviado" && row.detalle.reingreso === true) {
+    return "Volvió a entrar por el formulario"
+  }
+  return labelTipoTimeline(row.tipo_evento)
 }

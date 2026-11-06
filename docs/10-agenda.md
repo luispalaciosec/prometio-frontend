@@ -33,6 +33,12 @@ se hizo (**reportada**).
 | Videollamada | Sí, con link de Meet |
 | Email | No |
 | Tarea interna | No |
+| Atender lead | No |
+
+**Atender lead** (`atender_lead`) la crea el sistema cuando entra un lead nuevo por el formulario: no se ofrece al
+crear una actividad a mano y no se le puede cambiar el tipo. Se cierra sola cuando el responsable reporta una
+actividad real con ese contacto, o al reportarla directamente. Ver [Reloj de respuesta a
+leads](./07-bandeja-formulario.md#reloj-de-respuesta-a-leads).
 
 El ícono y el color de cada tipo se definen en un único catálogo (`src/lib/actividad-visual.ts`).
 
@@ -120,6 +126,10 @@ y por persona.
 | `cotizacion_aprobada` | Una cotización se marca aprobada |
 | `lead_convertido` | Una conversación de la bandeja se convierte en contacto |
 | `oportunidad_asignada_automatica` | Una conversión crea una oportunidad con asignación automática |
+| `formulario_web_enviado` | Un contacto envía el formulario web. Se muestra «Entró por el formulario web» o, si ya existía, «Volvió a entrar por el formulario» |
+
+Los eventos que genera el sistema no tienen persona: `perfil_id` llega nulo y `perfil_nombre` como «Sistema». La ficha
+de cada contacto muestra los suyos en el bloque **Recorrido** (`GET /timeline?entidad_id=<contacto_id>`).
 
 **Montos.** Los eventos de cierre ganado y cotización aprobada llevan un monto. Un vendedor ve el feed
 del equipo, pero el monto solo aparece en los eventos de sus propias oportunidades: el timeline no puede
@@ -159,10 +169,11 @@ Es la pantalla de inicio para `administrativo` y `ventas` (`/`). Tiene dos parte
 
 ### El día
 
-Cuatro bloques, cada uno con enlace a su pantalla:
+Cinco bloques, cada uno con enlace a su pantalla:
 
 | Bloque | Contenido |
 |---|---|
+| Leads por atender | Leads sin primer contacto y cuántos están fuera de tiempo. Se refresca cada minuto |
 | Actividades próximas | Programadas y todavía sin reportar en los próximos 7 días |
 | Cotizaciones por vencer | Enviadas con `valido_hasta` en los próximos 7 días |
 | Alertas | Las mismas de [Alertas](#alertas) |

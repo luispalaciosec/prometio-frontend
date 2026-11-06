@@ -167,6 +167,20 @@ Solo para `administrativo` y supervisores. Por cada ejecutivo:
 
 Orden: por cerrado y, en empate, por pipeline ponderado. El ranking usa el CRM, no Contífico.
 
+### Respuesta a leads {#respuesta-a-leads}
+
+Cumplimiento del [reloj de respuesta](./07-bandeja-formulario.md#reloj-de-respuesta-a-leads), de `GET
+/atencion-leads/resumen`. Usa el rango de fechas del Dashboard; sin rango, los últimos 30 días.
+
+| Indicador | Cálculo |
+|---|---|
+| Atendidos a tiempo | Atendidos dentro de la meta ÷ atendidos. «—» si todavía no hay ninguno atendido |
+| Mediana del primer contacto | En tiempo hábil. «—» si no hay ninguno atendido |
+| Pendientes | Sin primer contacto, cuántos vencidos y cuántos recibidos en el rango |
+
+`administrativo` y supervisores ven además el detalle por vendedor, de mejor a peor cumplimiento. Un vendedor ve solo
+lo suyo.
+
 ### 9. Ciclo de venta
 
 Sobre las oportunidades ganadas con `fecha_cierre` en los últimos 12 meses:

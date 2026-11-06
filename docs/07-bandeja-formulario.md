@@ -185,6 +185,42 @@ endpoint).
   los datos del contacto y a quién se asignó. Todo lo que escribió el visitante va escapado en el HTML.
   Si un envío falla, no frena a los demás. Ver [Resend](./11-integraciones.md#resend).
 
+### Reingreso y recorrido
+
+Si llega un envío con el email de un contacto que ya existe, no se crea otro: queda un evento más en su **Recorrido**
+(el bloque de la ficha del contacto), con número de envío, producto pedido y campaña. El visitante ve el mismo mensaje
+de éxito.
+
+| Respuesta de `POST /formulario` | Caso | Medición |
+|---|---|---|
+| `{ok, lead_creado: true, reingreso: false}` | Lead nuevo | Se envía a Meta y GA4 |
+| `{ok, lead_creado: false, reingreso: true}` | Reingreso | No se envía: no es un lead nuevo |
+| `{ok, lead_creado: false}` | Honeypot | No se envía ni se crea nada |
+
+Un reingreso no abre un segundo reloj de respuesta: lo atiende quien ya lleva al contacto.
+
+### Reloj de respuesta a leads
+
+Cada lead nuevo crea una actividad [`atender_lead`](./10-agenda.md#tipos) y arranca un reloj en **minutos hábiles**: de
+lunes a viernes, dentro del horario laboral de Ecuador. Un lead que entra a las 2 a. m. empieza a contar cuando abre el
+horario.
+
+| Estado | Cuándo | Color |
+|---|---|---|
+| `a_tiempo` | Dentro de la meta (30 minutos por defecto) | Verde |
+| `vencido` | Pasó la meta. Se avisa al vendedor | Ámbar |
+| `escalado` | Pasó la meta × `multiplicador_escalamiento_supervisor`. Se avisa al supervisor | Rojo |
+
+- **Pantalla:** `/leads` (CRM → Leads por atender) lista los pendientes de lo más urgente a lo menos, con su cuenta
+  regresiva, y se refresca cada minuto. Un vendedor ve los suyos; supervisor y administrativo, los de todo el equipo.
+- **Botones:** Llamar, WhatsApp y Registrar actividad abren la ficha del contacto con el reporte listo. Llamar y WhatsApp
+  aparecen solo si hay teléfono.
+- **Cómo se cierra:** al reportar una actividad real con ese contacto, o al reportar la propia `atender_lead`.
+- **Medición:** el cumplimiento está en el [Dashboard](./06-dashboard.md#respuesta-a-leads).
+- **Configuración:** meta y horario se cambian en Configuración → **Parámetros generales**.
+
+Los avisos los dispara `POST /atencion-leads/procesar`, un proceso del backend que la interfaz no llama.
+
 ### Protección contra abuso
 
 | Capa | Comportamiento |

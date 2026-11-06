@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
 import { fromDatetimeLocalValue, toDatetimeLocalValue } from "@/lib/datetime-local"
 import {
-  TIPOS_ACTIVIDAD,
+  TIPOS_ACTIVIDAD_MANUALES,
   type Actividad,
   type TipoActividad,
 } from "@/types/actividad"
@@ -30,21 +30,28 @@ export type ActividadFormValores = {
 export function ActividadForm({
   modo,
   actividad,
+  tipoInicial,
   onSubmit,
   onCancel,
 }: {
   modo: "programar" | "reportar" | "editar"
   actividad?: Actividad
+  /** Tipo preseleccionado al crear (por ejemplo, el botón «Llamar» de Leads por atender). */
+  tipoInicial?: TipoActividad
   onSubmit: (input: ActividadFormValores) => void
   onCancel?: () => void
 }) {
-  const [tipo, setTipo] = useState<TipoActividad>(actividad?.tipo ?? "llamada")
+  const [tipo, setTipo] = useState<TipoActividad>(actividad?.tipo ?? tipoInicial ?? "llamada")
   const [programadaRaw, setProgramadaRaw] = useState(toDatetimeLocalValue(actividad?.programada_para ?? null))
-  const [reportadaRaw, setReportadaRaw] = useState(toDatetimeLocalValue(actividad?.reportada_en ?? null))
+  const [reportadaRaw, setReportadaRaw] = useState(
+    toDatetimeLocalValue(actividad?.reportada_en ?? (modo === "reportar" ? new Date().toISOString() : null)),
+  )
   const [feedbackRaw, setFeedbackRaw] = useState(actividad?.feedback ?? "")
 
   const muestraProgramada = modo === "programar" || modo === "editar"
   const muestraReportada = modo === "reportar" || modo === "editar"
+  // Una «Atender lead» sostiene el reloj de respuesta: se reporta o se edita, pero no cambia de tipo.
+  const esAtenderLead = actividad?.tipo === "atender_lead"
 
   function enviar(event: FormEvent) {
     event.preventDefault()
@@ -67,12 +74,12 @@ export function ActividadForm({
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="actividad-tipo">Tipo</Label>
-          <Select value={tipo} onValueChange={(value) => setTipo(value as TipoActividad)}>
+          <Select value={tipo} disabled={esAtenderLead} onValueChange={(value) => setTipo(value as TipoActividad)}>
             <SelectTrigger id="actividad-tipo" className="w-full">
               <SelectValue placeholder="Elegí un tipo" />
             </SelectTrigger>
             <SelectContent position="popper" align="start">
-              {TIPOS_ACTIVIDAD.map((codigo) => (
+              {(esAtenderLead ? (["atender_lead"] as const) : TIPOS_ACTIVIDAD_MANUALES).map((codigo) => (
                 <SelectItem key={codigo} value={codigo}>
                   <TipoActividadMark tipo={codigo} size="sm" />
                 </SelectItem>

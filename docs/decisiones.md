@@ -409,3 +409,14 @@ descripciones, cantidades y precios, pero no costos, proveedores, margen ni comi
 comisión y los costos negociados son de cada vendedor y no se transfieren.
 
 **Cuándo.** 14/10/2026 · Ver [Cotizaciones y motor de márgenes](./03-cotizaciones.md).
+
+### El reloj de respuesta a leads cuenta solo tiempo hábil
+
+**Qué.** La meta de primer contacto se mide en minutos hábiles (lunes a viernes, horario laboral de Ecuador, ambos
+configurables). La crea y la cierra el backend; la interfaz no calcula el reloj ni dispara los avisos.
+
+**Por qué.** Un lead que entra de madrugada no puede figurar vencido cuando el vendedor abre la laptop: el indicador
+dejaría de medir la respuesta real. Un reingreso no abre otro reloj ni cuenta como conversión ante Meta y GA4, porque no
+es un lead nuevo.
+
+**Cuándo.** 04/11/2026 · Ver [Bandeja y formulario web](./07-bandeja-formulario.md#reloj-de-respuesta-a-leads).

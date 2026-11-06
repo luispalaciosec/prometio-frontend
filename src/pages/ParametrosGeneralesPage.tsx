@@ -34,6 +34,9 @@ type CampoEntero =
   | "linkedin_max_criterios_por_corrida"
   | "linkedin_max_perfiles_por_corrida"
   | "dias_anticipacion_cumpleanos"
+  | "lead_sla_minutos"
+  | "lead_horario_inicio"
+  | "lead_horario_fin"
 
 type CampoTexto =
   | "condiciones_comerciales_texto"
@@ -55,6 +58,14 @@ const MINIMO: Record<CampoEntero, number> = {
   linkedin_max_criterios_por_corrida: 1,
   linkedin_max_perfiles_por_corrida: 1,
   dias_anticipacion_cumpleanos: 1,
+  lead_sla_minutos: 1,
+  lead_horario_inicio: 0,
+  lead_horario_fin: 1,
+}
+
+const MAXIMO: Partial<Record<CampoEntero, number>> = {
+  lead_horario_inicio: 23,
+  lead_horario_fin: 24,
 }
 
 const ETIQUETA: Record<CampoEntero, string> = {
@@ -64,6 +75,9 @@ const ETIQUETA: Record<CampoEntero, string> = {
   linkedin_max_criterios_por_corrida: "Criterios por búsqueda",
   linkedin_max_perfiles_por_corrida: "Perfiles por búsqueda",
   dias_anticipacion_cumpleanos: "Días de anticipación para cumpleaños",
+  lead_sla_minutos: "Meta de primer contacto, en minutos hábiles",
+  lead_horario_inicio: "Hora de inicio del horario laboral",
+  lead_horario_fin: "Hora de fin del horario laboral",
 }
 
 function formDesde(row: ConfiguracionGeneral): Form {
@@ -75,6 +89,9 @@ function formDesde(row: ConfiguracionGeneral): Form {
     linkedin_max_criterios_por_corrida: numero(row.linkedin_max_criterios_por_corrida),
     linkedin_max_perfiles_por_corrida: numero(row.linkedin_max_perfiles_por_corrida),
     dias_anticipacion_cumpleanos: numero(row.dias_anticipacion_cumpleanos),
+    lead_sla_minutos: numero(row.lead_sla_minutos),
+    lead_horario_inicio: numero(row.lead_horario_inicio),
+    lead_horario_fin: numero(row.lead_horario_fin),
     condiciones_comerciales_texto: row.condiciones_comerciales_texto ?? "",
     exclusiones_default_texto: row.exclusiones_default_texto ?? "",
     consideraciones_default_texto: row.consideraciones_default_texto ?? "",
@@ -138,6 +155,7 @@ export function ParametrosGeneralesPage() {
           type="number"
           inputMode="numeric"
           min={MINIMO[campo]}
+          max={MAXIMO[campo]}
           step={1}
           value={form[campo]}
           onChange={(event) => setForm((prev) => (prev ? { ...prev, [campo]: event.target.value } : prev))}
@@ -174,13 +192,20 @@ export function ParametrosGeneralesPage() {
     for (const campo of Object.keys(MINIMO) as CampoEntero[]) {
       const raw = form[campo].trim()
       const valor = Number(raw)
-      if (raw === "" || !Number.isInteger(valor) || valor < MINIMO[campo]) {
-        toast.error(`${ETIQUETA[campo]}: tiene que ser un número entero desde ${MINIMO[campo]}.`)
+      const maximo = MAXIMO[campo]
+      if (raw === "" || !Number.isInteger(valor) || valor < MINIMO[campo] || (maximo != null && valor > maximo)) {
+        toast.error(
+          `${ETIQUETA[campo]}: tiene que ser un número entero desde ${MINIMO[campo]}${maximo != null ? ` hasta ${maximo}` : ""}.`,
+        )
         return
       }
       if (valor !== original[campo]) {
         patch[campo] = valor
       }
+    }
+    if (Number(form.lead_horario_inicio) >= Number(form.lead_horario_fin)) {
+      toast.error("La hora de inicio tiene que ser anterior a la de fin.")
+      return
     }
     for (const campo of [
       "condiciones_comerciales_texto",
@@ -326,6 +351,20 @@ export function ParametrosGeneralesPage() {
               </Select>
             </div>
             {campoEntero("dias_anticipacion_cumpleanos", "Con cuántos días de anticipación aparece un cumpleaños.")}
+          </Seccion>
+
+          <Seccion
+            titulo="Reloj de respuesta a leads"
+            descripcion="Cuánto puede esperar un lead nuevo su primer contacto. El reloj corre de lunes a viernes, hora de Ecuador."
+          >
+            {campoEntero(
+              "lead_sla_minutos",
+              `Pasada la meta, se avisa al vendedor. Al superarla ${original?.multiplicador_escalamiento_supervisor ?? 2} veces (multiplicador de Etapas y alertas), se escala al supervisor.`,
+            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {campoEntero("lead_horario_inicio", "De 0 a 23. Un lead que entra antes empieza a contar a esta hora.")}
+              {campoEntero("lead_horario_fin", "De 1 a 24. Tiene que ser posterior a la de inicio.")}
+            </div>
           </Seccion>
         </>
       )}

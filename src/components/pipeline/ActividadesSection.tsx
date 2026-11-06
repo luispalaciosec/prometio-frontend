@@ -13,18 +13,24 @@ import {
   updateActividad,
 } from "@/lib/api/actividad"
 import { useAuthStore } from "@/store/auth-store"
-import type { Actividad } from "@/types/actividad"
+import type { Actividad, TipoActividad } from "@/types/actividad"
 
 export function ActividadesSection({
   oportunidadId,
   contactoId,
+  listarPor = "oportunidad",
+  reportarInicial,
 }: {
-  oportunidadId: string
+  /** En la ficha de contacto, la oportunidad a la que atar lo nuevo, si se llegó desde un lead que la tiene. */
+  oportunidadId: string | null
   contactoId: string | null
+  listarPor?: "oportunidad" | "contacto"
+  /** Abre el alta en modo reportar; `tipo` la preselecciona. */
+  reportarInicial?: { tipo?: TipoActividad }
 }) {
   const perfil = useAuthStore((state) => state.perfil)
   const [actividades, setActividades] = useState<Actividad[] | null>(null)
-  const [alta, setAlta] = useState<"programar" | "reportar" | null>(null)
+  const [alta, setAlta] = useState<"programar" | "reportar" | null>(reportarInicial ? "reportar" : null)
   const [editandoId, setEditandoId] = useState<string | null>(null)
   const [reportandoId, setReportandoId] = useState<string | null>(null)
 
@@ -32,8 +38,12 @@ export function ActividadesSection({
     if (!perfil) {
       return
     }
-    setActividades(await listActividades({ perfil, oportunidad_id: oportunidadId }))
-  }, [perfil, oportunidadId])
+    const filtro =
+      listarPor === "contacto"
+        ? { contacto_id: contactoId ?? undefined }
+        : { oportunidad_id: oportunidadId ?? undefined }
+    setActividades(filtro.contacto_id || filtro.oportunidad_id ? await listActividades({ perfil, ...filtro }) : [])
+  }, [perfil, listarPor, oportunidadId, contactoId])
 
   useEffect(() => {
     void reload().catch((error: unknown) => {
@@ -167,6 +177,7 @@ export function ActividadesSection({
           <ActividadForm
             key={alta}
             modo={alta}
+            tipoInicial={alta === "reportar" ? reportarInicial?.tipo : undefined}
             onSubmit={(input) => void crear(alta, input)}
             onCancel={() => setAlta(null)}
           />

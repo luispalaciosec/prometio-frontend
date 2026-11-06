@@ -14,8 +14,12 @@ import { EmptyState } from "@/components/empty-state"
 import { KindMark } from "@/components/kind-mark"
 import { PageHeader } from "@/components/page-header"
 import { TilesSkeleton } from "@/components/skeleton"
+import { useLeadsPendientes } from "@/hooks/use-leads-pendientes"
+import { TIPO_ACTIVIDAD_VISUAL } from "@/lib/actividad-visual"
 import { getInicio } from "@/lib/api/inicio"
 import { formatMoney } from "@/lib/costo-interno"
+import { cn } from "@/lib/utils"
+import type { LeadPendiente } from "@/types/atencion-lead"
 import type { Inicio } from "@/types/inicio"
 
 type Bloque = {
@@ -78,9 +82,31 @@ function bloquesDe(data: Inicio): Bloque[] {
   ]
 }
 
-function BloqueCard({ bloque }: { bloque: Bloque }) {
+function bloqueLeads(leads: LeadPendiente[]): Bloque {
+  const fueraDeTiempo = leads.filter((lead) => lead.estado !== "a_tiempo").length
+  return {
+    label: "Leads por atender",
+    to: "/leads",
+    value: String(leads.length),
+    hint:
+      leads.length === 0
+        ? "Nadie esperando un primer contacto"
+        : fueraDeTiempo > 0
+          ? `${fueraDeTiempo} fuera de tiempo`
+          : "Todos a tiempo",
+    icon: TIPO_ACTIVIDAD_VISUAL.atender_lead.icon,
+    tone:
+      leads.length === 0
+        ? "bg-success/15 text-success"
+        : fueraDeTiempo > 0
+          ? "bg-destructive/15 text-destructive"
+          : "bg-warning/15 text-warning",
+  }
+}
+
+function BloqueCard({ bloque, className }: { bloque: Bloque; className?: string }) {
   return (
-    <Link to={bloque.to} className="surface-interactive p-5">
+    <Link to={bloque.to} className={cn("surface-interactive p-5", className)}>
       <div className="flex items-start gap-4">
         <KindMark icon={bloque.icon} tone={bloque.tone} size="lg" />
         <div className="min-w-0">
@@ -96,6 +122,7 @@ function BloqueCard({ bloque }: { bloque: Bloque }) {
 export function BienvenidaPage() {
   const [bloques, setBloques] = useState<Bloque[] | null>(null)
   const [error, setError] = useState(false)
+  const { leads } = useLeadsPendientes()
 
   useEffect(() => {
     let cancelled = false
@@ -122,6 +149,7 @@ export function BienvenidaPage() {
     <>
       <PageHeader title="Bienvenida" description="Tu día en el CRM." />
       <div className="grid gap-4 sm:grid-cols-2">
+        {leads ? <BloqueCard bloque={bloqueLeads(leads)} className="sm:col-span-2" /> : null}
         {bloques == null ? (
           <TilesSkeleton count={4} />
         ) : error ? (

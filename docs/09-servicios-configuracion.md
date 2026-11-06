@@ -23,7 +23,7 @@ las necesitan.
 | | Tipos de documento | Catálogo de documentos que un servicio puede requerir |
 | Reglas de negocio | Etapas y alertas | Probabilidad por etapa, umbral de alerta, multiplicador de escalamiento |
 | | Márgenes e impuestos | Margen y comisión por defecto, umbral de aprobación, tasa de impuesto, horas laborales del mes |
-| | Parámetros generales | Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn y reparto de leads |
+| | Parámetros generales | Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn, reparto de leads y reloj de respuesta |
 | | Meta comercial | Meta de la agencia y por vendedor (también supervisor de ventas) |
 | | Causas de pérdida | Catálogo para Cierre Perdido |
 | Marca e integraciones | Marca | Logos, colores y datos de contacto de la organización |
@@ -188,6 +188,7 @@ La misma fila guarda otros parámetros, que se editan en Configuración → **Pa
 | Contratos de fee | Días de aviso de renovación |
 | Prospección en LinkedIn | Horas entre búsquedas, criterios y perfiles por búsqueda |
 | Leads y agenda | Método de asignación de leads y días de anticipación de cumpleaños |
+| Reloj de respuesta a leads | Meta de primer contacto en minutos hábiles (30) y horario laboral (8 a 18). La hora de inicio tiene que ser anterior a la de fin. El escalamiento usa el multiplicador de Etapas y alertas |
 
 ## Etapas y alertas
 

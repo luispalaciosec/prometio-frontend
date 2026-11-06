@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { CotizacionesTorta, PipelineBarras } from "@/components/dashboard/DashboardCharts"
 import { DashboardDetalleModal } from "@/components/dashboard/DashboardDetalleModal"
 import { DashboardKpiTrigger } from "@/components/dashboard/DashboardKpiTrigger"
+import { DashboardAtencionLeads } from "@/components/dashboard/DashboardAtencionLeads"
 import { DashboardCicloVenta } from "@/components/dashboard/DashboardCicloVenta"
 import { DashboardCotizacionesSeguimiento } from "@/components/dashboard/DashboardCotizacionesSeguimiento"
 import { DashboardFacturacionHistorial } from "@/components/dashboard/DashboardFacturacionHistorial"
@@ -266,6 +267,10 @@ export function DashboardPage() {
               metasPorVendedor={kpis.metas?.por_vendedor ?? []}
             />
           ) : null}
+          <DashboardAtencionLeads
+            rango={rangoActividades}
+            mostrarEquipo={perfil ? puedeVerEquipo(perfil) : false}
+          />
           <DashboardCicloVenta oportunidades={datos.oportunidades} />
           <section className="space-y-3">
             <h2 className="text-section">Pipeline por etapa</h2>

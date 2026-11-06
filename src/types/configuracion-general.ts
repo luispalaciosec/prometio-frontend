@@ -21,6 +21,9 @@ export type ConfiguracionGeneral = {
   linkedin_max_criterios_por_corrida?: number
   linkedin_max_perfiles_por_corrida?: number
   contrato_dias_aviso_renovacion?: number
+  lead_sla_minutos?: number
+  lead_horario_inicio?: number
+  lead_horario_fin?: number
 }
 
 export const METODOS_ASIGNACION_LEADS = ["round_robin", "geografia", "carga_trabajo"] as const
@@ -49,5 +52,8 @@ export type ParametrosGeneralesUpdate = Partial<
     | "linkedin_max_perfiles_por_corrida"
     | "metodo_asignacion_leads"
     | "dias_anticipacion_cumpleanos"
+    | "lead_sla_minutos"
+    | "lead_horario_inicio"
+    | "lead_horario_fin"
   >
 >

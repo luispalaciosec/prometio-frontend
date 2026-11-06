@@ -25,6 +25,7 @@ import { ActividadesPage } from "@/pages/ActividadesPage"
 import { ResumenPage } from "@/pages/ResumenPage"
 import { AuditoriaPage } from "@/pages/AuditoriaPage"
 import { CumpleanosPage } from "@/pages/CumpleanosPage"
+import { LeadsPorAtenderPage } from "@/pages/LeadsPorAtenderPage"
 import { BandejaPage } from "@/pages/BandejaPage"
 import { CategoriasServicioPage } from "@/pages/CategoriasServicioPage"
 import { CausasPerdidaPage } from "@/pages/CausasPerdidaPage"
@@ -100,6 +101,14 @@ export default function App() {
                 element={
                   <VentasRoute>
                     <ResumenPage />
+                  </VentasRoute>
+                }
+              />
+              <Route
+                path="/leads"
+                element={
+                  <VentasRoute>
+                    <LeadsPorAtenderPage />
                   </VentasRoute>
                 }
               />

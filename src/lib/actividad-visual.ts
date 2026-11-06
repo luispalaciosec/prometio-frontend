@@ -4,6 +4,7 @@
  * El mismo contrato vale para otros enums (`src/lib/*-visual.ts`).
  */
 import {
+  AlarmClock,
   ListTodo,
   Mail,
   MapPin,
@@ -25,4 +26,5 @@ export const TIPO_ACTIVIDAD_VISUAL: Record<
   videollamada: { icon: Video, tone: "bg-kind-videollamada/15 text-kind-videollamada" },
   email: { icon: Mail, tone: "bg-kind-email/15 text-kind-email" },
   tarea_interna: { icon: ListTodo, tone: "bg-kind-tarea/15 text-kind-tarea" },
+  atender_lead: { icon: AlarmClock, tone: "bg-destructive/15 text-destructive" },
 }

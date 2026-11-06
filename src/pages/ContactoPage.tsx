@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useParams, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
 
+import { ContactoRecorrido } from "@/components/contactos/ContactoRecorrido"
+import { ActividadesSection } from "@/components/pipeline/ActividadesSection"
 import { DetailSkeleton } from "@/components/skeleton"
 import { EntityAvatar } from "@/components/entity-avatar"
 import { LinkedInLink } from "@/components/linkedin-link"
@@ -26,6 +28,7 @@ import {
   updateContacto,
 } from "@/lib/api/contacto"
 import { useAuthStore } from "@/store/auth-store"
+import { TIPOS_ACTIVIDAD_MANUALES, type TipoActividad } from "@/types/actividad"
 import {
   ETAPAS_CICLO_VIDA,
   ETAPA_CICLO_LABELS,
@@ -35,6 +38,8 @@ import {
 
 export function ContactoPage() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const reportar = searchParams.get("reportar")
   const perfil = useAuthStore((state) => state.perfil)
   const esAdmin = perfil?.equipo === "administrativo"
   const [contacto, setContacto] = useState<Contacto | null>(null)
@@ -247,6 +252,15 @@ export function ContactoPage() {
           </div>
         }
       />
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+        <ActividadesSection
+          oportunidadId={searchParams.get("oportunidad")}
+          contactoId={contacto.id}
+          listarPor="contacto"
+          reportarInicial={reportar == null ? undefined : { tipo: esTipoManual(reportar) ? reportar : undefined }}
+        />
+        <ContactoRecorrido contactoId={contacto.id} />
+      </div>
       <section className="mb-8 space-y-4">
         <h2 className="text-section">Datos</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -353,6 +367,10 @@ export function ContactoPage() {
       ) : null}
     </>
   )
+}
+
+function esTipoManual(value: string): value is TipoActividad {
+  return (TIPOS_ACTIVIDAD_MANUALES as readonly string[]).includes(value)
 }
 
 function Field({ label, value }: { label: string; value: string | null }) {

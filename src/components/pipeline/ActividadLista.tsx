@@ -52,7 +52,7 @@ export function ActividadLista({
       <EmptyState
         icon={CalendarClock}
         title="Nada programado"
-        body="Las visitas y llamadas de esta oportunidad aparecen acá. Programá la primera para que el pipeline no se estanque."
+        body="Las visitas y llamadas aparecen acá. Programá la primera para que el seguimiento no se estanque."
         action={
           onProgramar ? (
             <Button type="button" variant="ghost" size="sm" onClick={onProgramar}>
@@ -91,8 +91,12 @@ export function ActividadLista({
                   <ActividadEstadoBadge actividad={actividad} />
                 </div>
                 <p className="text-kicker">
-                  programada_para {formatDateTime(actividad.programada_para)} · reportada_en{" "}
-                  {formatDateTime(actividad.reportada_en)}
+                  {[
+                    actividad.programada_para ? `Programada: ${formatDateTime(actividad.programada_para)}` : null,
+                    actividad.reportada_en ? `Reportada: ${formatDateTime(actividad.reportada_en)}` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </p>
                 {actividad.feedback ? (
                   <p className="text-ui">{actividad.feedback}</p>

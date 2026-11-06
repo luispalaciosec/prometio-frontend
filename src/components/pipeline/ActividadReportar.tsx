@@ -26,7 +26,7 @@ export function ActividadReportar({
     try {
       const reportada_en = fromDatetimeLocalValue(reportadaRaw)
       if (reportada_en == null) {
-        toast.error("se requiere al menos uno de programada_para/reportada_en")
+        toast.error("Elegí cuándo fue la actividad.")
         return
       }
       onSubmit({ reportada_en, feedback: feedbackRaw })
@@ -37,12 +37,9 @@ export function ActividadReportar({
 
   return (
     <form onSubmit={enviar} className="surface-muted mt-3 space-y-3 p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <TipoActividadMark tipo={actividad.tipo} />
-        <p className="text-kicker">Se agrega reportada_en; programada_para se conserva.</p>
-      </div>
+      <TipoActividadMark tipo={actividad.tipo} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`reportar-${actividad.id}-fecha`}>reportada_en</Label>
+        <Label htmlFor={`reportar-${actividad.id}-fecha`}>Cuándo fue</Label>
         <Input
           id={`reportar-${actividad.id}-fecha`}
           type="datetime-local"
@@ -51,7 +48,7 @@ export function ActividadReportar({
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`reportar-${actividad.id}-feedback`}>feedback</Label>
+        <Label htmlFor={`reportar-${actividad.id}-feedback`}>Qué pasó</Label>
         <Textarea
           id={`reportar-${actividad.id}-feedback`}
           value={feedbackRaw}

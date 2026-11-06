@@ -2,7 +2,7 @@ import { TimelineEventoMark } from "@/components/timeline/TimelineEventoMark"
 import { formatMoney } from "@/lib/costo-interno"
 import { formatTimeOnly } from "@/lib/datetime-local"
 import { CANAL_LABELS, type CanalConversacion } from "@/types/conversacion"
-import { labelTipoTimeline, type TimelineEvento } from "@/types/timeline"
+import { labelEventoTimeline, type TimelineEvento } from "@/types/timeline"
 
 const TV_ACTIVIDAD_MAX = 8
 
@@ -64,7 +64,7 @@ function TvActividadItem({ row }: { row: TimelineEvento }) {
     <div className="flex min-h-0 items-start gap-2.5">
       <TimelineEventoMark row={row} size="sm" showLabel={false} />
       <div className="min-w-0 flex-1">
-        <p className="text-ui-medium leading-snug">{labelTipoTimeline(row.tipo_evento)}</p>
+        <p className="text-ui-medium leading-snug">{labelEventoTimeline(row)}</p>
         {resumen ? (
           <p className="mt-0.5 break-words text-micro leading-snug text-muted-foreground">{resumen}</p>
         ) : null}
