@@ -179,16 +179,14 @@ export function PipelinePage() {
 
   const hayFiltroLocal = Boolean(busqueda.trim() || etapaId || ejecutivoId)
 
-  // La exportación arranca con etapa y ejecutivo. «Solo lo mío» de un supervisor o admin es su propio ejecutivo;
-  // a un vendedor el backend ya lo limita a lo suyo (y no le ofrece el filtro).
+  // La exportación arranca con los mismos filtros que la pantalla. «Solo lo mío» de un supervisor o admin es su
+  // propio ejecutivo; a un vendedor el backend ya lo limita a lo suyo (y no le ofrece el filtro).
   const filtrosExportacion: Record<string, string> = {
+    q: busqueda.trim(),
+    servicio_id: servicioId ?? "",
     etapa: etapaId ?? "",
     ejecutivo_id: ejecutivoId ?? (mostrarAlcance && scope === "mio" ? (perfil?.id ?? "") : ""),
   }
-  const avisoExportacion =
-    busqueda.trim() || servicioId
-      ? "La búsqueda y el filtro de servicio de Pipeline no se aplican en la exportación: revisá el conteo de la vista previa."
-      : null
 
   async function crear(input: OportunidadCreate) {
     if (!perfil) {
@@ -267,7 +265,7 @@ export function PipelinePage() {
         description="9 etapas fijas. El valor cotizado manda; si no hay, se muestra el referencial como estimado."
         action={
           <div className="flex flex-wrap gap-2">
-          <ExportarBoton recurso="oportunidades" filtrosIniciales={filtrosExportacion} aviso={avisoExportacion} />
+          <ExportarBoton recurso="oportunidades" filtrosIniciales={filtrosExportacion} />
           <Button
             type="button"
             onClick={() => {

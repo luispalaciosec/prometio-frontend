@@ -8,11 +8,9 @@ import type { RecursoExportable } from "@/types/exportar"
 export function ExportarBoton({
   recurso,
   filtrosIniciales,
-  aviso,
 }: {
   recurso: RecursoExportable
   filtrosIniciales: Record<string, string>
-  aviso?: string | null
 }) {
   const [open, setOpen] = useState(false)
   return (
@@ -26,7 +24,6 @@ export function ExportarBoton({
           open={open}
           onOpenChange={setOpen}
           filtrosIniciales={filtrosIniciales}
-          aviso={aviso}
         />
       ) : null}
     </>

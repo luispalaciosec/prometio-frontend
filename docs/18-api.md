@@ -117,8 +117,9 @@ La vista previa admite 60 pedidos por minuto; las descargas, 10.
 pantalla precargados (y editables), columnas para marcar y reordenar, orden, agrupación y una vista previa en vivo: conteo,
 resumen, grupos con subtotales, totales y las primeras filas. La vista previa se pide 400 ms después del último cambio y
 cancela la anterior. Las descargas quedan deshabilitadas si no hay filas o si se pasa el tope del formato. El navegador
-recuerda columnas, orden y agrupación por pantalla; los filtros siempre arrancan con los de la pantalla. La búsqueda y el
-filtro de servicio de Pipeline no tienen equivalente en el endpoint: el panel lo avisa.
+recuerda columnas, orden y agrupación por pantalla; los filtros siempre arrancan con los de la pantalla. Pipeline también pasa su
+búsqueda (`q`) y su filtro de servicio (`servicio_id`), con la misma regla que la pantalla. En contratos, sin `activo`
+salen activos y desactivados; el listado `GET /contratos-recurrentes` sigue mostrando solo activos por defecto.
 
 ### Atención de leads
 

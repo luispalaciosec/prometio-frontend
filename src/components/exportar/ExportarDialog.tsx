@@ -33,6 +33,7 @@ import {
 } from "@/lib/api/exportar"
 import { etiquetaEmpresa, listOportunidadesLookup } from "@/lib/api/oportunidad"
 import { listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles"
+import { listServicios } from "@/lib/config-api"
 import {
   guardarPreferencias,
   leerPreferencias,
@@ -54,6 +55,7 @@ const CARGAR_UUID: Record<string, () => Promise<SearchComboboxOption[]>> = {
   empresa_id: async () => (await listEmpresas()).map((row) => ({ value: row.id, label: row.nombre })),
   ejecutivo_id: async () =>
     (await listPerfilesElegiblesEjecutivo()).map((row) => ({ value: row.id, label: row.nombre_completo })),
+  servicio_id: async () => (await listServicios()).map((row) => ({ value: row.id, label: row.nombre })),
   oportunidad_id: async () =>
     (await listOportunidadesLookup()).map((row) => ({
       value: row.id,
@@ -82,15 +84,12 @@ export function ExportarDialog({
   open,
   onOpenChange,
   filtrosIniciales,
-  aviso,
 }: {
   recurso: RecursoExportable
   open: boolean
   onOpenChange: (open: boolean) => void
   /** Filtros activos en la pantalla de origen. Los que el backend no ofrece se descartan. */
   filtrosIniciales: Record<string, string>
-  /** Filtros de la pantalla que la exportación no puede aplicar. */
-  aviso?: string | null
 }) {
   const [opciones, setOpciones] = useState<OpcionesExportacion | null>(null)
   const [errorOpciones, setErrorOpciones] = useState<string | null>(null)
@@ -275,9 +274,6 @@ export function ExportarDialog({
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]">
             <div className="min-w-0 space-y-6">
-              {aviso ? (
-                <p className="rounded-xl border border-warning/30 bg-warning/10 p-3 text-kicker text-foreground">{aviso}</p>
-              ) : null}
               <section className="space-y-3">
                 <h3 className="text-section">Filtros</h3>
                 <ExportarFiltros
