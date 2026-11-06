@@ -106,7 +106,7 @@ caché del build.
 
 - Antes de tocar código, lee [`CLAUDE.md`](CLAUDE.md): convenciones, sistema de diseño y reglas de negocio que la UI
   respeta.
-- `npm run build` y `npm run lint` tienen que pasar antes de cada commit.
+- `npm run build` y `npm run lint` tienen que pasar antes de cada commit. El lint falla con cualquier advertencia (`--deny-warnings`).
 - Commits en inglés, en imperativo y terminados en punto. Código y copy de la interfaz en español.
 - Si cambias cómo funciona algo, actualiza su página en `docs/`.
 - Los registros de seguridad están en [`HARDENING-CHANGELOG.md`](HARDENING-CHANGELOG.md).

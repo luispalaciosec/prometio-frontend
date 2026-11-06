@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 
+import type { LineaFormPrefillAlta } from "@/lib/linea-cotizacion-prefill"
 import { CategoriaServicioPicker } from "@/components/pipeline/CategoriaServicioPicker"
 import { HistorialPreciosDialog } from "@/components/pipeline/HistorialPreciosDialog"
 import { LineaCalculoVivo } from "@/components/pipeline/LineaCalculoVivo"
@@ -47,40 +48,6 @@ export type LineaCotizacionFormInput = {
 }
 
 /** Precarga del formulario de alta desde POST .../sugerir-lineas */
-export type LineaFormPrefillAlta = {
-  sinCatalogo: boolean
-  servicio_id: string | null
-  descripcion: string
-  cantidad: number
-  caminoProveedor: boolean
-  justificacion_precio: string
-  motivo: string
-  categoria_servicio_id: string | null
-}
-
-export function prefillDesdeSugerencia(row: {
-  servicio_id: string | null
-  servicio_nombre_sugerido: string
-  cantidad: number
-  descripcion: string
-  requiere_proveedor: boolean
-  motivo: string
-  categoria_servicio_id?: string | null
-}): LineaFormPrefillAlta {
-  const sinCatalogo = row.servicio_id == null
-  const descripcion =
-    row.descripcion.trim() || row.servicio_nombre_sugerido.trim() || "Ítem a medida"
-  return {
-    sinCatalogo,
-    servicio_id: row.servicio_id,
-    descripcion,
-    cantidad: row.cantidad,
-    caminoProveedor: row.requiere_proveedor,
-    justificacion_precio: sinCatalogo && !row.requiere_proveedor ? row.motivo : "",
-    motivo: row.motivo,
-    categoria_servicio_id: row.categoria_servicio_id ?? null,
-  }
-}
 
 function PasoEncabezado({ paso, titulo }: { paso: number; titulo: string }) {
   return (
@@ -170,14 +137,12 @@ export function LineaCotizacionForm({
     linea?.costo_proveedor != null ? String(linea.costo_proveedor) : "",
   )
 
+  const costoProveedorLinea = linea?.costo_proveedor
   useEffect(() => {
-    if (modo !== "edicion" || !linea) {
-      return
+    if (modo === "edicion" && costoProveedorLinea != null) {
+      setCostoRaw(String(costoProveedorLinea))
     }
-    if (linea.costo_proveedor != null) {
-      setCostoRaw(String(linea.costo_proveedor))
-    }
-  }, [modo, linea?.id, linea?.costo_proveedor, linea?.costos])
+  }, [modo, linea?.id, costoProveedorLinea, linea?.costos])
   const [margenRaw, setMargenRaw] = useState(
     linea?.margen_pct != null ? String(linea.margen_pct) : "",
   )

@@ -1024,4 +1024,3 @@ function PasoWord({
   )
 }
 
-export { importDraft as draftFromDocumentoWizard }

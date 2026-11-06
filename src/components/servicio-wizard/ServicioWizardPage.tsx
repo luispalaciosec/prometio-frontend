@@ -5,7 +5,6 @@ import { toast } from "sonner"
 import { PageHeader } from "@/components/page-header"
 import { DetailSkeleton } from "@/components/skeleton"
 import {
-  PASO_TITULO,
   PasoConfigFee,
   PasoDatosBasicos,
   PasoDocumentos,
@@ -14,9 +13,8 @@ import {
   PasoMargenes,
   PasoModeloCobro,
   PasoRevision,
-  pasosVisibles,
-  type WizardPaso,
 } from "@/components/servicio-wizard/wizard-pasos"
+import { PASO_TITULO, pasosVisibles, type WizardPaso } from "@/lib/servicio-wizard-pasos"
 import { Button } from "@/components/ui/button"
 import {
   MOCK_ORGANIZACION_ID,

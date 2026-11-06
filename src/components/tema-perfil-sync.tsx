@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/components/theme-context"
 import { useAuthStore } from "@/store/auth-store"
 
 /**

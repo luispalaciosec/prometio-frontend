@@ -45,7 +45,7 @@ export function GeneracionProgreso({ lineasCount }: { lineasCount: number }) {
           </div>
           <ul className="space-y-2" aria-live="polite" aria-busy="true">
             {frases.map((frase, i) => {
-              const visible = reduceMotion ? i <= indice : i === indice || i < indice
+              const visible = i <= indice
               const actual = i === indice
               return (
                 <li

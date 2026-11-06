@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { DocumentoAlcanceRichText } from "@/components/pipeline/DocumentoAlcanceRichText"
-import type { DocumentoAlcance, EntregableDocumento, SeccionAlcanceFuncional } from "@/types/documento-alcance"
+import type { EntregableDocumento, SeccionAlcanceFuncional } from "@/types/documento-alcance"
 
 export type DocumentoAlcanceDraft = {
   objetivo: string | null
@@ -18,24 +18,6 @@ export type DocumentoAlcanceDraft = {
   exclusiones_texto: string | null
   consideraciones_texto: string | null
   por_que_geeks_texto: string | null
-}
-
-export function draftDesdeDocumento(doc: DocumentoAlcance): DocumentoAlcanceDraft {
-  return {
-    objetivo: doc.objetivo,
-    alcance_funcional: doc.alcance_funcional ?? [],
-    alcance_tecnico_incluido: doc.alcance_tecnico_incluido,
-    alcance_tecnico_no_incluido: doc.alcance_tecnico_no_incluido,
-    metodologia: doc.metodologia,
-    tiempos: doc.tiempos,
-    modelo_inversion: doc.modelo_inversion,
-    supuestos: doc.supuestos,
-    entregables: doc.entregables ?? [],
-    condiciones_pago_texto: doc.condiciones_pago_texto,
-    exclusiones_texto: doc.exclusiones_texto,
-    consideraciones_texto: doc.consideraciones_texto,
-    por_que_geeks_texto: doc.por_que_geeks_texto,
-  }
 }
 
 export function DocumentoAlcanceEditor({

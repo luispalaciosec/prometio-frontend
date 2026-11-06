@@ -88,3 +88,21 @@ export function guardadoHaceTexto(iso: string | null): string | null {
   const h = Math.floor(min / 60)
   return h === 1 ? "Guardado hace 1 hora" : `Guardado hace ${h} horas`
 }
+
+export function draftDesdeDocumento(doc: DocumentoAlcance): DocumentoAlcanceDraft {
+  return {
+    objetivo: doc.objetivo,
+    alcance_funcional: doc.alcance_funcional ?? [],
+    alcance_tecnico_incluido: doc.alcance_tecnico_incluido,
+    alcance_tecnico_no_incluido: doc.alcance_tecnico_no_incluido,
+    metodologia: doc.metodologia,
+    tiempos: doc.tiempos,
+    modelo_inversion: doc.modelo_inversion,
+    supuestos: doc.supuestos,
+    entregables: doc.entregables ?? [],
+    condiciones_pago_texto: doc.condiciones_pago_texto,
+    exclusiones_texto: doc.exclusiones_texto,
+    consideraciones_texto: doc.consideraciones_texto,
+    por_que_geeks_texto: doc.por_que_geeks_texto,
+  }
+}

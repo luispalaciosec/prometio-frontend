@@ -65,6 +65,8 @@ export function MarcaPage() {
         toast.error(error instanceof Error ? error.message : "No se pudo cargar la marca.")
       })
       .finally(() => setCargando(false))
+    // Solo al montar: `aplicar` solo usa setters estables.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

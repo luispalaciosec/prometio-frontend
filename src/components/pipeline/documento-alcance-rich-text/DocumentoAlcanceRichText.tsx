@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils"
 import type { RegenerarSeccionResponse, SeccionRegenerable } from "@/types/documento-alcance"
 
 import { documentoAlcanceEditorExtensions, editorSurfaceClassName } from "./editor-config"
-import { contarPalabras, DocumentoAlcanceEditorToolbar } from "./DocumentoAlcanceEditorToolbar"
+import { contarPalabras } from "@/lib/contar-palabras"
+import { DocumentoAlcanceEditorToolbar } from "./DocumentoAlcanceEditorToolbar"
 import { DocumentoAlcanceEditorModal } from "./DocumentoAlcanceEditorModal"
 
 export function DocumentoAlcanceRichText({

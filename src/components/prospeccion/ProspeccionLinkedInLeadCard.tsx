@@ -37,7 +37,8 @@ export function ProspeccionLinkedInLeadCard({
   const [iaAbierta, setIaAbierta] = useState(() => leadTieneInvestigacion(lead))
 
   useEffect(() => {
-    if (leadTieneInvestigacion(lead)) {
+    // Se abre sola cuando llega la investigación de este lead.
+    if (lead.investigado_en != null) {
       setIaAbierta(true)
     }
   }, [lead.investigado_en, lead.id])

@@ -206,6 +206,8 @@ export function FacturasPage() {
               : "No se pudieron cargar las facturas."
         setError(mensaje)
       })
+    // `filterSig` resume todos los filtros: cambiarlo es lo que dispara la recarga.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterSig, offset])
 
   useEffect(() => {

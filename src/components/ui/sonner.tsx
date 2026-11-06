@@ -2,7 +2,7 @@ import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import type { CSSProperties } from "react"
 
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/components/theme-context"
 
 export function Toaster({ ...props }: ToasterProps) {
   const { theme } = useTheme()

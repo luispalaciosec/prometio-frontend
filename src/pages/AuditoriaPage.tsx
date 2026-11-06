@@ -76,6 +76,8 @@ export function AuditoriaPage() {
       .then(setPerfiles)
       .catch(() => setPerfiles([]))
     void reload()
+    // Solo al montar: después, los filtros se aplican con «Aplicar», no al tipear.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const resumen = useMemo(() => {

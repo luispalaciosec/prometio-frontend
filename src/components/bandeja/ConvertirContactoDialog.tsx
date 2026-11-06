@@ -77,6 +77,8 @@ export function ConvertirContactoDialog({
     void listEmpresasParaContacto()
       .then(setEmpresas)
       .catch(() => setEmpresas([]))
+    // Reinicia el formulario al abrir o al cambiar de conversación, no cada vez que se re-renderiza.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, conversacion?.id])
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Users } from "lucide-react"
 
@@ -98,18 +98,18 @@ export function UsuariosPage() {
   const [guardando, setGuardando] = useState(false)
   const [cargandoDetalle, setCargandoDetalle] = useState(false)
 
-  async function reload() {
+  const reload = useCallback(async () => {
     setRows(
       await listPerfilesAdmin(filtroEquipo === "all" ? undefined : filtroEquipo),
     )
-  }
+  }, [filtroEquipo])
 
   useEffect(() => {
     void reload().catch((error: unknown) => {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar los usuarios.")
       setRows([])
     })
-  }, [filtroEquipo])
+  }, [reload])
 
   const ordenados = useMemo(
     () =>

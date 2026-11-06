@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 
@@ -52,18 +52,18 @@ export function EmpresasPage() {
     guardarVistaLocal(VISTA_KEY, next)
   }
 
-  async function reload() {
+  const reload = useCallback(async () => {
     try {
       setRows(await listEmpresas({ incluir_inactivos: incluirInactivos }))
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar las empresas.")
       setRows([])
     }
-  }
+  }, [incluirInactivos])
 
   useEffect(() => {
     void reload()
-  }, [incluirInactivos])
+  }, [reload])
 
   const filtradas = useMemo(() => {
     if (!rows) {

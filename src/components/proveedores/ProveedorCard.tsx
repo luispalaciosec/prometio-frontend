@@ -1,4 +1,5 @@
 import { EntityAvatar } from "@/components/entity-avatar"
+import { mismoServicio } from "@/lib/proveedor-servicio"
 import { CalificacionEstrellas } from "@/components/proveedores/CalificacionEstrellas"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -88,6 +89,3 @@ export function ProveedorCard({
   )
 }
 
-export function mismoServicio(actual: string | null, tag: string): boolean {
-  return actual != null && actual.toLocaleLowerCase("es") === tag.toLocaleLowerCase("es")
-}

@@ -4,7 +4,8 @@ import { toast } from "sonner"
 
 import { EmptyState } from "@/components/empty-state"
 import { DocumentoAlcanceSectionSkeleton } from "@/components/skeleton"
-import { draftDesdeDocumento, type DocumentoAlcanceDraft } from "@/components/pipeline/DocumentoAlcanceEditor"
+import type { DocumentoAlcanceDraft } from "@/components/pipeline/DocumentoAlcanceEditor"
+import { draftDesdeDocumento } from "@/lib/documento-alcance-draft"
 import {
   DocumentoAlcanceWizard,
   type LineaCotizacionResumen,
@@ -141,6 +142,8 @@ export function DocumentoAlcanceSection({
       .catch((error: unknown) => {
         toast.error(error instanceof Error ? error.message : "No se pudo abrir el documento.")
       })
+    // Solo al abrir otro documento: `docs` se actualiza adentro y volver a correr haría un bucle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [abiertoId])
 
   async function generar(opts?: { generarIa?: boolean }) {

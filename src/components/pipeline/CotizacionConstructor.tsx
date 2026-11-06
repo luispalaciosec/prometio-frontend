@@ -10,12 +10,8 @@ import { DocumentoAlcanceRequisitoAviso } from "@/components/pipeline/DocumentoA
 import { DocumentoAlcanceSection } from "@/components/pipeline/DocumentoAlcanceSection"
 import { LineaCostosDesglose } from "@/components/pipeline/LineaCostosDesglose"
 import { MarcarFacturadaDialog } from "@/components/pipeline/MarcarFacturadaDialog"
-import {
-  LineaCotizacionForm,
-  prefillDesdeSugerencia,
-  type LineaCotizacionFormInput,
-  type LineaFormPrefillAlta,
-} from "@/components/pipeline/LineaCotizacionForm"
+import { LineaCotizacionForm, type LineaCotizacionFormInput } from "@/components/pipeline/LineaCotizacionForm"
+import { prefillDesdeSugerencia, type LineaFormPrefillAlta } from "@/lib/linea-cotizacion-prefill"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ApiError, esConflicto } from "@/lib/api-client"

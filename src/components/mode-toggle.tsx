@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 
-import { buttonVariants } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button-variants"
 import { cn } from "@/lib/utils"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/components/theme-context"
 import { guardarTemaPreferido } from "@/lib/api/perfil-admin"
 import { useAuthStore } from "@/store/auth-store"
 

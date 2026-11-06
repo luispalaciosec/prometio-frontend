@@ -1,15 +1,12 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import { Truck } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { PageHeader } from "@/components/page-header"
 import { CalificacionEstrellas } from "@/components/proveedores/CalificacionEstrellas"
-import {
-  mismoServicio,
-  ProveedorCard,
-  ServicioTagChip,
-} from "@/components/proveedores/ProveedorCard"
+import { ProveedorCard, ServicioTagChip } from "@/components/proveedores/ProveedorCard"
+import { mismoServicio } from "@/lib/proveedor-servicio"
 import { ServiciosTagsInput } from "@/components/proveedores/ServiciosTagsInput"
 import { TableSkeleton, TilesSkeleton } from "@/components/skeleton"
 import { VistaToggle } from "@/components/vista-toggle"
@@ -123,16 +120,16 @@ export function ProveedoresPage() {
     guardarVistaLocal(VISTA_KEY, next)
   }
 
-  async function reload() {
+  const reload = useCallback(async () => {
     setRows(await listProveedores({ incluir_inactivos: incluirInactivos }))
-  }
+  }, [incluirInactivos])
 
   useEffect(() => {
     void reload().catch((error: unknown) => {
       toast.error(error instanceof Error ? error.message : "No se pudieron cargar los proveedores.")
       setRows([])
     })
-  }, [incluirInactivos])
+  }, [reload])
 
   const sugerencias = useMemo(() => {
     const seen = new Set<string>()

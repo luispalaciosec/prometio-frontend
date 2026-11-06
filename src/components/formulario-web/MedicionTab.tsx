@@ -204,6 +204,8 @@ export function MedicionTab() {
         setEventos([])
         setTotalEventos(0)
       })
+    // `filterSig` resume todos los filtros: cambiarlo es lo que dispara la recarga.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterSig, offset])
 
   const resumenPagina = useMemo(() => {
