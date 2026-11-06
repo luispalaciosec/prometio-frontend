@@ -11,6 +11,8 @@ export type ListActividadesQuery = {
   oportunidad_id?: string
   desde?: string
   hasta?: string
+  /** `AAAA-MM`, mes completo en hora de Ecuador. No se combina con desde/hasta (422). */
+  mes?: string
   responsable_id?: string
 }
 
@@ -43,7 +45,9 @@ export function listActividades(query: ListActividadesQuery): Promise<Actividad[
   if (query.oportunidad_id) {
     params.set("oportunidad_id", query.oportunidad_id)
   }
-  if (query.desde && query.hasta) {
+  if (query.mes) {
+    params.set("mes", query.mes)
+  } else if (query.desde && query.hasta) {
     params.set("desde", query.desde)
     params.set("hasta", query.hasta)
   }

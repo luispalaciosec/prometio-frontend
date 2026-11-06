@@ -75,9 +75,14 @@ Al borrar una actividad, la fecha de última actividad de la oportunidad se reca
 
 ### Pantalla Actividades
 
-Rango Desde / Hasta y filtros por responsable (solo equipo), tipo, contacto y estado (programada o
-reportada). Una actividad entra en el rango si su fecha **programada o** su fecha **reportada** cae dentro,
-en hora de Ecuador. Es el mismo criterio que "Actividades por vendedor" del
+Arranca en el **mes actual**. El selector de mes tiene flechas para ir al anterior o al siguiente y la opción «Todos
+los meses»; cambia la lista al instante (`GET /actividades?mes=AAAA-MM`). También hay un rango Desde / Hasta, que se
+aplica con «Aplicar». Mes y rango se excluyen: elegir un mes limpia el rango y escribir una fecha limpia el mes, porque
+el backend rechaza los dos juntos (422). Si un mes no tiene actividades, la pantalla dice «No hay actividades en
+noviembre de 2026» en vez de mostrar una tabla vacía.
+
+Los demás filtros son responsable (solo equipo), tipo, contacto y estado (programada o reportada). Una actividad entra en
+el mes o el rango si su fecha **programada o** su fecha **reportada** cae dentro, en hora de Ecuador. Es el mismo criterio que "Actividades por vendedor" del
 [Dashboard](./06-dashboard.md), para que los números coincidan.
 
 ### Google Calendar y Meet

@@ -4,6 +4,7 @@ import { toast } from "sonner"
 import { CalendarClock } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
+import { FiltroMes } from "@/components/filtro-mes"
 import { PageHeader } from "@/components/page-header"
 import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge"
 import { estadoActividad } from "@/lib/actividad-estado"
@@ -31,6 +32,7 @@ import { listActividades } from "@/lib/api/actividad"
 import { getEstadoCalendar } from "@/lib/api/google-calendar"
 import { listContactos } from "@/lib/api/contacto"
 import { listPerfiles, listPerfilesElegiblesEjecutivo } from "@/lib/api/perfiles"
+import { formatPeriodo, mesActualEcuador } from "@/lib/contrato-recurrente"
 import { formatDateTime } from "@/lib/datetime-local"
 import { puedeVerEquipo } from "@/lib/pipeline-acceso"
 import { useAuthStore } from "@/store/auth-store"
@@ -47,6 +49,8 @@ export function ActividadesPage() {
     responsables: new Map<string, string>(),
   })
   const [ejecutivos, setEjecutivos] = useState<Perfil[]>([])
+  // Mes y rango se excluyen: el backend responde 422 si llegan los dos.
+  const [mes, setMes] = useState(mesActualEcuador)
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
   const [responsableId, setResponsableId] = useState<string | null>(null)
@@ -55,16 +59,20 @@ export function ActividadesPage() {
   const [estadoFiltro, setEstadoFiltro] = useState<"programada" | "reportada" | null>(null)
   const [calendarConectado, setCalendarConectado] = useState<boolean | null>(null)
 
-  async function reload(filtro?: { desde: string; hasta: string; responsable_id: string | null }) {
+  async function reload(filtro?: { mes?: string; desde?: string; hasta?: string; responsable_id?: string | null }) {
     if (!perfil) {
       return
     }
+    const mesFiltro = filtro?.mes ?? mes
     const desdeFiltro = filtro?.desde ?? desde
     const hastaFiltro = filtro?.hasta ?? hasta
-    const responsableFiltro = filtro ? filtro.responsable_id : responsableId
+    const responsableFiltro = filtro && "responsable_id" in filtro ? filtro.responsable_id : responsableId
+    setRows(null)
     try {
       const query: Parameters<typeof listActividades>[0] = { perfil }
-      if (desdeFiltro && hastaFiltro) {
+      if (mesFiltro) {
+        query.mes = mesFiltro
+      } else if (desdeFiltro && hastaFiltro) {
         query.desde = `${desdeFiltro}T00:00:00`
         query.hasta = `${hastaFiltro}T23:59:59`
       }
@@ -98,7 +106,8 @@ export function ActividadesPage() {
     let cancelled = false
     void (async () => {
       try {
-        const query: Parameters<typeof listActividades>[0] = { perfil }
+        // Arranca en el mes actual.
+        const query: Parameters<typeof listActividades>[0] = { perfil, mes: mesActualEcuador() }
         if (!mostrarAlcance) {
           query.responsable_id = perfil.id
         }
@@ -143,6 +152,13 @@ export function ActividadesPage() {
       cancelled = true
     }
   }, [perfil, mostrarAlcance])
+
+  function elegirMes(next: string) {
+    setMes(next)
+    setDesde("")
+    setHasta("")
+    void reload({ mes: next, desde: "", hasta: "" })
+  }
 
   const hayFiltro =
     Boolean(desde && hasta) ||
@@ -200,12 +216,18 @@ export function ActividadesPage() {
         }}
       >
         <div className="filter-field">
+          <FiltroMes id="agenda-mes" value={mes} onChange={elegirMes} />
+        </div>
+        <div className="filter-field">
           <Label htmlFor="agenda-desde">Desde</Label>
           <Input
             id="agenda-desde"
             type="date"
             value={desde}
-            onChange={(event) => setDesde(event.target.value)}
+            onChange={(event) => {
+              setDesde(event.target.value)
+              setMes("")
+            }}
           />
         </div>
         <div className="filter-field">
@@ -214,7 +236,10 @@ export function ActividadesPage() {
             id="agenda-hasta"
             type="date"
             value={hasta}
-            onChange={(event) => setHasta(event.target.value)}
+            onChange={(event) => {
+              setHasta(event.target.value)
+              setMes("")
+            }}
           />
         </div>
         {mostrarAlcance ? (
@@ -305,14 +330,20 @@ export function ActividadesPage() {
       ) : visibles.length === 0 ? (
         <EmptyState
           icon={CalendarClock}
-          title={hayFiltro ? "Nada coincide" : "Sin actividades"}
+          title={mes ? `No hay actividades en ${formatPeriodo(mes, true)}` : hayFiltro ? "Nada coincide" : "Sin actividades"}
           body={
             hayFiltro
-              ? "Ninguna actividad pasa esos filtros. Probá otro rango, tipo, contacto o estado."
-              : "Cuando el equipo programe o reporte, aparecen acá. No están anidadas a una sola oportunidad."
+              ? "Ninguna actividad pasa esos filtros. Probá otro mes, rango, tipo, contacto o estado."
+              : mes
+                ? "Probá otro mes con las flechas o mirá todos los meses."
+                : "Cuando el equipo programe o reporte, aparecen acá. No están anidadas a una sola oportunidad."
           }
           action={
-            hayFiltro ? (
+            !hayFiltro && mes ? (
+              <Button type="button" variant="ghost" size="sm" onClick={() => elegirMes("")}>
+                Ver todos los meses
+              </Button>
+            ) : hayFiltro ? (
               <Button
                 type="button"
                 variant="ghost"
@@ -325,6 +356,7 @@ export function ActividadesPage() {
                   setContactoId(null)
                   setEstadoFiltro(null)
                   void reload({ desde: "", hasta: "", responsable_id: null })
+                  // El mes elegido se conserva: «Limpiar» quita los demás filtros.
                 }}
               >
                 Limpiar filtros
