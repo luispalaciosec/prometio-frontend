@@ -119,7 +119,10 @@ resumen, grupos con subtotales, totales y las primeras filas. La vista previa se
 cancela la anterior. Las descargas quedan deshabilitadas si no hay filas o si se pasa el tope del formato. El navegador
 recuerda columnas, orden y agrupación por pantalla; los filtros siempre arrancan con los de la pantalla. Pipeline también pasa su
 búsqueda (`q`) y su filtro de servicio (`servicio_id`), con la misma regla que la pantalla. En contratos, sin `activo`
-salen activos y desactivados; el listado `GET /contratos-recurrentes` sigue mostrando solo activos por defecto.
+salen activos y desactivados; el listado `GET /contratos-recurrentes` sigue mostrando solo activos por defecto. Para los fee que
+se cobran en un mes, el panel de contratos tiene «Fee que se cobran en…» (`vigente_en=AAAA-MM`): contratos vigentes en
+algún día de ese mes, distinto de «Termina desde / hasta», que mira la fecha de vencimiento. Al elegir un mes, «Activos»
+pasa a «Sí» si estaba sin filtro.
 
 ### Atención de leads
 

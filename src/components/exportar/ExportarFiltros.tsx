@@ -1,3 +1,4 @@
+import { FiltroMes } from "@/components/filtro-mes"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SearchCombobox, type SearchComboboxOption } from "@/components/ui/search-combobox"
@@ -9,6 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import type { FiltroExportacion } from "@/types/exportar"
+
+/**
+ * Filtros `texto` que en realidad son un mes `AAAA-MM`: se dibujan con el selector de mes.
+ * El backend los declara como texto; la etiqueta propia aclara qué fecha miran.
+ */
+const FILTROS_MES: Record<string, { label: string; ayuda: string }> = {
+  vigente_en: {
+    label: "Fee que se cobran en…",
+    ayuda: "Contratos vigentes en algún día de ese mes. Es distinto de «Termina desde / hasta», que filtra por fecha de vencimiento.",
+  },
+}
 
 /** Radix Select no admite "" como valor: este centinela representa «sin filtro». */
 const TODOS = "__todos"
@@ -33,6 +45,21 @@ export function ExportarFiltros({
       {filtros.map((filtro) => {
         const id = `exportar-filtro-${filtro.nombre}`
         const valor = valores[filtro.nombre] ?? ""
+
+        const mes = FILTROS_MES[filtro.nombre]
+        if (mes) {
+          return (
+            <div key={filtro.nombre} className="sm:col-span-2">
+              <FiltroMes
+                id={id}
+                label={mes.label}
+                ayuda={mes.ayuda}
+                value={valor}
+                onChange={(value) => onCambio(filtro.nombre, value)}
+              />
+            </div>
+          )
+        }
 
         if (filtro.tipo === "uuid") {
           return (

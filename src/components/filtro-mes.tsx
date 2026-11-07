@@ -23,10 +23,14 @@ export function FiltroMes({
   id,
   value,
   onChange,
+  label = "Mes",
+  ayuda,
 }: {
   id: string
   value: string
   onChange: (mes: string) => void
+  label?: string
+  ayuda?: string
 }) {
   const actual = mesActualEcuador()
   const opciones: string[] = []
@@ -41,7 +45,7 @@ export function FiltroMes({
 
   return (
     <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>Mes</Label>
+      <Label htmlFor={id}>{label}</Label>
       <div className="flex items-center gap-1">
         <Button
           type="button"
@@ -75,6 +79,7 @@ export function FiltroMes({
           <ChevronRight className="size-4" strokeWidth={1.75} aria-hidden />
         </Button>
       </div>
+      {ayuda ? <p className="text-kicker text-muted-foreground">{ayuda}</p> : null}
     </div>
   )
 }

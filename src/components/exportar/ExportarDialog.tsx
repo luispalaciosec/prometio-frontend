@@ -279,7 +279,21 @@ export function ExportarDialog({
                 <ExportarFiltros
                   filtros={entidad.filtros}
                   valores={filtros}
-                  onCambio={(nombre, valor) => setFiltros((prev) => ({ ...prev, [nombre]: valor }))}
+                  onCambio={(nombre, valor) =>
+                    setFiltros((prev) => {
+                      const next = { ...prev, [nombre]: valor }
+                      // Los fee que se cobran en un mes son de contratos activos: si «Activos» está sin filtro, se marca.
+                      if (
+                        nombre === "vigente_en" &&
+                        valor &&
+                        !prev.activo &&
+                        entidad.filtros.some((filtro) => filtro.nombre === "activo")
+                      ) {
+                        next.activo = "true"
+                      }
+                      return next
+                    })
+                  }
                   opcionesUuid={opcionesUuid}
                 />
               </section>
