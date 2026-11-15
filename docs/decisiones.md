@@ -377,7 +377,7 @@ maneja las respuestas nuevas (429, 409 y 403 de cuenta desactivada).
 **Por qué.** Una revisión encontró huecos concretos, como que un perfil podía modificar sus propias columnas de permisos
 llamando directo a la base.
 
-**Cuándo.** 13/10/2026 · Ver [Endurecimiento](./endurecimiento.md).
+**Cuándo.** 13/10/2026 · El detalle está en la documentación de seguridad (privada, fuera de este repo).
 
 ### Aprobar una cotización gana la oportunidad
 

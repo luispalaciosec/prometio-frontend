@@ -36,7 +36,7 @@ Vercel publica `dist/`. La documentación no va en el despliegue (ver abajo).
 
 ### Cabeceras de seguridad
 
-Hay tres reglas de cabeceras en `vercel.json`. Por qué y qué protege cada una está en [Seguridad](./14-seguridad.md#csp-y-cabeceras).
+Hay tres reglas de cabeceras en `vercel.json`. El detalle de cada directiva está en la documentación de seguridad (privada, fuera de este repo).
 
 | Rutas | Cabeceras |
 |---|---|
@@ -57,7 +57,7 @@ una hay que volver a desplegar**.
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Obligatorias |
 | `VITE_API_URL` | Obligatoria: la URL del backend en Railway, sin barra final. Sin ella la app no funciona |
 | `VITE_BASECAMP_CLIENT_ID` | La de la integración de producción (redirect a `https://prometio.vercel.app/auth/basecamp/callback`) |
-| `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT` | Pendiente: cargar el DSN del proyecto de Sentry del frontend |
+| `VITE_SENTRY_DSN`, `VITE_SENTRY_ENVIRONMENT` | Opcionales: sin DSN, Sentry no arranca |
 
 `DEV_API_PROXY_TARGET` y `DEV_SERVER_*` no van en Vercel: solo sirven para `npm run dev`.
 
@@ -100,7 +100,7 @@ Se cargan en Railway → Variables. La lista completa y qué pasa si falta cada 
 - No hace falta `ENVIRONMENT`: Railway define `RAILWAY_ENVIRONMENT` y con eso el backend se pone en modo producción
   (sin `/docs` ni OpenAPI, CORS solo https, HSTS).
 - `CORS_ALLOW_ORIGINS` debe incluir `https://prometio.vercel.app`.
-- `CRON_SECRET` debe tener el mismo valor que el secreto `CRON_SECRET` del repo en GitHub.
+- El secreto del cron tiene que tener el mismo valor en Railway y en los secretos del repo en GitHub.
 
 ### Cómo llega un cambio a producción
 
@@ -149,8 +149,6 @@ Reglas que vienen de errores reales:
 
 Por qué la auditoría del frontend solo bloquea en producción: las vulnerabilidades altas que quedan son de la CLI de
 `shadcn`, que se usa al compilar y no llega al navegador.
-
-Pendiente: marcar el CI como check obligatorio en la protección de `main` de los dos repos.
 
 ## Volver atrás
 

@@ -169,8 +169,8 @@ motivo; por ejemplo, un contrato sin líneas).
 | Cron externo | GitHub Actions del repo backend, el día 1 de cada mes a las 06:00 (hora Ecuador). Se puede correr a mano con un periodo para recuperar un mes atrasado | Todos los contratos |
 
 El backend no tiene scheduler propio. El cron llama al endpoint con el header `X-Cron-Secret`, que se
-compara contra la variable `CRON_SECRET` del backend. El mismo valor tiene que estar como secreto del
-repositorio en GitHub; si se rota uno, hay que rotar el otro. Sin `CRON_SECRET` configurado, la vía
+compara contra el secreto del cron del backend. El mismo valor tiene que estar como secreto del
+repositorio en GitHub; si se rota uno, hay que rotar el otro. Sin el secreto del cron configurado, la vía
 cron responde 403 y solo queda el botón. Si algún contrato falla, el job queda en rojo y GitHub avisa.
 
 Sin periodo, se genera el mes en curso en hora de Ecuador.

@@ -130,7 +130,6 @@ pasa a «Sí» si estaba sin filtro.
 |---|---|---|---|
 | GET | `/atencion-leads/pendientes` | Ventas | Leads sin primer contacto, de lo más urgente a lo menos. Un vendedor ve los suyos |
 | GET | `/atencion-leads/resumen` | Ventas | Cumplimiento total y por vendedor. `desde` y `hasta` opcionales (30 días por defecto); 422 si `desde` no es anterior a `hasta` |
-| POST | `/atencion-leads/procesar` | Cron o supervisor | Dispara los avisos. La interfaz no lo llama |
 
 ---
 
@@ -217,7 +216,7 @@ Ver [Documento de alcance](./04-documento-alcance.md).
 | POST | `/contratos-recurrentes/{id}/reactivar` | Sup/Admin | Revertir |
 | GET | `/contratos-recurrentes/renovaciones` | Ventas | Contratos por vencer (ventana configurable) |
 | GET | `/contratos-recurrentes/proyeccion` | Ventas | Proyección mensual del piso de facturación (opcional: sumar Contífico) |
-| POST | `/contratos-recurrentes/generar-mes` | Ventas o cron | Generar las cotizaciones del mes. Acepta `X-Cron-Secret` en lugar de sesión. Idempotente |
+| POST | `/contratos-recurrentes/generar-mes` | Ventas o cron | Generar las cotizaciones del mes. Idempotente |
 
 ### Facturas — `/facturas`
 
@@ -431,15 +430,16 @@ Solo admin, también para leer:
 | POST | `/basecamp/conectar` | Ventas | Canjear el código OAuth de Basecamp (el secreto queda en el backend) |
 | GET | `/basecamp/estado` | Ventas | ¿Está conectado? |
 
-## Webhooks entrantes y sistema
+## Sistema
 
 | Método | Ruta | Quién | Para qué |
 |---|---|---|---|
-| POST | `/webhooks/resend` | Firma Svix | Eventos de Resend; sincroniza `elegible_marketing` |
 | GET | `/health` | **Público** | Latido para Railway: `{"status": "ok"}` |
+
+Los endpoints que solo llaman procesos del backend (tareas programadas y webhooks entrantes) no se listan aquí: el
+frontend no los usa. Están en el repo del backend.
 
 Los webhooks **salientes** (lo que prometIO envía a BackIO y otros destinos) están descritos en
 [Arquitectura del backend](./16-arquitectura-backend.md#_8-lo-que-corre-fuera-de-la-peticion).
 
-Relacionado: [Modelo de datos](./17-modelo-datos.md), [Integraciones](./11-integraciones.md),
-[Seguridad](./14-seguridad.md).
+Relacionado: [Modelo de datos](./17-modelo-datos.md), [Integraciones](./11-integraciones.md).

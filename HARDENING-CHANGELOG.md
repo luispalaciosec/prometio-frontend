@@ -48,7 +48,7 @@ Las tablas de dominio (`cotizacion`, `linea_cotizacion`, `linea_cotizacion_costo
   - **API backend:** `https://prometio-backend-production.up.railway.app`, tomada del README (es la `VITE_API_URL` de Vercel). **La sesión backend debe confirmarla** y avisar si hay otra URL pública, por ejemplo un dominio propio.
   - **Supabase:** `https://<proyecto>.supabase.co` (el de `VITE_SUPABASE_URL`), tomada del `.env`.
   - **hCaptcha:** el CRM no lo usa. Solo lo usan el widget y la página `/formulario-demo`, que tienen su propia CSP con `*.hcaptcha.com`.
-- **#4 · Sentry.** [PENDIENTE-HUMANO] Crear en sentry.io un proyecto **propio del frontend** (React), distinto del backend, y cargar su DSN en Vercel como `VITE_SENTRY_DSN`. También queda para el humano, una sola vez: la configuración del signup de Supabase Auth y la rotación de secretos.
+- **#4 · Sentry.** [PENDIENTE-HUMANO] Crear en sentry.io un proyecto **propio del frontend** (React), distinto del backend, y cargar su DSN en Vercel como `VITE_SENTRY_DSN`. Los demás pasos solo-humano de backend están en el documento privado.
 
 ---
 
@@ -181,7 +181,7 @@ Las tablas de dominio (`cotizacion`, `linea_cotizacion`, `linea_cotizacion_costo
 
 No se probaron con sesión los flujos de 409 en pantalla, ni el widget contra un 503 real.
 
-**[PENDIENTE-COORDINACIÓN] Bucket privado de documentos de alcance.** El backend va a pasar el bucket a privado, con URLs firmadas, y avisa antes de hacerlo. Eso cambia cómo se abre el PDF aprobado (`descargarPdfDocumentoAlcance` y los enlaces a `pdf_url`). No se tocó todavía.
+**Coordinación de backend posterior:** el estado se sigue en el documento privado (ronda 2: la versión pública de este registro no lista pendientes de backend).
 
 ---
 

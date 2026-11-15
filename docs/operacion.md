@@ -15,7 +15,7 @@ con atención suele ahorrar la mitad del diagnóstico.
 | **Consola del navegador** (DevTools) | Errores de CSP, de CORS y de red | Cuando una pantalla queda vacía o un botón «no hace nada» |
 | **Logs de Railway** | Una línea por petición y los errores del backend, con secretos redactados | Para seguir lo que pasó del lado del servidor |
 | **Pestaña Actions de GitHub** | El CI de cada repo y la corrida mensual de contratos | Si un despliegue o la tarea mensual no se ve reflejada |
-| **Sentry** | Errores del navegador y del servidor, sin datos personales | Pendiente: los dos DSN todavía no están cargados (ver [Seguridad](./14-seguridad.md#pendiente-hoy)) |
+| **Sentry** | Errores del navegador y del servidor, sin datos personales | Arranca solo si el DSN está cargado |
 
 Los logs de Railway se pueden leer desde la terminal, en la raíz de `prometio-backend` con el proyecto ya vinculado:
 
@@ -78,13 +78,13 @@ El workflow llama a `POST /contratos-recurrentes/generar-mes` con la cabecera `X
 - **Sin el workflow:** en la app, el botón «Generar mes» hace lo mismo con la sesión de un usuario de administración
   o ventas. Un vendedor solo genera sus propios contratos.
 
-El secreto `CRON_SECRET` tiene que tener **el mismo valor** en dos lugares: la variable del servicio en Railway y el
+El secreto del cron tiene que tener **el mismo valor** en dos lugares: la variable del servicio en Railway y el
 secreto del repositorio en GitHub (Settings → Secrets and variables → Actions). Si rotas uno, rota el otro.
 
 | Síntoma en el job | Causa |
 |---|---|
-| `Falta el secreto CRON_SECRET en GitHub` | No está cargado el secreto del repositorio |
-| 403 `Secreto de cron inválido o no configurado` | Railway no tiene `CRON_SECRET` o los dos valores no coinciden |
+| `Falta el secreto … en GitHub` (el del cron) | No está cargado el secreto del repositorio |
+| 403 `Secreto de cron inválido o no configurado` | Railway no tiene el secreto del cron o los dos valores no coinciden |
 | `periodo debe tener formato AAAA-MM-DD` | El `periodo` manual está mal escrito |
 | Job en rojo con errores en el resumen | Uno o más contratos fallaron; los demás sí se generaron. Revisa los logs de Railway y vuelve a correrlo |
 
@@ -102,7 +102,7 @@ El frontend muestra el `detail` del backend en un aviso. Esta tabla dice qué su
 | **403** | `Requiere equipo administrativo`, `Requiere acceso al módulo de Ventas`, `Esta oportunidad no te pertenece` | El equipo o rol del usuario no permite esa acción | Equipo y rol de la persona en Usuarios. Ver [Roles y permisos](./01-roles-permisos.md) |
 | **409** | El `detail` del backend y la pantalla se recarga | Otra petición ya cambió el estado (por ejemplo, alguien envió la cotización un segundo antes) | Nada que arreglar: revisar el estado nuevo y repetir si hace falta |
 | **422** | Mensaje de validación del backend | Datos inválidos: una URL que no es https, una línea a medida sin categoría, un SVG de logo con scripts, un captcha inválido | Corregir el dato. Si el mensaje no se entiende, buscar el texto en el backend |
-| **429** | «Hiciste muchas solicitudes seguidas. Probá de nuevo en N s.» | Límite de tasa del backend (ver [Seguridad](./14-seguridad.md#limites-de-tasa)) | Esperar los segundos que indica |
+| **429** | «Hiciste muchas solicitudes seguidas. Probá de nuevo en N s.» | Límite de tasa del backend (ver [API REST](./18-api.md)) | Esperar los segundos que indica |
 | **502** | `Contífico rechazó la consulta`, `No se pudo enriquecer…`, `Falló el asistente de IA…` | Falló un servicio externo | Ver la integración correspondiente abajo |
 | **503** | En el formulario web: «No pudimos verificar el captcha ahora» | hCaptcha no respondió | Esperar y reenviar; el widget reinicia el captcha solo |
 
@@ -146,7 +146,7 @@ https, así que `http://127.0.0.1:5173` y `http://localhost:5173` solo funcionan
 
 | Síntoma | Causa | Qué hacer |
 |---|---|---|
-| 502 `Contífico rechazó la consulta: …` en facturas o historial de precios | Contífico respondió con error. El texto que sigue es el de Contífico | Revisar `CONTIFICO_API_KEY` en Railway (va la clave cruda, sin `Bearer`) y el estado de la cuenta |
+| 502 `Contífico rechazó la consulta: …` en facturas o historial de precios | Contífico respondió con error. El texto que sigue es el de Contífico | Revisar la clave de Contífico en Railway (va la clave cruda, sin `Bearer`) y el estado de la cuenta |
 | 422 `Este servicio no tiene un producto de Contífico mapeado` | El servicio no tiene `contifico_producto_id` | Mapearlo en la configuración del servicio |
 | Dashboard TV financiero sin datos de facturación | Mismo 502 de Contífico | Igual que la primera fila |
 | 502 «Contífico no respondió» | Timeout o caída de red hacia Contífico | Reintentar; si persiste, revisar el estado de Contífico |
@@ -163,7 +163,7 @@ nunca pasan por el navegador.
 | Síntoma | Causa | Qué hacer |
 |---|---|---|
 | «Basecamp no devolvió el código de autorización.» o «La autorización de Basecamp no es válida» | El redirect llegó incompleto o fuera de flujo | Volver a conectar desde Mi cuenta |
-| «Basecamp rechazó la conexión» / 422 `code inválido o rechazado por Basecamp` | El código expiró o la app OAuth no coincide | Revisar que `VITE_BASECAMP_CLIENT_ID` (Vercel) y `BASECAMP_CLIENT_ID`/`BASECAMP_CLIENT_SECRET` (Railway) sean de la misma integración. Local y producción son integraciones distintas |
+| «Basecamp rechazó la conexión» / 422 `code inválido o rechazado por Basecamp` | El código expiró o la app OAuth no coincide | Revisar que `VITE_BASECAMP_CLIENT_ID` (Vercel) y las credenciales de Basecamp (Railway) sean de la misma integración. Local y producción son integraciones distintas |
 | Error 500 sin detalle en cualquier acción de Basecamp | Faltan las variables `BASECAMP_*` en Railway | Cargarlas. Son opcionales para que su ausencia no tumbe el resto del backend |
 | «Google no devolvió el permiso de Calendar» | El usuario no aceptó el permiso de Calendar | Volver a conectar y aceptar el consentimiento completo |
 | 422 `refresh_token inválido o rechazado por Google` | El permiso fue revocado o venció | Volver a conectar desde Mi cuenta |
@@ -185,16 +185,16 @@ Los PDF de cotización y de documento de alcance los genera el backend con Weasy
 
 | Síntoma | Causa | Qué hacer |
 |---|---|---|
-| 503 «captcha no configurado en el servidor» | Falta `HCAPTCHA_SECRET_KEY` en Railway | Cargar la clave |
+| 503 «captcha no configurado en el servidor» | Falta la clave secreta de hCaptcha en Railway | Cargar la clave |
 | 422 «Captcha inválido» en todos los envíos | El dominio del sitio no está en `HCAPTCHA_HOSTNAMES`, o la clave no es la del sitio | Agregar el dominio (separados por coma) o revisar la clave |
 | 503 «No pudimos verificar el captcha ahora» | hCaptcha no respondió | El widget reinicia el captcha y vuelve a habilitar «Enviar». Reintentar |
 | 429 | Más de 10 envíos por minuto desde la misma IP | Esperar |
 | El widget no carga en `/formulario-demo` | CSP de esa ruta | Revisar la consola; la regla de `vercel.json` para `/formulario-demo` y `/widget/` es aparte |
-| La oportunidad se crea pero no llega el correo al vendedor | Falta `RESEND_API_KEY` en Railway. El envío falla sin afectar al lead | Cargar la clave |
+| La oportunidad se crea pero no llega el correo al vendedor | Falta la clave de Resend en Railway. El envío falla sin afectar al lead | Cargar la clave |
 
 ### La IA da error
 
-El borrador y el auditor del documento de alcance y el asistente de cotización usan `ANTHROPIC_API_KEY`. Sin la
+El borrador y el auditor del documento de alcance y el asistente de cotización usan la clave de Anthropic. Sin la
 clave, la generación falla de forma controlada y el resto del backend sigue sano. Un 502 «Falló el asistente de IA»
 trae el motivo; si habla de la clave o del modelo, revisa la variable en Railway. Las funciones de IA del documento
 de alcance tienen un límite de 10 llamadas cada 5 minutos por usuario.
