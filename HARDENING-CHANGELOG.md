@@ -193,3 +193,275 @@ No se probaron con sesión los flujos de 409 en pantalla, ni el widget contra un
 - Los 24 avisos de lint que ya existían (`exhaustive-deps`, `only-export-components`, `double-comparisons`).
 - Pasar la site key de hCaptcha a una sola fuente de verdad para el SPA y el widget.
 - Bundle principal de unos 2,1 MB (≈600 KB gzip): conviene dividirlo por rutas con `import()`.
+
+---
+
+## Ronda 2 — 2026-11-14
+
+Rama `hardening/2026-11-14b`, creada desde `main` en `a4489a0`. Sin push ni merge. Mientras el repo sea público, esta
+sección registra estado y archivos, pero no describe pendientes del backend ni de Supabase: eso está en el documento
+privado (ver P2.2).
+
+| Punto | Estado |
+|---|---|
+| PASO 0 — línea base | Hecho |
+| P1.1 Tailwind a devDependencies | Hecho |
+| P1.2 vite sin advisories | Hecho |
+| P1.3 audit de producción en 0 | Hecho |
+| P1.4 equivalente al PR #12 + oxlint 1.92 | Hecho (una regla desactivada con su motivo) |
+| P1.5 actions v4 → v7 | Hecho |
+| P1.6 triage de majors | Hecho (tabla abajo) |
+| P1.7 protección de `main` | Pendiente-humano |
+| P2.1 `/docs` fuera del build | Hecho |
+| P2.2 docs sensibles | Hecho; la subida al repo privado es pendiente-humano |
+| P2.3 advertencia del historial de git | Hecho (abajo) |
+| P2.4 visibilidad del repo | Pendiente-humano |
+| P3 las 7 supresiones nuevas | Hecho (7 de 7) |
+| P4.1 CI | Hecho; se cierra del todo con P1.7 |
+| P4.2 Dependabot | Hecho |
+| P4.3 token en localStorage | Hecho (documentado) |
+| P4.4 CSP con sesión iniciada | Pendiente-humano |
+| T1 Vitest | Hecho |
+| T2 primeros tests | Hecho (sin el opcional del motor de márgenes) |
+| T3 `npm test` en el CI | Hecho |
+
+### PASO 0 — Línea base
+
+- HEAD `a4489a0`, `main` = `origin/main`. No había rama ni commits de esta ronda.
+- Sin commitear: `.claude/` (`launch.json` y `settings.local.json`). No se tocó ni se agregó a ningún commit.
+- PR abiertos: #1, #2 (actions), #4, #5, #6, #7, #8 (majors) y #12 (grupo `minor-y-parches`, con el check `checks` en
+  rojo).
+- CI de `main`: en rojo en todos los push desde el 23/10; falla en el audit de producción.
+- `npm audit --omit=dev`: 0 C · 1 H · 0 M (`vite` 8.2.0–8.2.2).
+- `npm audit` completo: 0 C · 7 H · 10 M · 3 L.
+
+### P1 — CI en verde
+
+**P1.1 · Hecho.** `tailwindcss` y `@tailwindcss/vite` pasan a `devDependencies`: solo los usan `vite.config.ts` y el
+CSS al compilar. **Riesgo que elimina:** `vite` dejaba de ser dependencia de producción solo por ser peer de Tailwind, y
+sus advisories del servidor de desarrollo tumbaban el audit bloqueante. `tw-animate-css` y `@fontsource-variable/geist`
+quedan en `dependencies`: los importa `src/index.css` y la regla de esta ronda es no mover lo que importa `src/`.
+Anotado para la pasada de calidad.
+
+**P1.2 · Hecho.** `vite` 8.2.0 → 8.3.6, con el lockfile del PR #12. Hizo falta ese lockfile porque las extensiones de
+Tiptap fijan su peer en la versión exacta y un `npm install` sobre el lockfile viejo daba ERESOLVE. `npm ci` termina
+limpio.
+
+**P1.3 · Hecho.**
+
+| `npm audit` | Crítica | Alta | Media | Baja |
+|---|---|---|---|---|
+| Producción, antes | 0 | 1 | 0 | 0 |
+| **Producción, después** | **0** | **0** | **0** | **0** |
+| Completo, antes | 0 | 7 | 10 | 3 |
+| Completo, después (informativo) | 0 | 1 | 7 | 4 |
+
+Lo que queda es solo de desarrollo y no tiene arreglo sin un major:
+- la alta es el `vite` 5 que trae vitepress (con su esbuild): no hay arreglo publicado;
+- la CLI de `shadcn` (`@shadcn/registry`, `ts-morph`, `minimatch`, `deepmerge`): npm propone `shadcn@1.0.0`, que es un
+  retroceso;
+- `mermaid`/`katex`: se arregla con mermaid 12 (ver P1.6).
+
+**P1.4 · Hecho.** Se aplicaron en esta rama las mismas subidas del #12 (21 paquetes, incluido oxlint 1.75 → 1.92).
+oxlint 1.92 trae reglas del React Compiler y el lint dio 73 avisos:
+
+| Regla | Avisos | Qué se hizo |
+|---|---|---|
+| `react/set-state-in-effect` | 67 | Desactivada en `.oxlintrc.json`, con el motivo escrito ahí. Marca el patrón estándar del proyecto (vaciar la lista antes de recargar, reiniciar un diálogo al abrirlo) en unos 50 archivos; corregirlo bien es reestructurar cada pantalla. Queda para la pasada de calidad |
+| `react/purity` | 4 | Corregido: `new Date()` y `Date.now()` en render pasan a inicializadores de estado (`ActividadForm`, `ActividadReportar`, `PipelineBoard`, `PipelineLista`) |
+| `react/refs` | 1 | Corregido: `PipelinePage` sincroniza el ref de servicios en un efecto, no en el render |
+| `react/preserve-manual-memoization` | 1 | Corregido: `SugerenciasCard` memoiza sobre la lista misma |
+
+No se agregó ninguna supresión en línea. Cuando se mergee esta rama, **el #12 queda obsoleto**: lo cierra el humano.
+
+**P1.5 · Hecho.** `actions/checkout@v7` y `actions/setup-node@v7` en `ci.yml`; el YAML se validó con un parser.
+**#1 y #2 quedan obsoletos.**
+
+**P1.6 · Hecho.** Cada PR se probó en un worktree descartable con su propio lockfile (`npm ci`, `tsc` y `vite build`):
+
+| PR | Qué sube | Resultado | Recomendación |
+|---|---|---|---|
+| #4 | react-dom + @types/react-dom → 19 | `npm ci` falla: los tipos de react-dom 19 piden @types/react 19 | Cerrar. React 19 va en su propia ronda, con react y react-dom juntos (shadcn asume React 19 en refs). `ignore` de major agregado |
+| #8 | react + @types/react → 19 | `npm ci` falla: @types/react-dom 18 pide @types/react 18 | Cerrar, por lo mismo que el #4 |
+| #7 | typescript 5.9 → 7.0.2 | `vite build` pasa; `tsc` falla con 1 error: `baseUrl` se eliminó (`tsconfig.app.json`) | Posponer a su propia ronda (compilador nuevo). `ignore` de major agregado |
+| #6 | @types/node 24 → 26 | `tsc` y `vite build` pasan | Cerrar: los tipos deben seguir a la Node del CI (22). Ojo: hoy están en `^24`, por encima del CI; alinearlos a 22 queda para la pasada de calidad |
+| #5 | mermaid 11 → 12 | `npm ci` falla: `vitepress-plugin-mermaid` pide mermaid 10 u 11 | Posponer hasta que el plugin acepte la 12. Solo afecta a los docs locales. `ignore` de major agregado |
+
+**P1.7 · Pendiente-humano.** La rama `main` no tiene protección (404). Correr **después** de mergear esta rama y ver el
+CI en verde en `main`. El check se llama como el job, `checks`:
+
+```bash
+gh api -X PUT repos/luispalaciosec/prometio-frontend/branches/main/protection \
+  -H "Accept: application/vnd.github+json" \
+  --input - <<'JSON'
+{
+  "required_status_checks": { "strict": true, "contexts": ["checks"] },
+  "enforce_admins": false,
+  "required_pull_request_reviews": null,
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
+JSON
+```
+
+Verificación: `gh api repos/luispalaciosec/prometio-frontend/branches/main/protection` responde 200 con `checks` en
+`required_status_checks.contexts`. `enforce_admins: false` deja al dueño saltarse el check en una emergencia; con `true`
+nadie puede pushear en rojo.
+
+### P2 — Documentación interna expuesta
+
+**P2.1 · Hecho.**
+- `npm run build` queda en `tsc -b && vite build`.
+- VitePress sale a `docs/.vitepress/dist`, ignorado por git y fuera del `dist/` que despliega Vercel.
+- `vercel.json` ya no tiene los rewrites de `/docs` ni su bloque de headers. La CSP del CRM pasa a
+  `/((?!formulario-demo|widget/).*)`, así que una ruta `/docs` queda bajo la CSP del CRM y cae en la SPA. Las reglas de
+  `/formulario-demo` y `/widget/` no cambian.
+- El CI falla si `dist/docs` existe tras el build y compila los docs como paso informativo.
+- README, `docs/README.md`, `12-setup` y `13-despliegue` se actualizaron.
+
+**Riesgo que elimina:** el sitio de documentación, con su mapa del sistema, se servía sin autenticación junto al CRM.
+**Verificación:** `npm run build` → `dist/` sin `docs/` (`test ! -e dist/docs`); `npm run docs:build` → sitio en
+`docs/.vitepress/dist`, sin enlaces rotos. El comportamiento de las rutas de Vercel no se puede probar en local: se
+confirma con el próximo preview o deploy (`/docs/...` tiene que mostrar la app, no el sitio).
+
+**P2.2 · Hecho; la subida al repo privado es pendiente-humano.**
+- Las copias completas de `docs/14-seguridad.md` y de este changelog se guardaron **primero**, idénticas (`cmp`), en
+  `../prometio-docs-privados/` (fuera de cualquier repo, sin commitear): `14-seguridad.completo.md` y
+  `HARDENING-CHANGELOG.completo.md`.
+- `docs/14-seguridad.md` queda reducido a principios y controles implementados, sin la lista de pendientes.
+- `14-seguridad.md` y `endurecimiento.md` salen del sidebar y entran en `srcExclude`.
+- Se quitaron los nombres de secretos del backend, los pendientes y los endpoints que solo usan procesos del backend
+  (tareas programadas y webhooks entrantes) de `11-integraciones`, `12-setup`, `13-despliegue`, `16`, `17`, `18`,
+  `operacion` y `05-contratos-facturacion`. Ahora apuntan a `prometio-backend/.env.example`. Las variables `VITE_*` y
+  cómo levantar en local se quedan.
+- En este changelog, la ronda 1 conserva su contenido, salvo dos menciones a pendientes de backend que pasan al
+  documento privado.
+
+**P2.3 · Advertencia del historial de git.** Borrar o editar archivos **no los quita del historial**. Mientras el repo
+sea público, cualquiera puede leer las versiones anteriores de `docs/14-seguridad.md` y de este changelog en commits
+viejos (incluido `d0eb239`). La rama `hardening/2026-10-13` no está en el remoto (verificado el 14/11), pero
+sus commits llegaron a `main`. Las opciones reales son:
+(a) hacer privado el repo, o (b) reescribir el historial con `git filter-repo` y forzar el push, que es destructivo y no
+se hizo en esta sesión. Lo que de verdad protege es **cerrar los pendientes** que listaban esos documentos, que son de
+backend y del panel de Supabase.
+
+**P2.4 · Pendiente-humano.** La sesión no cambia la visibilidad. Comando listo:
+
+```bash
+gh repo edit luispalaciosec/prometio-frontend --visibility private --accept-visibility-change-consequences
+```
+
+Antes, revisar:
+- que Vercel siga desplegando desde un repo privado con el plan actual;
+- que Dependabot y Actions sigan activos;
+- que los minutos de Actions alcancen (en un repo privado consumen cuota; en uno público son gratis).
+
+### P3 — Las 7 supresiones `exhaustive-deps` nuevas · Hecho
+
+| # | Sitio | Por qué faltaba la dependencia | Arreglo |
+|---|---|---|---|
+| 1 | `ExportarDialog` | «Tomar los filtros de la pantalla solo al abrir»: leía la prop `filtrosIniciales` sin declararla | El panel se monta en cada apertura, así que `useState(filtrosIniciales)` toma la foto de ese momento y es una dependencia real que no cambia |
+| 2 | `FacturasPage` | La firma de filtros (`filterSig` + un ref) reemplazaba las dependencias reales; además el efecto ponía `offset` en 0 y eso lo volvía a disparar | La página recuerda a qué filtros pertenece y el offset vigente se deriva en el render. Dependencias reales (fechas, cliente, orden, offset). **También arregla un pedido doble** al cambiar filtros desde la página 2 |
+| 3 | `MarcaPage` | «Solo al montar»: usaba `aplicar`, una función recreada en cada render | `aplicar` con `useCallback([setOrganizacion])`; el efecto depende de ella |
+| 4 | `AuditoriaPage` | «Solo al montar»: los filtros se aplican con «Filtrar», no al tipear | Estado propio de filtros aplicados (`consulta`), que «Filtrar» actualiza; el efecto depende de él e ignora respuestas viejas |
+| 5 | `ConvertirContactoDialog` | Un efecto reiniciaba el formulario «al abrir o cambiar de conversación» | Reset por `key`: la Bandeja remonta el diálogo en cada apertura y el estado nace de la conversación. El efecto solo carga empresas |
+| 6 | `DocumentoAlcanceSection` | Leía `docs` (que el propio efecto actualiza: un bucle si fuera dependencia) y el callback `onListaChange` | Refs de «último valor» sincronizadas después de cada render; además, una respuesta vieja ya no pisa el documento abierto |
+| 7 | `MedicionTab` | Firma de filtros + ref + `setOffset` dentro del efecto | «Aplicar» pone los filtros y el offset en 0 en el mismo evento; el efecto depende de los filtros aplicados y del offset |
+
+`grep -rn "eslint-disable" src` muestra solo las 4 previas: `DocumentoAlcanceWizard.tsx` (2), `DocumentoAlcanceSection.tsx`
+(la de la carga de la lista) y `FacturasPage.tsx` (la del resumen). Siguen para la pasada de calidad.
+
+**Verificación:**
+- **Tests:** Auditoría y Facturas tienen tests. El de Facturas falla con el código anterior (4 pedidos) y pasa con el
+  arreglo (3).
+- **Navegador, con respuestas simuladas:**
+  - Exportar pide las opciones y la vista previa una vez cada una, con el filtro precargado.
+  - Medición pide los eventos una vez al montar.
+  - Convertir a contacto pide las empresas una vez por apertura y vuelve limpio al reabrir.
+- **Sin probar en pantalla:** Marca y Documento de alcance necesitan sesión y datos reales; quedan cubiertos por tipos y
+  lint.
+
+### P4 — Los ⚠️ que quedan
+
+**P4.1 · Hecho.** `ci.yml` corre lint, tsc, **tests**, build, el chequeo de `dist/docs`, los docs (informativo), el
+audit de producción (bloqueante) y el completo (informativo). Se cierra del todo con P1.7.
+
+**P4.2 · Hecho.** `dependabot.yml`:
+- un solo PR para todas las GitHub Actions;
+- oxlint en su propio grupo, para que una regla nueva no frene `minor-y-parches` (lo que pasó con el #12);
+- `ignore` de major, con su motivo y cuándo revisarlo, para react, react-dom, @types/react, @types/react-dom,
+  typescript, @types/node y mermaid. No hay ningún `ignore` general.
+
+**P4.3 · Hecho (documentado, sin cambios).** El token de supabase-js vive en `localStorage`. Riesgo residual: un script
+inyectado podría leerlo. Lo mitigan:
+- la CSP del CRM con `script-src 'self'`, sin `'unsafe-inline'` ni `'unsafe-eval'` (confirmado en `vercel.json` en esta
+  ronda; `'unsafe-inline'` solo existe en la regla de `/formulario-demo` y `/widget/`, y en `style-src`);
+- `connect-src` restringido al backend, Supabase y Sentry;
+- el cierre de sesión ante el 403 de cuenta desactivada (`src/lib/api-client.ts`).
+
+El almacenamiento del token no se cambió.
+
+**P4.4 · Pendiente-humano.** No hay preview de esta rama ni cuenta de prueba en la sesión, así que no se revisó con
+sesión iniciada y no se inventa el resultado. Checklist, en el preview de Vercel de esta rama (DevTools → Console,
+filtrar «Content-Security-Policy»):
+1. Login con correo y con Google.
+2. Callbacks OAuth de Basecamp y Google Calendar (Mi cuenta).
+3. Ver y descargar el PDF de una cotización (`blob:`).
+4. Editor del documento de alcance (Tiptap).
+5. Logo de la organización en Marca y logos de empresas (`img-src`).
+6. Dashboard (recharts).
+7. `/tv`.
+8. Que `/docs/...` muestre la app y no el sitio.
+
+Si aparece una violación legítima: ajustar la directiva mínima en `vercel.json` (nunca `'unsafe-inline'` en
+`script-src` ni comodines amplios) y registrar el antes y el después.
+
+### Tests
+
+**T1 · Hecho.**
+- Vitest 5 (es el que soporta Vite 8; la 3 pedía Vite ≤ 7), jsdom y Testing Library.
+- `vitest.config.ts` propio, sin Tailwind ni el proxy, y `src/test/setup.ts` con el `cleanup` entre tests.
+- Script `"test": "vitest run"`.
+- lint y `tsc -b` siguen pasando con los tests.
+
+**T2 · Hecho.** 3 archivos, 9 tests:
+- `src/lib/url-https.test.ts` (`esUrlHttps`): acepta https con host; rechaza http, `javascript:`, `data:`, `ftp:`,
+  vacíos, relativas y https sin host. `https:///ruta` no está en la lista porque el parser estándar la normaliza a un
+  host válido (`https://ruta/`).
+- `src/pages/AuditoriaPage.test.tsx`: un pedido al montar; tipear no pide; «Filtrar» pide una vez y con el filtro.
+- `src/pages/FacturasPage.test.tsx`: un pedido al montar; desde la página 2, cambiar el orden pide una sola vez y en la
+  página 1.
+
+El test opcional del motor de márgenes no se hizo.
+
+**T3 · Hecho.** `npm test` en el CI.
+
+### Verificación final, en local
+
+`npm ci` limpio · `npm run lint` 0 · `npx tsc -b --noEmit` 0 · `npm test` 9/9 · `npm run build` ok y sin `dist/docs` ·
+`npm audit --omit=dev` 0 vulnerabilidades.
+
+### Diferido a la pasada de calidad
+
+No se tocó:
+- los mocks muertos;
+- partir `LineaCotizacionForm` y `DocumentoAlcanceWizard`;
+- B8 (`MOCK_ORGANIZACION_ID`);
+- las reglas de negocio duplicadas del backend y los exports muertos;
+- R4 (funciones largas);
+- las 4 supresiones previas;
+- `react/set-state-in-effect`;
+- alinear `@types/node` a 22;
+- `tw-animate-css` y `@fontsource-variable/geist` en `dependencies`.
+
+### Acciones solo-humano
+
+- **H1:** decidir la visibilidad del repo (P2.4) y subir `../prometio-docs-privados/` a un repo privado (P2.2).
+- **H2:** proteger `main` con el check `checks` (P1.7), después de mergear esta rama.
+- **H3:** mergear esta rama. Después:
+  - cerrar los PR obsoletos #1, #2 y #12;
+  - cerrar #4, #6 y #8 según el triage;
+  - dejar #5 y #7 abiertos o cerrarlos, porque los `ignore` ya evitan que vuelvan.
+- **H4:** revisar la CSP con sesión iniciada (P4.4).
+- **H5:** crear el proyecto de Sentry del frontend y cargar `VITE_SENTRY_DSN` en Vercel.
