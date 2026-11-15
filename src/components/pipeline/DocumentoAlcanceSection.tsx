@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Loader2, ScrollText } from "lucide-react"
 import { toast } from "sonner"
 
@@ -85,6 +85,14 @@ export function DocumentoAlcanceSection({
   const [creando, setCreando] = useState(false)
   const [accionPendiente, setAccionPendiente] = useState<AccionDocumentoAlcance | null>(null)
   const [reabrirOpen, setReabrirOpen] = useState(false)
+  // Último valor de la lista y del callback del padre, para leerlos al abrir un documento sin que su cambio vuelva a
+  // disparar la carga (la carga misma actualiza la lista). Se sincronizan después de cada render.
+  const docsRef = useRef(docs)
+  const onListaChangeRef = useRef(onListaChange)
+  useEffect(() => {
+    docsRef.current = docs
+    onListaChangeRef.current = onListaChange
+  })
 
   function publicarLista(next: DocumentoAlcance[]) {
     setDocs(next)
@@ -119,13 +127,17 @@ export function DocumentoAlcanceSection({
       setDraft(null)
       return
     }
-    const cached = docs?.find((row) => row.id === abiertoId)
+    let cancelled = false
+    const cached = docsRef.current?.find((row) => row.id === abiertoId)
     if (cached) {
       setAbierto(cached)
       setDraft(draftDesdeDocumento(cached))
     }
     void getDocumentoAlcance(abiertoId)
       .then((row) => {
+        if (cancelled) {
+          return
+        }
         setAbierto(row)
         setDraft(draftDesdeDocumento(row))
         setDocs((prev) => {
@@ -135,15 +147,18 @@ export function DocumentoAlcanceSection({
           const next = prev.some((item) => item.id === row.id)
             ? prev.map((item) => (item.id === row.id ? row : item))
             : [...prev, row]
-          onListaChange?.(next)
+          onListaChangeRef.current?.(next)
           return next
         })
       })
       .catch((error: unknown) => {
-        toast.error(error instanceof Error ? error.message : "No se pudo abrir el documento.")
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : "No se pudo abrir el documento.")
+        }
       })
-    // Solo al abrir otro documento: `docs` se actualiza adentro y volver a correr haría un bucle.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true
+    }
   }, [abiertoId])
 
   async function generar(opts?: { generarIa?: boolean }) {
