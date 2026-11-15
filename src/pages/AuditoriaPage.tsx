@@ -54,31 +54,34 @@ export function AuditoriaPage() {
   const [desde, setDesde] = useState("")
   const [hasta, setHasta] = useState("")
 
-  async function reload() {
-    try {
-      setRows(
-        await listAuditoria({
-          perfil_id: perfilId || undefined,
-          accion: accion || undefined,
-          entidad_tipo: entidadTipo || undefined,
-          desde: aIso(desde, false),
-          hasta: aIso(hasta, true),
-        }),
-      )
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "No se pudo cargar la auditoría.")
-      setRows([])
-    }
-  }
+  // Filtros aplicados: cambian solo con «Filtrar», no al tipear. Cada «Filtrar» crea un objeto nuevo, así que vuelve
+  // a pedir aunque los filtros sean los mismos.
+  const [consulta, setConsulta] = useState<Parameters<typeof listAuditoria>[0]>({})
 
   useEffect(() => {
     void listPerfiles()
       .then(setPerfiles)
       .catch(() => setPerfiles([]))
-    void reload()
-    // Solo al montar: después, los filtros se aplican con «Aplicar», no al tipear.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    void listAuditoria(consulta)
+      .then((filas) => {
+        if (!cancelled) {
+          setRows(filas)
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          toast.error(error instanceof Error ? error.message : "No se pudo cargar la auditoría.")
+          setRows([])
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [consulta])
 
   const resumen = useMemo(() => {
     const lista = rows ?? []
@@ -99,7 +102,13 @@ export function AuditoriaPage() {
         className="filter-bar"
         onSubmit={(event) => {
           event.preventDefault()
-          void reload()
+          setConsulta({
+            perfil_id: perfilId || undefined,
+            accion: accion || undefined,
+            entidad_tipo: entidadTipo || undefined,
+            desde: aIso(desde, false),
+            hasta: aIso(hasta, true),
+          })
         }}
       >
         <div className="filter-field">
