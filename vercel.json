@@ -5,21 +5,13 @@
       "destination": "/formulario-demo/index.html"
     },
     {
-      "source": "/docs",
-      "destination": "/docs/index.html"
-    },
-    {
-      "source": "/docs/(.*)",
-      "destination": "/docs/404.html"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/((?!formulario-demo|widget/|docs).*)",
+      "source": "/((?!formulario-demo|widget/).*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -33,19 +25,6 @@
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://prometio.vercel.app https://hcaptcha.com https://*.hcaptcha.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://hcaptcha.com https://*.hcaptcha.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://prometio-backend-production.up.railway.app https://hcaptcha.com https://*.hcaptcha.com; frame-src https://hcaptcha.com https://*.hcaptcha.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
-        }
-      ]
-    },
-    {
-      "source": "/docs(.*)",
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
-        },
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow"
         }
       ]
     },

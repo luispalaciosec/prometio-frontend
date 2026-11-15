@@ -9,7 +9,7 @@ ADR-011).
 
 ```mermaid
 flowchart LR
-  U[Navegador] -->|app y /docs| V[Vercel]
+  U[Navegador] -->|app| V[Vercel]
   U -->|login| SA[Supabase Auth]
   U -->|API con JWT| R[Railway: FastAPI]
   R -->|service role| DB[(Supabase Postgres y Storage)]
@@ -20,20 +20,19 @@ flowchart LR
 
 ### Qué se construye
 
-`npm run build` hace tres cosas, en orden:
+`npm run build` hace dos cosas, en orden:
 
 1. `tsc -b`: si los tipos no compilan, el build se corta.
 2. `vite build`: la app, en `dist/`.
-3. El sitio de documentación (VitePress), en `dist/docs`, con base `/docs/`.
 
-Vercel publica `dist/`. La app queda en la raíz y la documentación en `/docs`.
+Vercel publica `dist/`. La documentación no va en el despliegue (ver abajo).
 
 ### Rutas (`vercel.json`)
 
 | Regla | Para qué |
 |---|---|
 | `/formulario-demo` → `/formulario-demo/index.html` | La página de prueba del formulario web es un HTML propio, no la SPA |
-| Todo lo demás → `/index.html` | La SPA resuelve sus rutas en el navegador (React Router). Los archivos que existen en `dist/`, como los de `/docs` y `/widget/`, se sirven tal cual |
+| Todo lo demás → `/index.html` | La SPA resuelve sus rutas en el navegador (React Router). Los archivos que existen en `dist/`, como los de `/widget/`, se sirven tal cual. Una ruta `/docs/…` cae en la SPA |
 
 ### Cabeceras de seguridad
 
@@ -71,9 +70,9 @@ una hay que volver a desplegar**.
 
 ## Sitio de documentación
 
-Se publica con el frontend, en el mismo despliegue: no hay un paso aparte. Las páginas llevan `noindex, nofollow`,
-pero el sitio es público para quien tenga la URL. Por eso nunca lleva secretos, claves, datos personales ni
-identificadores del proyecto de Supabase.
+No se publica. `npm run build` compila solo la app, y `npm run docs:build` deja el sitio en `docs/.vitepress/dist`,
+fuera del `dist/` que despliega Vercel. El CI falla si `dist/docs` aparece después del build. Aun así, la fuente vive en
+el repo: nunca lleva secretos, claves, datos personales ni identificadores del proyecto de Supabase.
 
 ## Backend en Railway
 

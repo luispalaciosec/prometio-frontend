@@ -169,8 +169,8 @@ cd prometio-frontend
 npm run docs:dev
 ```
 
-En producción se publica dentro del frontend, en `https://prometio.vercel.app/docs`. Ver
-[Despliegue](./13-despliegue.md#sitio-de-documentacion).
+No se publica con el CRM: `npm run build` no lo compila. `npm run docs:build` lo deja en `docs/.vitepress/dist`, que
+git ignora. Ver [Despliegue](./13-despliegue.md#sitio-de-documentacion).
 
 ## Antes de subir un cambio al frontend
 
