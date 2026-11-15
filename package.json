@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint --deny-warnings",
+    "test": "vitest run",
     "preview": "vite preview",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
@@ -41,10 +42,13 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^24.13.3",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^6.2.1",
+    "jsdom": "^31.0.1",
     "mermaid": "^11.17.2",
     "oxlint": "^1.92.0",
     "shadcn": "^4.23.0",
@@ -52,6 +56,7 @@
     "typescript": "~5.9.2",
     "vite": "^8.3.6",
     "vitepress": "^1.6.4",
-    "vitepress-plugin-mermaid": "^2.0.17"
+    "vitepress-plugin-mermaid": "^2.0.17",
+    "vitest": "^5.1.0"
   }
 }
