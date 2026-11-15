@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { BarChart3 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { toast } from "sonner"
@@ -122,8 +122,6 @@ export function MedicionTab() {
   const [offset, setOffset] = useState(0)
   const [eventos, setEventos] = useState<AdsTrackingEvento[] | null>(null)
   const [totalEventos, setTotalEventos] = useState(0)
-  const filterSig = `${filtrosAplicados.plataforma}|${filtrosAplicados.exito}`
-  const prevFilterSig = useRef(filterSig)
 
   function aplicarConfig(row: OrganizacionAdsConfig) {
     setConfigExists(true)
@@ -173,12 +171,6 @@ export function MedicionTab() {
   }, [])
 
   useEffect(() => {
-    const filtrosCambiaron = prevFilterSig.current !== filterSig
-    if (filtrosCambiaron) {
-      prevFilterSig.current = filterSig
-      setOffset(0)
-    }
-    const fetchOffset = filtrosCambiaron ? 0 : offset
 
     setEventos(null)
     void listAdsTrackingEventos({
@@ -193,7 +185,7 @@ export function MedicionTab() {
             ? false
             : undefined,
       limit: ADS_TRACKING_EVENTOS_PAGE_SIZE,
-      offset: fetchOffset,
+      offset,
     })
       .then((data) => {
         setTotalEventos(data.total)
@@ -204,9 +196,7 @@ export function MedicionTab() {
         setEventos([])
         setTotalEventos(0)
       })
-    // `filterSig` resume todos los filtros: cambiarlo es lo que dispara la recarga.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterSig, offset])
+  }, [filtrosAplicados.plataforma, filtrosAplicados.exito, offset])
 
   const resumenPagina = useMemo(() => {
     const lista = eventos ?? []
@@ -284,7 +274,9 @@ export function MedicionTab() {
   }
 
   function aplicarFiltrosEventos() {
+    // Aplicar filtros vuelve a la primera página en el mismo evento: un solo render, un solo pedido.
     setFiltrosAplicados({ plataforma, exito: exitoFiltro })
+    setOffset(0)
   }
 
   const paginaDesde = totalEventos === 0 ? 0 : offset + 1
