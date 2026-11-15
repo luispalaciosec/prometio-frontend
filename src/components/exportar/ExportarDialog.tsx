@@ -102,6 +102,10 @@ export function ExportarDialog({
   const [reintento, setReintento] = useState(0)
   const [descargando, setDescargando] = useState<FormatoArchivo | null>(null)
 
+  // Foto de los filtros de la pantalla al abrir: el panel se monta en cada apertura (ExportarBoton), así que el estado
+  // inicial es justo «lo que había al abrir». Si la pantalla cambia sus filtros con el panel abierto, no pisa lo editado.
+  const [filtrosAlAbrir] = useState(filtrosIniciales)
+
   const entidad = opciones?.entidades[recurso] ?? null
 
   // Al abrir: opciones (cacheadas), filtros de la pantalla y última selección guardada.
@@ -122,7 +126,7 @@ export function ExportarDialog({
         const permitidos = new Set(definicion.filtros.map((filtro) => filtro.nombre))
         setOpciones(data)
         setFiltros(
-          Object.fromEntries(Object.entries(filtrosIniciales).filter(([nombre, valor]) => permitidos.has(nombre) && valor !== "")),
+          Object.fromEntries(Object.entries(filtrosAlAbrir).filter(([nombre, valor]) => permitidos.has(nombre) && valor !== "")),
         )
         setPreferencias(leerPreferencias(recurso, definicion))
         for (const filtro of definicion.filtros) {
@@ -150,9 +154,7 @@ export function ExportarDialog({
     return () => {
       cancelled = true
     }
-    // filtrosIniciales se toma solo al abrir: cambiarlo con el panel abierto no debe pisar lo editado.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, recurso])
+  }, [open, recurso, filtrosAlAbrir])
 
   const seleccion = useMemo(() => {
     if (!preferencias) {
