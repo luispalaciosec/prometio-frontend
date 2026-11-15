@@ -47,9 +47,12 @@ export function ConvertirContactoDialog({
   onSubmit: (body: ConvertirConversacionInput) => void
   onCancel: () => void
 }) {
+  // El estado nace de la conversación: el padre remonta el diálogo (key) en cada apertura.
   const [camino, setCamino] = useState<Camino>("nuevo")
-  const [nombre, setNombre] = useState("")
-  const [telefono, setTelefono] = useState("")
+  const [nombre, setNombre] = useState(conversacion?.remitente_nombre ?? "")
+  const [telefono, setTelefono] = useState(
+    conversacion?.canal === "whatsapp" ? (conversacion.remitente_identificador ?? "") : "",
+  )
   const [email, setEmail] = useState("")
   const [empresaId, setEmpresaId] = useState("")
   const [empresas, setEmpresas] = useState<{ id: string; nombre: string }[]>([])
@@ -60,26 +63,25 @@ export function ConvertirContactoDialog({
   const [elegido, setElegido] = useState<Contacto | null>(null)
 
   useEffect(() => {
-    if (!open || !conversacion) {
+    if (!open) {
       return
     }
-    setCamino("nuevo")
-    setNombre(conversacion.remitente_nombre ?? "")
-    setTelefono(
-      conversacion.canal === "whatsapp" ? (conversacion.remitente_identificador ?? "") : "",
-    )
-    setEmail("")
-    setEmpresaId("")
-    setBusqueda("")
-    setQDebounced("")
-    setResultados([])
-    setElegido(null)
+    let cancelled = false
     void listEmpresasParaContacto()
-      .then(setEmpresas)
-      .catch(() => setEmpresas([]))
-    // Reinicia el formulario al abrir o al cambiar de conversación, no cada vez que se re-renderiza.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, conversacion?.id])
+      .then((filas) => {
+        if (!cancelled) {
+          setEmpresas(filas)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setEmpresas([])
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [open])
 
   useEffect(() => {
     const t = window.setTimeout(() => setQDebounced(busqueda), 300)
