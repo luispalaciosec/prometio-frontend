@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { MoreHorizontal } from "lucide-react"
 
 import { AlertaEstadoBadge } from "@/components/alertas/AlertaEstadoBadge"
@@ -46,7 +47,8 @@ export function PipelineLista({
   onAbrir: (id: string) => void
 }) {
   const nombreEtapa = new Map(etapas.map((etapa) => [etapa.codigo, etapa.nombre]))
-  const ahora = Date.now()
+  // Hora de referencia fija mientras la tabla está montada: el render queda puro y los días no saltan entre renders.
+  const [ahora] = useState(() => Date.now())
 
   if (items.length === 0) {
     return null

@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { DndContext, PointerSensor, closestCorners, useSensor, useSensors } from "@dnd-kit/core"
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core"
 
@@ -42,6 +42,8 @@ export function PipelineBoard({
   onVerCerradas: (etapa: EtapaPipelineCodigo) => void
 }) {
   const dragDidActivate = useRef(false)
+  // Corte de «cierres recientes» fijo mientras el tablero está montado: mantiene el render puro.
+  const [desdeCierresRecientes] = useState(() => Date.now() - DIAS_CIERRES_RECIENTES * 86_400_000)
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   )
@@ -85,7 +87,7 @@ export function PipelineBoard({
   }
 
   const ordered = [...etapas].sort((a, b) => a.orden - b.orden)
-  const desde = Date.now() - DIAS_CIERRES_RECIENTES * 86_400_000
+  const desde = desdeCierresRecientes
 
   return (
     <DndContext
