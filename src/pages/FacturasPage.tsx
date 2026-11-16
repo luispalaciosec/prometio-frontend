@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Receipt, Settings2, TriangleAlert } from "lucide-react"
 import { toast } from "sonner"
 
@@ -101,7 +101,6 @@ export function FacturasPage() {
   const [clienteDebounced, setClienteDebounced] = useState("")
   const [ordenPor, setOrdenPor] = useState<FacturaOrdenPor>("fecha")
   const [ordenDireccion, setOrdenDireccion] = useState<FacturaOrdenDireccion>("desc")
-  const [offset, setOffset] = useState(0)
   const [rows, setRows] = useState<FacturaContifico[] | null>(null)
   const [total, setTotal] = useState(0)
   const [cuentaVerificada, setCuentaVerificada] = useState(true)
@@ -120,7 +119,10 @@ export function FacturasPage() {
   const bounds = resolveFacturasPeriodoBounds(periodo)
   const periodoRangoIncompleto = periodo.modo === "rango" && (!periodo.rangoDesde || !periodo.rangoHasta)
   const filterSig = `${periodoSig}|${clienteDebounced}|${ordenPor}|${ordenDireccion}`
-  const prevFilterSig = useRef(filterSig)
+  // La página recuerda a qué filtros pertenece: si los filtros cambian, el offset vigente vuelve a 0 en el mismo render,
+  // sin un setState dentro del efecto (que volvía a dispararlo y pedía la lista dos veces).
+  const [pagina, setPagina] = useState({ sig: filterSig, offset: 0 })
+  const offset = pagina.sig === filterSig ? pagina.offset : 0
 
   useEffect(() => {
     if (periodoRangoIncompleto) {
@@ -172,14 +174,6 @@ export function FacturasPage() {
       return
     }
 
-    const filtrosCambiaron = prevFilterSig.current !== filterSig
-    if (filtrosCambiaron) {
-      prevFilterSig.current = filterSig
-      setOffset(0)
-    }
-
-    const fetchOffset = filtrosCambiaron ? 0 : offset
-
     setRows(null)
     setError(null)
     void listFacturas({
@@ -189,7 +183,7 @@ export function FacturasPage() {
       orden_por: ordenPor,
       orden_direccion: ordenDireccion,
       limit: FACTURAS_PAGE_SIZE,
-      offset: fetchOffset,
+      offset,
     })
       .then((data) => {
         setCuentaVerificada(data.cuenta_verificada)
@@ -206,9 +200,7 @@ export function FacturasPage() {
               : "No se pudieron cargar las facturas."
         setError(mensaje)
       })
-    // `filterSig` resume todos los filtros: cambiarlo es lo que dispara la recarga.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterSig, offset])
+  }, [periodoRangoIncompleto, bounds.desde, bounds.hasta, clienteDebounced, ordenPor, ordenDireccion, offset])
 
   useEffect(() => {
     const t = window.setTimeout(() => setClienteDebounced(cliente), 300)
@@ -539,7 +531,7 @@ export function FacturasPage() {
                 variant="outline"
                 size="sm"
                 disabled={!puedeAnterior}
-                onClick={() => setOffset((actual) => Math.max(0, actual - FACTURAS_PAGE_SIZE))}
+                onClick={() => setPagina({ sig: filterSig, offset: Math.max(0, offset - FACTURAS_PAGE_SIZE) })}
               >
                 Anterior
               </Button>
@@ -548,7 +540,7 @@ export function FacturasPage() {
                 variant="outline"
                 size="sm"
                 disabled={!puedeSiguiente}
-                onClick={() => setOffset((actual) => actual + FACTURAS_PAGE_SIZE)}
+                onClick={() => setPagina({ sig: filterSig, offset: offset + FACTURAS_PAGE_SIZE })}
               >
                 Siguiente
               </Button>

@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -33,8 +33,19 @@ jobs:
       - name: Typecheck
         run: npx tsc -b --noEmit
 
+      - name: Tests
+        run: npm test
+
       - name: Build
         run: npm run build
+
+      # La documentación interna no viaja en el despliegue del CRM.
+      - name: El build no incluye la documentación
+        run: test ! -e dist/docs
+
+      # Que los docs no se rompan en silencio: se compilan, pero no bloquean ni se publican.
+      - name: Documentación (informativo)
+        run: npm run docs:build || true
 
       # Lo que llega al navegador: falla con cualquier vulnerabilidad high o critical.
       - name: Auditoría de dependencias de producción

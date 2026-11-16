@@ -109,4 +109,4 @@ tres capas:
   cierra la sesión, lo que te lleva al login.
 
 Un usuario tampoco puede cambiar su propio equipo, rol ni estado: esas columnas están protegidas en la base desde la
-misma fecha. Ver [Endurecimiento](./endurecimiento.md) y [Seguridad](./14-seguridad.md).
+misma fecha. El detalle está en la documentación de seguridad (privada, fuera de este repo).

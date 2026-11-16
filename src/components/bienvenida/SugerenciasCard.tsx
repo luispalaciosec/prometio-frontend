@@ -73,9 +73,10 @@ export function SugerenciasCard() {
     void cargar(false)
   }, [cargar])
 
+  const listaSugerencias = data?.sugerencias
   const sugerencias = useMemo(
-    () => (data?.sugerencias ? ordenar(data.sugerencias) : []),
-    [data?.sugerencias],
+    () => (listaSugerencias ? ordenar(listaSugerencias) : []),
+    [listaSugerencias],
   )
 
   const pulse = !reduceMotion && estado === "cargando"

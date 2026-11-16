@@ -18,7 +18,7 @@ export function ActividadReportar({
   onSubmit: (input: { reportada_en: string; feedback: string }) => void
   onCancel: () => void
 }) {
-  const [reportadaRaw, setReportadaRaw] = useState(toDatetimeLocalValue(new Date().toISOString()))
+  const [reportadaRaw, setReportadaRaw] = useState(() => toDatetimeLocalValue(new Date().toISOString()))
   const [feedbackRaw, setFeedbackRaw] = useState("")
 
   function enviar(event: FormEvent) {

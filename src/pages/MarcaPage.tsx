@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { BrandSurface } from "@/components/brand-surface"
@@ -40,7 +40,8 @@ export function MarcaPage() {
   const [guardando, setGuardando] = useState(false)
   const [subiendo, setSubiendo] = useState<"claro" | "oscuro" | null>(null)
 
-  function aplicar(row: Organizacion) {
+  // Los setters de useState son estables; `setOrganizacion` viene del store y también lo es.
+  const aplicar = useCallback((row: Organizacion) => {
     setOrg(row)
     setSitio(row.sitio_web_url ?? "")
     setEmail(row.email ?? "")
@@ -56,7 +57,7 @@ export function MarcaPage() {
       tertiary: row.color_terciario,
       quaternary: row.color_cuaternario,
     })
-  }
+  }, [setOrganizacion])
 
   useEffect(() => {
     void getOrganizacion()
@@ -65,9 +66,7 @@ export function MarcaPage() {
         toast.error(error instanceof Error ? error.message : "No se pudo cargar la marca.")
       })
       .finally(() => setCargando(false))
-    // Solo al montar: `aplicar` solo usa setters estables.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [aplicar])
 
   useEffect(() => {
     if (cargando && !org) {

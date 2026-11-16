@@ -47,6 +47,8 @@ export function BandejaPage() {
   const [perfiles, setPerfiles] = useState<Perfil[]>([])
   const [cargando, setCargando] = useState(true)
   const [convertirOpen, setConvertirOpen] = useState(false)
+  // Cada apertura monta un diálogo nuevo (key): el formulario arranca limpio sin un efecto que lo resetee.
+  const [aperturasConvertir, setAperturasConvertir] = useState(0)
   const [reasignarOpen, setReasignarOpen] = useState(false)
   const [convertirError, setConvertirError] = useState<string | null>(null)
   const [duplicadoId, setDuplicadoId] = useState<string | null>(null)
@@ -268,6 +270,7 @@ export function BandejaPage() {
               onConvertir={() => {
                 setDuplicadoId(null)
                 setConvertirError(null)
+                setAperturasConvertir((n) => n + 1)
                 setConvertirOpen(true)
               }}
               onEnviar={enviar}
@@ -282,6 +285,7 @@ export function BandejaPage() {
         </section>
       </div>
       <ConvertirContactoDialog
+        key={`${seleccionada?.id ?? "ninguna"}-${aperturasConvertir}`}
         open={convertirOpen}
         conversacion={seleccionada}
         duplicadoId={duplicadoId}

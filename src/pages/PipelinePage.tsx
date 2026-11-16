@@ -70,7 +70,10 @@ export function PipelinePage() {
   const [servicios, setServicios] = useState<Servicio[]>([])
   // El filtro solo se usa después de elegir un servicio del catálogo ya cargado: un ref evita recargar al llegar.
   const serviciosRef = useRef<Servicio[]>([])
-  serviciosRef.current = servicios
+  // Se sincroniza después del render (no durante): el efecto de carga, declarado más abajo, corre después de este.
+  useEffect(() => {
+    serviciosRef.current = servicios
+  }, [servicios])
   const [categorias, setCategorias] = useState<CategoriaServicio[]>([])
   const [causas, setCausas] = useState<CausaPerdida[]>([])
   const [items, setItems] = useState<OportunidadKanban[]>([])

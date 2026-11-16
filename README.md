@@ -7,8 +7,8 @@ márgenes, documentos de alcance, contratos de fee recurrente, facturación (Con
 TV.
 
 - **App:** https://prometio.vercel.app
-- **Documentación:** https://prometio.vercel.app/docs/ — cómo funciona cada módulo, operación, referencia técnica y
-  decisiones. La fuente está en [`docs/`](docs/).
+- **Documentación:** en [`docs/`](docs/) (VitePress): cómo funciona cada módulo, operación, referencia técnica y
+  decisiones. Se lee en local con `npm run docs:dev`; no se publica con el CRM.
 - **Backend:** repo hermano `prometio-backend` (FastAPI + Supabase, en Railway).
 
 ## Cómo encaja
@@ -34,7 +34,7 @@ Navegador ──login──▶ Supabase Auth
 | Estado y rutas | Zustand, React Router 7 (modo librería) |
 | Auth | Supabase Auth (email y Google, PKCE) |
 | Errores | Sentry (`@sentry/react`), activo solo con `VITE_SENTRY_DSN` |
-| Docs | VitePress, publicado en `/docs` |
+| Docs | VitePress, solo en local (`npm run docs:dev`) |
 | Deploy | Vercel |
 
 ## Levantar en local
@@ -66,9 +66,10 @@ Ningún secreto va en este repo ni en variables `VITE_*`: todo lo que empieza co
 | Comando | Qué hace |
 |---|---|
 | `npm run dev` | Servidor de desarrollo con proxy al backend |
-| `npm run build` | Typecheck, build de la app y build del sitio de documentación en `dist/docs` (es lo que corre Vercel) |
+| `npm run build` | Typecheck y build de la app en `dist/` (es lo que corre Vercel) |
 | `npm run lint` | oxlint |
 | `npm run docs:dev` | Sitio de documentación en local, con recarga |
+| `npm run docs:build` | Compila el sitio en `docs/.vitepress/dist` (no se despliega) |
 | `npm run preview` | Sirve el build de producción |
 
 El CI (`.github/workflows/ci.yml`) corre en cada push a `main` y en cada PR: lint, typecheck, build y
@@ -95,7 +96,7 @@ public/widget/      Widget embebible del formulario web
 
 Push a `main` → Vercel compila (`npm run build`) y publica. `vercel.json` define:
 
-- **Rutas:** la SPA, el sitio `/docs` y la demo `/formulario-demo`.
+- **Rutas:** la SPA y la demo `/formulario-demo`.
 - **Headers de seguridad por ruta:** CSP (el CRM no permite scripts inline), HSTS, `X-Frame-Options`, `nosniff`,
   `Referrer-Policy` y `Permissions-Policy`.
 

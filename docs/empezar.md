@@ -51,5 +51,5 @@ flowchart LR
 - **Operación:** lo necesario para mantenerlo andando.
 - **Referencia técnica:** para quien cambia el código.
 - **Decisiones:** el porqué de las reglas.
-- **Historia:** el plan original por fases y el registro del endurecimiento. Sirven de contexto, pero no describen el
+- **Historia:** el plan original por fases. Sirven de contexto, pero no describen el
   sistema de hoy.

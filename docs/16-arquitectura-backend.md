@@ -127,7 +127,7 @@ La matriz completa de quién ve qué está en [Roles y permisos](./01-roles-perm
 
 ### Service role vs. RLS
 
-El backend habla con Supabase con **una sola credencial**: `SUPABASE_SERVICE_ROLE_KEY`, que salta RLS. Por eso la
+El backend habla con Supabase con **una sola credencial**, la *service role* de Supabase, que salta RLS. Por eso la
 autorización efectiva de la API vive en estas dependencias y en el filtrado de cada handler, y está cubierta por
 `tests/test_matriz_permisos.py`.
 
@@ -272,17 +272,17 @@ Lo dispara un workflow de GitHub Actions el día 1 de cada mes a las 06:00 de Ec
 
 | Servicio | Módulo | Para qué | Variables |
 |---|---|---|---|
-| Supabase | `supabase_client.py`, `supabase_auth_admin.py` | Base, Storage, Auth admin | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
-| Anthropic | `ai_provider.py` | Documento de Alcance, sugerencias de Bienvenida, sugerir líneas de cotización, prospección en LinkedIn | `ANTHROPIC_API_KEY` (opcional) |
-| Google Calendar | `google_calendar.py` | Eventos de actividades, por vendedor | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
-| Basecamp | `basecamp.py` | Conectar la cuenta del vendedor (OAuth por usuario) | `BASECAMP_CLIENT_ID`, `BASECAMP_CLIENT_SECRET`, `BASECAMP_ACCOUNT_ID` (opcionales) |
-| Contífico | `contifico.py` | Facturas e historial de precios, solo lectura (API v2) | `CONTIFICO_API_KEY` |
-| Apify | `apify.py` | Enriquecer empresas y contactos, prospección en LinkedIn | `APIFY_API_TOKEN` |
-| Resend | `resend_send.py`, `resend_webhook.py` | Email transaccional y eventos de marketing | `RESEND_API_KEY` (opcional), `RESEND_WEBHOOK_SECRET` |
+| Supabase | `supabase_client.py`, `supabase_auth_admin.py` | Base, Storage, Auth admin | `SUPABASE_URL`, su credencial en el backend |
+| Anthropic | `ai_provider.py` | Documento de Alcance, sugerencias de Bienvenida, sugerir líneas de cotización, prospección en LinkedIn | Credencial en el backend |
+| Google Calendar | `google_calendar.py` | Eventos de actividades, por vendedor | `GOOGLE_CLIENT_ID`, su credencial en el backend |
+| Basecamp | `basecamp.py` | Conectar la cuenta del vendedor (OAuth por usuario) | `BASECAMP_CLIENT_ID`, su credencial en el backend, `BASECAMP_ACCOUNT_ID` (opcionales) |
+| Contífico | `contifico.py` | Facturas e historial de precios, solo lectura (API v2) | Credencial en el backend |
+| Apify | `apify.py` | Enriquecer empresas y contactos, prospección en LinkedIn | Credencial en el backend |
+| Resend | `resend_send.py`, `resend_webhook.py` | Email transaccional y eventos de marketing | Credenciales en el backend |
 | Meta Conversions API | `meta_capi.py` | Conversión del formulario web | En `organizacion_ads_config` (cifrado) |
 | GA4 Measurement Protocol | `ga4_mp.py` | Conversión del formulario web, solo servidor | En `organizacion_ads_config` (cifrado) |
-| hCaptcha | `hcaptcha.py` | Captcha del formulario web | `HCAPTCHA_SECRET_KEY`, `HCAPTCHA_HOSTNAMES` (opcionales) |
-| PageSpeed Insights | `pagespeed.py` | Core Web Vitals | `PAGESPEED_API_KEY` |
+| hCaptcha | `hcaptcha.py` | Captcha del formulario web | Credencial en el backend, `HCAPTCHA_HOSTNAMES` (opcionales) |
+| PageSpeed Insights | `pagespeed.py` | Core Web Vitals | Credencial en el backend |
 | Sentry | `observabilidad.py` | Errores | `SENTRY_DSN` (opcional) |
 
 El detalle funcional de cada una está en [Integraciones](./11-integraciones.md).
@@ -293,15 +293,9 @@ El detalle funcional de cada una está en [Integraciones](./11-integraciones.md)
 
 `Settings` (pydantic-settings) lee variables de entorno o `.env`.
 
-- **Obligatorias:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
-  `CONTIFICO_API_KEY`, `APIFY_API_TOKEN`, `RESEND_WEBHOOK_SECRET`, `PAGESPEED_API_KEY`. Sin ellas el proceso no arranca.
-- **Opcionales a propósito:** `ANTHROPIC_API_KEY`, `BASECAMP_*`, `HCAPTCHA_SECRET_KEY`, `HCAPTCHA_HOSTNAMES`,
-  `RESEND_API_KEY`, `CRON_SECRET`, `SENTRY_DSN`, `SECRETS_ENCRYPTION_KEY`, `ENVIRONMENT`. Una variable nueva
-  obligatoria que Railway no tenga tumba **todo** el backend (ya pasó una vez), así que lo nuevo entra como opcional y
-  solo falla la función que la usa.
-- `CORS_ALLOW_ORIGINS`: lista de orígenes. En producción se descartan los que no son `https://`.
-- **Producción** se detecta sola: `RAILWAY_ENVIRONMENT` presente (Railway la define), salvo que `ENVIRONMENT` diga
-  `development`/`local`/`test`. En producción no se publican `/docs`, `/redoc` ni `/openapi.json`, y se agrega HSTS.
+- Hay variables obligatorias (sin ellas el proceso no arranca) y opcionales a propósito. La lista, con un comentario
+  cada una, está en `prometio-backend/.env.example`. Una variable nueva obligatoria que Railway no tenga tumba **todo**
+  el backend (ya pasó una vez), así que lo nuevo entra como opcional.
 
 ---
 
@@ -337,11 +331,11 @@ autenticación por llamada; no se suma sobre este modelo.
 | 500 intermitentes solo bajo carga | Ráfaga de peticiones paralelas desde una pantalla. Ver sección 5 |
 | 500 genérico | `railway logs` en el repo del backend: el detalle solo va al log, nunca a la respuesta |
 | PDF no se genera | Librerías nativas de WeasyPrint; `GET /salud` incluye un chequeo de WeasyPrint |
-| La IA responde 502 o "no configurado" | `ANTHROPIC_API_KEY` en Railway; límite de 10 llamadas cada 5 minutos por usuario |
-| El formulario web devuelve 503 | hCaptcha no respondió, o falta `HCAPTCHA_SECRET_KEY` («captcha no configurado en el servidor»). Si devuelve 422 «Captcha inválido», revisar `HCAPTCHA_HOSTNAMES` |
-| No se generaron las cotizaciones del mes | Workflow `generar-cotizaciones-contratos.yml` en GitHub y `CRON_SECRET` en Railway y en GitHub |
+| La IA responde 502 o "no configurado" | La clave de Anthropic en Railway; límite de 10 llamadas cada 5 minutos por usuario |
+| El formulario web devuelve 503 | hCaptcha no respondió, o falta la clave de hCaptcha en el backend («captcha no configurado en el servidor»). Si devuelve 422 «Captcha inválido», revisar `HCAPTCHA_HOSTNAMES` |
+| No se generaron las cotizaciones del mes | Workflow `generar-cotizaciones-contratos.yml` en GitHub y el secreto del cron en Railway y en GitHub |
 | Un webhook saliente no llegó | Log de Railway: "webhook saliente falló tras 3 intentos" |
 | Una variable nueva tumbó el deploy | Debe ser opcional en `Settings` (sección 10) |
 
 Relacionado: [Arquitectura del frontend](./15-arquitectura-frontend.md), [Modelo de datos](./17-modelo-datos.md),
-[API REST](./18-api.md), [Seguridad](./14-seguridad.md), [Despliegue](./13-despliegue.md).
+[API REST](./18-api.md), [Despliegue](./13-despliegue.md).

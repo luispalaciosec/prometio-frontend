@@ -17,31 +17,28 @@ Dos principios atraviesan todas:
 
 | Servicio | Para qué | Dirección | Credenciales |
 |---|---|---|---|
-| [Supabase Auth](#supabase-auth) | Login con correo o Google, invitaciones | Frontend ↔ Supabase; backend verifica | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
-| [Google Calendar y Meet](#google-calendar-y-meet) | Eventos de visitas y videollamadas, links de Meet | prometIO → Google | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` |
-| [Basecamp](#basecamp) | Mostrar la cuenta de Basecamp del vendedor | prometIO → Basecamp | `VITE_BASECAMP_CLIENT_ID`, `BASECAMP_CLIENT_ID`, `BASECAMP_CLIENT_SECRET`, `BASECAMP_ACCOUNT_ID` |
-| [Contífico](#contifico) | Leer facturas emitidas | prometIO → Contífico (solo lectura) | `CONTIFICO_API_KEY` |
+| [Supabase Auth](#supabase-auth) | Login con correo o Google, invitaciones | Frontend ↔ Supabase; backend verifica | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, su credencial en el backend |
+| [Google Calendar y Meet](#google-calendar-y-meet) | Eventos de visitas y videollamadas, links de Meet | prometIO → Google | `GOOGLE_CLIENT_ID`, su credencial en el backend |
+| [Basecamp](#basecamp) | Mostrar la cuenta de Basecamp del vendedor | prometIO → Basecamp | `VITE_BASECAMP_CLIENT_ID`, `BASECAMP_CLIENT_ID`, su credencial en el backend, `BASECAMP_ACCOUNT_ID` |
+| [Contífico](#contifico) | Leer facturas emitidas | prometIO → Contífico (solo lectura) | Credencial en el backend |
 | [BackIO](#backio) | Avisar cotizaciones aprobadas y altas de empresas | prometIO → BackIO (webhook) | Secreto por webhook, cifrado en la base |
-| [Resend](#resend) | Email a ventas por cada lead; eventos de email marketing | Ambas | `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` |
-| [Apify](#apify) | LinkedIn, Google Search y Google Maps | prometIO → Apify | `APIFY_API_TOKEN` |
-| [hCaptcha](#hcaptcha) | Captcha del formulario web | Widget → hCaptcha; backend verifica | `HCAPTCHA_SECRET_KEY`, `HCAPTCHA_HOSTNAMES` |
+| [Resend](#resend) | Email a ventas por cada lead; eventos de email marketing | Ambas | Credenciales en el backend |
+| [Apify](#apify) | LinkedIn, Google Search y Google Maps | prometIO → Apify | Credencial en el backend |
+| [hCaptcha](#hcaptcha) | Captcha del formulario web | Widget → hCaptcha; backend verifica | Credencial en el backend, `HCAPTCHA_HOSTNAMES` |
 | [Meta y GA4](#meta-conversions-api-y-ga4) | Conversiones del formulario web | prometIO → Meta / Google | Cargadas desde la app, cifradas |
-| [PageSpeed](#pagespeed-y-rastreo-seo) | Core Web Vitals | prometIO → Google | `PAGESPEED_API_KEY` |
-| [IA (Anthropic Claude)](#ia-anthropic-claude) | Documento de alcance, investigación de leads, sugerencias | prometIO → Anthropic | `ANTHROPIC_API_KEY` |
+| [PageSpeed](#pagespeed-y-rastreo-seo) | Core Web Vitals | prometIO → Google | Credencial en el backend |
+| [IA (Anthropic Claude)](#ia-anthropic-claude) | Documento de alcance, investigación de leads, sugerencias | prometIO → Anthropic | Credencial en el backend |
 | [Sentry](#sentry) | Errores de frontend y backend | Ambos → Sentry | `VITE_SENTRY_DSN`, `SENTRY_DSN` |
 | [Jelou / WhatsApp](#jelou-whatsapp-messenger-instagram) | Canales de la bandeja | No construido | — |
 
-**Variables obligatorias.** En el backend, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
-`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `CONTIFICO_API_KEY`, `APIFY_API_TOKEN`,
-`RESEND_WEBHOOK_SECRET` y `PAGESPEED_API_KEY` son obligatorias: si falta una, el backend no arranca. Las
+**Variables del backend.** Las credenciales de cada integración viven solo en el backend; la lista está en
+`prometio-backend/.env.example`. Algunas son obligatorias: si falta una, el backend no arranca. Las
 demás son opcionales a propósito, para que una integración todavía sin configurar no tumbe todo el
 servicio; sin ellas, solo falla la función que las usa. Ver [Setup](./12-setup.md) y
 [Despliegue](./13-despliegue.md).
 
 **Secretos cargados desde la app.** Los tokens de Meta y GA4, los secretos de webhooks salientes y los
-refresh tokens de Google y Basecamp se guardan cifrados con Fernet usando `SECRETS_ENCRYPTION_KEY`. Si
-esa variable no está, se guardan sin cifrar; si hay un valor cifrado y falta la clave (o cambió), leerlo
-falla. Nunca se devuelven por la API. Ver [Seguridad](./14-seguridad.md).
+refresh tokens de Google y Basecamp se guardan en el backend y nunca se devuelven por la API.
 
 ## Supabase Auth
 
@@ -73,7 +70,7 @@ El backend lo valida canjeándolo por un access token, lo guarda **cifrado** por
 email de Google conectado.
 
 Cada vez que hay que crear o mover un evento, el backend canjea el refresh token por un access token
-nuevo con `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET`.
+nuevo con `GOOGLE_CLIENT_ID` y la credencial del backend.
 
 **Por qué por vendedor.** El evento tiene que estar en el calendario de quien va a la reunión, con su
 identidad. Una cuenta de servicio no tendría acceso a esos calendarios.
@@ -94,7 +91,7 @@ proyectos ni tareas: eso es rol de BackIO. La ficha de cuenta solo guarda una UR
    sesión del navegador.
 2. Basecamp vuelve a `/auth/basecamp/callback` con un `code`. El frontend valida el `state`.
 3. El frontend manda el `code` crudo al backend (`POST /basecamp/conectar`), y **el backend hace el
-   canje** con `BASECAMP_CLIENT_ID` y `BASECAMP_CLIENT_SECRET`.
+   canje** con `BASECAMP_CLIENT_ID` y la credencial del backend.
 4. Con el access token lee el perfil del vendedor dentro de la cuenta de la agencia
    (`BASECAMP_ACCOUNT_ID`) y guarda el refresh token cifrado.
 
@@ -113,7 +110,7 @@ agencia y facturación del Dashboard, Panel TV, proyección de contratos e histo
 servicio. **Solo lectura.** Emitir facturas desde prometIO está diferido; "marcar facturada" es un
 registro manual.
 
-**Cómo.** API v2 de Contífico, documentos de clientes por rango de fechas, con `CONTIFICO_API_KEY` en el
+**Cómo.** API v2 de Contífico, documentos de clientes por rango de fechas, con la credencial del backend en el
 header `Authorization`. Páginas de 100 documentos, **hasta 30 páginas** por consulta (unos 3.000
 documentos). Contífico puede devolver el mismo documento en dos páginas, así que se deduplica por número.
 El monto que se usa es `subtotal_0 + subtotal_12` (sin IVA).
@@ -174,16 +171,16 @@ no está construida en prometIO.
 **Para qué.** Dos usos:
 
 1. **Envío:** el email que avisa a todo el equipo de ventas de cada lead nuevo del formulario web, con
-   remitente del dominio del CRM. Usa `RESEND_API_KEY`.
+   remitente del dominio del CRM. Usa la credencial del backend.
 2. **Recepción:** el webhook `POST /webhooks/resend` registra eventos de email (`email.*`) en
    `resend_evento` (el conteo de "Mails" en [Resumen](./06-dashboard.md#resumen)) y, cuando un contacto
    se da de baja, marca `contacto.elegible_marketing = false`. La firma se verifica con Svix y
-   `RESEND_WEBHOOK_SECRET`; una firma inválida recibe 401.
+   el secreto del webhook; una firma inválida recibe 401.
 
 Las campañas de email marketing se componen y envían desde el propio dashboard de Resend, no desde
 prometIO. prometIO solo guarda las estadísticas que se cruzan con sus contactos.
 
-**Si falla.** Sin `RESEND_API_KEY`, el aviso de leads no sale, pero el lead se crea igual. Si falla el
+**Si falla.** Sin la clave de Resend, el aviso de leads no sale, pero el lead se crea igual. Si falla el
 envío a una persona, se sigue con las demás. Las fallas solo quedan en el log del backend.
 
 ## Apify
@@ -198,7 +195,7 @@ envío a una persona, se sigue con las demás. Las fallas solo quedan en el log 
 | Enriquecer un contacto desde su LinkedIn | `harvestapi~linkedin-profile-scraper` |
 | Enriquecer una empresa (a pedido, y al crear una oportunidad de una empresa todavía sin enriquecer) | `harvestapi~linkedin-company`, `apify~google-search-scraper`, `compass~crawler-google-places` |
 
-**Cómo.** Ejecución sincrónica de cada actor con `APIFY_API_TOKEN`, timeout de 60 segundos.
+**Cómo.** Ejecución sincrónica de cada actor con la credencial del backend, timeout de 60 segundos.
 
 **Costo.** Cada perfil es una ejecución paga. Por eso la prospección tiene topes por corrida y un cooldown
 entre búsquedas, y la investigación de un lead no vuelve a consultar la empresa si ya la tiene.
@@ -221,7 +218,7 @@ de alcance a la API de Apify sin ejecutar actores, para no gastar cuota.
 llene de bots.
 
 **Cómo.** El widget carga hCaptcha con la site key pública (está en el widget, no es secreta). El backend
-verifica el token con `HCAPTCHA_SECRET_KEY`. Si `HCAPTCHA_HOSTNAMES` tiene una lista de dominios
+verifica el token con la credencial del backend. Si `HCAPTCHA_HOSTNAMES` tiene una lista de dominios
 (separados por coma), además exige que el captcha se haya resuelto en uno de ellos, para que un token
 resuelto en otro sitio con la misma site key no sirva.
 
@@ -231,7 +228,7 @@ resuelto en otro sitio con la misma site key no sirva.
 |---|---|
 | hCaptcha no responde | 503, el widget pide resolver de nuevo |
 | Token inválido o de otro dominio | 422 |
-| `HCAPTCHA_SECRET_KEY` sin configurar | 422 en **todos** los envíos |
+| Clave de hCaptcha sin configurar en el backend | 422 en **todos** los envíos |
 
 ## Meta Conversions API y GA4
 
@@ -254,7 +251,7 @@ páginas.
 
 **Cómo.**
 
-- **Core Web Vitals:** PageSpeed Insights de Google, categoría performance, con `PAGESPEED_API_KEY`.
+- **Core Web Vitals:** PageSpeed Insights de Google, categoría performance, con la credencial del backend.
 - **Rastreo:** el backend descubre páginas por sitemap o enlaces y audita cada una. Corre en segundo
   plano. Solo acepta sitios públicos por http/https, revalida cada redirección y cada enlace, y no puede
   llegar a la red interna.
@@ -276,7 +273,7 @@ PageSpeed falla con un error controlado.
 | Sugerencias del día | [Bienvenida](./10-agenda.md#sugerencias) |
 
 **Cómo.** Una sola capa de abstracción (`app/core/ai_provider.py`) con un único proveedor hoy:
-Anthropic Claude, por la Messages API, con `ANTHROPIC_API_KEY`. El modelo devuelve JSON que el backend
+Anthropic Claude, por la Messages API, con la credencial del backend. El modelo devuelve JSON que el backend
 parsea. Cambiar de proveedor es cambiar esa capa, no cada pantalla.
 
 En todos los usos rige lo mismo: **las reglas deciden y la IA redacta.** Los datos que recibe el modelo
@@ -287,7 +284,7 @@ Las funciones de documento de alcance tienen límite de 10 llamadas cada 5 minut
 
 **Si falla.** Cualquier falla (sin clave, red, respuesta mal formada) se convierte en un error propio del
 proveedor y cada función decide su respaldo: la investigación de leads guarda igual los datos de la
-empresa, las sugerencias usan textos de plantilla. Sin `ANTHROPIC_API_KEY`, el backend arranca igual y
+empresa, las sugerencias usan textos de plantilla. Sin la clave de Anthropic, el backend arranca igual y
 solo fallan las funciones de IA.
 
 ## Sentry

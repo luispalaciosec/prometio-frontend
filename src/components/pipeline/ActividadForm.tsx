@@ -43,7 +43,7 @@ export function ActividadForm({
 }) {
   const [tipo, setTipo] = useState<TipoActividad>(actividad?.tipo ?? tipoInicial ?? "llamada")
   const [programadaRaw, setProgramadaRaw] = useState(toDatetimeLocalValue(actividad?.programada_para ?? null))
-  const [reportadaRaw, setReportadaRaw] = useState(
+  const [reportadaRaw, setReportadaRaw] = useState(() =>
     toDatetimeLocalValue(actividad?.reportada_en ?? (modo === "reportar" ? new Date().toISOString() : null)),
   )
   const [feedbackRaw, setFeedbackRaw] = useState(actividad?.feedback ?? "")

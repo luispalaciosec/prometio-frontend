@@ -36,5 +36,6 @@ tmp/
 docs/Manual-PrometIO.pdf
 docs/manual-screenshots/
 
-# Sitio de documentación (VitePress): cache local; el build sale a dist/docs
+# Sitio de documentación (VitePress): cache y build local. No se despliega con el CRM.
 docs/.vitepress/cache/
+docs/.vitepress/dist/

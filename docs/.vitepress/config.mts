@@ -2,19 +2,20 @@ import { defineConfig } from "vitepress"
 import { withMermaid } from "vitepress-plugin-mermaid"
 
 // Sitio de documentación de prometIO. Los .md de esta carpeta son la fuente: se editan aquí y el sitio solo los
-// presenta. Local: `npm run docs:dev`. En producción se publica dentro del frontend en prometio.vercel.app/docs:
-// `npm run build` compila la app y después este sitio en dist/docs.
+// presenta. Local: `npm run docs:dev`. No se publica con el CRM: `npm run build` no lo compila y la salida de
+// `npm run docs:build` queda en docs/.vitepress/dist (ignorada por git), fuera del dist/ que despliega Vercel.
 export default withMermaid(
   defineConfig({
     lang: "es-EC",
     title: "prometIO",
     description: "Documentación de prometIO · CRM de Geeks Ecuador",
     base: "/docs/",
-    outDir: "../dist/docs",
+    outDir: ".vitepress/dist",
     cleanUrls: false,
     lastUpdated: true,
-    // README.md es el índice para quien navega el repo; los HTML del manual se generan aparte.
-    srcExclude: ["README.md", "manual-*.html"],
+    // README.md es el índice para quien navega el repo; los HTML del manual se generan aparte. Seguridad y el registro
+    // de endurecimiento no entran al sitio aunque algún día vuelva a desplegarse.
+    srcExclude: ["README.md", "manual-*.html", "14-seguridad.md", "endurecimiento.md"],
     head: [
       ["link", { rel: "icon", href: "/docs/prometio-icon.svg" }],
       ["meta", { name: "robots", content: "noindex, nofollow" }],
@@ -58,7 +59,6 @@ export default withMermaid(
             { text: "Operar prometIO: cuando algo falla", link: "/operacion" },
             { text: "Levantar el proyecto en local", link: "/12-setup" },
             { text: "Despliegue", link: "/13-despliegue" },
-            { text: "Seguridad", link: "/14-seguridad" },
           ],
         },
         {
@@ -78,7 +78,6 @@ export default withMermaid(
           items: [
             { text: "Roadmap por fases", link: "/roadmap" },
             { text: "Guía de UI original", link: "/UI_GUIDE" },
-            { text: "Endurecimiento tras la auditoría del 10/10", link: "/endurecimiento" },
           ],
         },
       ],

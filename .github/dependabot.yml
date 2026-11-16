@@ -8,9 +8,34 @@ updates:
       timezone: America/Guayaquil
     open-pull-requests-limit: 10
     groups:
+      # oxlint aparte: una versión nueva suele traer reglas nuevas y, con --deny-warnings, tumbaba el grupo entero
+      # (pasó con el PR #12). Así un aviso nuevo solo frena su propio PR.
+      oxlint:
+        patterns: ["oxlint"]
       # Parches y menores juntos en un solo PR; los major van por separado.
       minor-y-parches:
         update-types: [minor, patch]
+    ignore:
+      # React 19 va en su propia ronda: react y react-dom (y sus tipos) tienen que subir juntos y shadcn asume
+      # React 19 en refs. Revisar al planificar la migración (triage del 14/11/2026, PR #4 y #8).
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+      # TypeScript 7 (compilador nativo) quita opciones como baseUrl: su propia ronda (PR #7).
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # @types/node sigue a la versión de Node del CI (22); no subir de major por su cuenta (PR #6).
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # mermaid 12 no es compatible con vitepress-plugin-mermaid (pide 10 u 11). Solo afecta a los docs locales.
+      # Revisar cuando el plugin acepte la 12 (PR #5).
+      - dependency-name: "mermaid"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
@@ -18,3 +43,7 @@ updates:
       interval: weekly
       day: monday
       timezone: America/Guayaquil
+    groups:
+      # Todas las actions en un solo PR (antes eran uno por action: #1 y #2).
+      actions:
+        patterns: ["*"]
