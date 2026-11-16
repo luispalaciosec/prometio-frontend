@@ -54,4 +54,15 @@ export type PerfilAdminUpdate = {
   nombre_completo?: string
   equipo?: Equipo
   rol_ventas?: RolVentas | null
+  /** Disponibilidad para recibir leads. `null` en pausa o tope los quita. */
+  recibe_leads?: boolean
+  leads_pausado_hasta?: string | null
+  peso_reparto?: number
+  tope_pendientes?: number | null
+}
+
+/** Respuesta de desactivar: cuántos leads pendientes se re-repartieron. */
+export type PerfilDesactivado = PerfilDetalle & {
+  leads_reasignados?: number
+  leads_sin_reasignar?: number
 }

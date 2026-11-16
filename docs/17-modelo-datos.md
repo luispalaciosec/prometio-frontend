@@ -82,7 +82,8 @@ Al crearse un usuario en Supabase Auth, el trigger `on_auth_user_created` (`hand
 | `causa_perdida` | Catálogo de causas de Cierre Perdido | `nombre` |
 | `cuenta_contrato` | Referencia post-cierre (no es gestión de proyectos) | `oportunidad_id`, `fase_actual`, `basecamp_url`, `es_recurrente`, `monto_recurrente`, `fecha_renovacion` |
 | `meta_comercial` | Meta mensual o trimestral, por vendedor o total | `perfil_id` (NULL = agencia), `periodo_tipo`, `fecha_inicio`, `fecha_fin`, `monto` |
-| `asignacion_geografica` | Provincia → ejecutivo, para el reparto de leads | `provincia`, `ejecutivo_id` |
+| `regla_asignacion` | Reglas ordenadas del reparto de leads (producto, provincia, campaña u origen → personas) | `orden`, `tipo`, `valor`, `destinos`, `activa` |
+| `asignacion_geografica` | Histórico: se migró a `regla_asignacion` (migración 0102) | `provincia`, `ejecutivo_id` |
 
 `valor_cotizado` manda sobre `valor_referencial`. `cotizacion_valor_activa_id` dice qué cotización lo sustenta, para
 poder revertirlo si esa cotización termina rechazada o vencida y para que una aprobada gane siempre.
@@ -179,7 +180,7 @@ impuesto real (`POST /config/general`; `GET` responde 404 antes, `POST` responde
 | Cotización | `dias_validez_cotizacion` (30), `condiciones_comerciales_texto` |
 | Documento de Alcance | `requiere_documento_alcance`, textos por defecto (`condiciones_pago_default_texto`, `exclusiones_default_texto`, `consideraciones_default_texto`, `por_que_geeks_default_texto`) |
 | Costeo | `horas_laborales_mes` (240) |
-| Leads | `metodo_asignacion_leads` (`round_robin` / `geografia` / `carga_trabajo`), `ultimo_asignado_round_robin` |
+| Leads | `metodo_asignacion_leads` (`round_robin` / `carga_trabajo`), `respaldo_perfil_id`, cursor de turnos |
 | Otros | `dias_anticipacion_cumpleanos` (7), `contrato_dias_aviso_renovacion` (30), `linkedin_cooldown_horas` (6), `linkedin_max_criterios_por_corrida` (5), `linkedin_max_perfiles_por_corrida` (25) |
 
 Los márgenes y comisiones de `servicio` (`margen_default_pct`, `comision_sugerida_*`) son overrides por servicio; los de

@@ -51,6 +51,7 @@ import { LoginPage } from "@/pages/LoginPage"
 import { MarcaPage } from "@/pages/MarcaPage"
 import { MargenesConfigPage } from "@/pages/MargenesConfigPage"
 import { ParametrosGeneralesPage } from "@/pages/ParametrosGeneralesPage"
+import { AsignacionLeadsPage } from "@/pages/AsignacionLeadsPage"
 import { MetaComercialPage } from "@/pages/MetaComercialPage"
 import { PipelinePage } from "@/pages/PipelinePage"
 import { ProveedoresPage } from "@/pages/ProveedoresPage"
@@ -410,6 +411,14 @@ export default function App() {
                   <AdminRoute>
                     <ParametrosGeneralesPage />
                   </AdminRoute>
+                }
+              />
+              <Route
+                path="/configuracion/asignacion-leads"
+                element={
+                  <SupervisorRoute>
+                    <AsignacionLeadsPage />
+                  </SupervisorRoute>
                 }
               />
               <Route

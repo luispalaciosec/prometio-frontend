@@ -24,11 +24,19 @@ function lineasFormulario(detalle: Record<string, unknown>): string[] {
   const nombre = textoDetalle(detalle, "nombre_enviado")
   const lugar = [textoDetalle(detalle, "empresa"), textoDetalle(detalle, "ciudad")].filter(Boolean).join(" · ")
   const utm = campana(detalle)
+  const asignacion = detalle.asignacion
+  const responsable =
+    asignacion && typeof asignacion === "object"
+      ? textoDetalle(asignacion as Record<string, unknown>, "responsable_nombre")
+      : null
+  const explicacion =
+    asignacion && typeof asignacion === "object" ? textoDetalle(asignacion as Record<string, unknown>, "explicacion") : null
   return [
     producto ? `Pidió: ${producto}` : null,
     nombre ? `Escribió el nombre: ${nombre}` : null,
     lugar || null,
     utm,
+    responsable ? `Asignado a ${responsable}${explicacion ? `: ${explicacion}` : ""}` : explicacion,
   ].filter((linea): linea is string => linea != null)
 }
 

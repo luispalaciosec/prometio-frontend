@@ -26,13 +26,13 @@ export type ConfiguracionGeneral = {
   lead_horario_fin?: number
 }
 
-export const METODOS_ASIGNACION_LEADS = ["round_robin", "geografia", "carga_trabajo"] as const
+/** Desde la migración 0102, "geografia" ya no es un método: las provincias son reglas de Asignación de leads. */
+export const METODOS_ASIGNACION_LEADS = ["round_robin", "carga_trabajo"] as const
 
 export type MetodoAsignacionLeads = (typeof METODOS_ASIGNACION_LEADS)[number]
 
 export const METODO_ASIGNACION_LEADS_LABELS: Record<MetodoAsignacionLeads, string> = {
   round_robin: "Por turnos",
-  geografia: "Por geografía",
   carga_trabajo: "Por carga de trabajo",
 }
 

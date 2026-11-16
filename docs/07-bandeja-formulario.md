@@ -78,17 +78,30 @@ muestra en la bandeja.
 
 ## Asignación automática
 
-Cuando la bandeja o el formulario crean una oportunidad, el vendedor sale de
-`configuracion_general.metodo_asignacion_leads`:
+Se configura en Configuración → **Asignación de leads** (`/configuracion/asignacion-leads`). La edita el administrativo; el supervisor de ventas la ve en solo lectura (entra desde Leads por atender). Cuando la
+bandeja o el formulario necesitan un responsable, el backend decide así:
 
-| Método | Cómo elige |
+1. **Reglas, en el orden de la pantalla.** Cada regla dice «cuando el lead tiene este producto, provincia, campaña
+   (`utm_campaign`) u origen (`utm_source`), asignalo a estas personas». Gana la primera que coincide y tiene a alguien
+   disponible; si coincide pero nadie de sus destinos está disponible, se prueba la siguiente. Con varios destinos se
+   reparten por turnos entre ellos. La comparación ignora mayúsculas, tildes y espacios de los bordes.
+2. **Método base**, si ninguna regla aplica: **por turnos** (uno a cada uno, y cada persona recibe tantos por vuelta
+   como su peso) o **por carga de trabajo** (al que tiene menos oportunidades abiertas).
+3. **Responsable de respaldo**, si no hay nadie disponible. Lo recibe aunque esté en su tope, si está activo.
+4. **Sin asignar**, si tampoco hay respaldo: el contacto se crea igual y el correo al equipo lo avisa.
+
+**Disponible** = activo, con «Recibe leads» encendido, sin pausa vigente («Pausado hasta», inclusive) y por debajo de
+su tope de pendientes. Pueden recibir leads los equipos **Ventas y Administrativo**; los vendedores vienen con «Recibe
+leads» encendido y los administrativos, apagado, hasta que el admin lo encienda.
+
+| Pantalla | Qué se hace |
 |---|---|
-| `round_robin` (por defecto) | El siguiente vendedor activo después del último asignado, en orden fijo, y vuelve a empezar |
-| `carga_trabajo` | El vendedor activo con menos oportunidades abiertas y activas; si hay empate, round robin entre los empatados |
-| `geografia` | El vendedor mapeado a la provincia del contacto en Asignación geográfica. Sin provincia, sin mapeo o con el vendedor inactivo, cae a round robin |
+| Asignación de leads | Quién recibe, pausa, peso y tope por persona; reglas ordenables; método base y respaldo; simulador («¿a quién le tocaría un lead con estos datos?», sin efectos) |
+| Leads por atender | Supervisor y admin pueden **Reasignar** un lead pendiente a cualquier persona activa de Ventas o Administrativo. El reloj de respuesta no se reinicia |
+| Usuarios | Al **desactivar** a alguien, sus leads pendientes se reparten entre los disponibles; la app avisa cuántos se movieron y cuántos quedaron sin responsable |
 
-Solo entran perfiles de `ventas` con rol `vendedor` y activos. Si no hay ninguno, la asignación falla
-con 422 (en el formulario, ese fallo no llega al visitante: el contacto se crea igual).
+«Por geografía» dejó de ser un método base: las provincias ahora son reglas (las de la antigua asignación geográfica se
+migraron como reglas de tipo provincia).
 
 ## Formulario web
 

@@ -29,7 +29,24 @@ function esCanal(value: string | null): value is CanalConversacion {
   return value != null && value in CANAL_LABELS
 }
 
+const MOTIVO_REASIGNACION: Record<string, string> = {
+  reasignacion_manual: "reasignado a mano",
+  usuario_desactivado: "porque se desactivó al responsable",
+}
+
+/** «Para Ana · reasignado a mano». Tolera llaves ausentes. */
+function resumenReasignacion(detalle: Record<string, unknown>): string | null {
+  const para = textoDetalle(detalle, "a_nombre")
+  const motivo = textoDetalle(detalle, "motivo")
+  const partes = [para ? `Para ${para}` : null, motivo ? (MOTIVO_REASIGNACION[motivo] ?? motivo) : null]
+  const texto = partes.filter(Boolean).join(" · ")
+  return texto || null
+}
+
 export function resumenDetalle(row: TimelineEvento): string | null {
+  if (row.tipo_evento === "lead_reasignado") {
+    return resumenReasignacion(row.detalle)
+  }
   const partes: string[] = []
   const empresa = textoDetalle(row.detalle, "empresa_nombre")
   const contacto = textoDetalle(row.detalle, "contacto_nombre")

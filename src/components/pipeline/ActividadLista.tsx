@@ -9,7 +9,7 @@ import { ActividadEstadoBadge } from "@/components/pipeline/ActividadEstadoBadge
 import { TipoActividadMark } from "@/components/pipeline/TipoActividadMark"
 import { Button } from "@/components/ui/button"
 import { formatDateTime } from "@/lib/datetime-local"
-import type { Actividad } from "@/types/actividad"
+import { ASIGNADO_VIA_LABELS, type Actividad } from "@/types/actividad"
 
 export function ActividadLista({
   actividades,
@@ -94,6 +94,7 @@ export function ActividadLista({
                   {[
                     actividad.programada_para ? `Programada: ${formatDateTime(actividad.programada_para)}` : null,
                     actividad.reportada_en ? `Reportada: ${formatDateTime(actividad.reportada_en)}` : null,
+                    actividad.asignado_via ? ASIGNADO_VIA_LABELS[actividad.asignado_via] : null,
                   ]
                     .filter(Boolean)
                     .join(" · ")}

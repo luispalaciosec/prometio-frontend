@@ -1,9 +1,11 @@
+import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { AlarmClock, Siren, TimerOff } from "lucide-react"
 
 import { EmptyState } from "@/components/empty-state"
 import { KpiCard } from "@/components/kpi-card"
 import { LeadSlaBadge } from "@/components/leads/LeadSlaBadge"
+import { ReasignarLeadDialog } from "@/components/leads/ReasignarLeadDialog"
 import { PageHeader } from "@/components/page-header"
 import { TableSkeleton } from "@/components/skeleton"
 import { Button } from "@/components/ui/button"
@@ -35,7 +37,8 @@ function enlaceFicha(lead: LeadPendiente, tipo?: TipoActividad): string {
 export function LeadsPorAtenderPage() {
   const perfil = useAuthStore((state) => state.perfil)
   const navigate = useNavigate()
-  const { leads, error } = useLeadsPendientes()
+  const { leads, error, recargar } = useLeadsPendientes()
+  const [reasignando, setReasignando] = useState<{ lead: LeadPendiente; apertura: number } | null>(null)
   const mostrarResponsable = perfil ? puedeVerEquipo(perfil) : false
   const vencidos = leads?.filter((lead) => lead.estado === "vencido").length ?? 0
   const escalados = leads?.filter((lead) => lead.estado === "escalado").length ?? 0
@@ -45,6 +48,13 @@ export function LeadsPorAtenderPage() {
       <PageHeader
         title="Leads por atender"
         description="Quién espera un primer contacto. El reloj cuenta solo el horario laboral y se actualiza cada minuto."
+        action={
+          mostrarResponsable ? (
+            <Button asChild variant="outline">
+              <Link to="/configuracion/asignacion-leads">Asignación de leads</Link>
+            </Button>
+          ) : null
+        }
       />
       {leads == null && error ? (
         <EmptyState
@@ -148,6 +158,16 @@ export function LeadsPorAtenderPage() {
                         <Button asChild variant="outline" size="sm">
                           <Link to={enlaceFicha(lead)}>Registrar actividad</Link>
                         </Button>
+                        {mostrarResponsable ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setReasignando((prev) => ({ lead, apertura: (prev?.apertura ?? 0) + 1 }))}
+                          >
+                            Reasignar
+                          </Button>
+                        ) : null}
                       </span>
                     </TableCell>
                   </TableRow>
@@ -157,6 +177,17 @@ export function LeadsPorAtenderPage() {
           )}
         </div>
       )}
+      {reasignando ? (
+        <ReasignarLeadDialog
+          key={reasignando.apertura}
+          lead={reasignando.lead}
+          onListo={() => {
+            setReasignando(null)
+            recargar()
+          }}
+          onCerrar={() => setReasignando(null)}
+        />
+      ) : null}
     </>
   )
 }

@@ -10,22 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { getConfiguracionGeneral, updateParametrosGenerales } from "@/lib/config-api"
-import {
-  METODO_ASIGNACION_LEADS_LABELS,
-  METODOS_ASIGNACION_LEADS,
-  type ConfiguracionGeneral,
-  type MetodoAsignacionLeads,
-  type ParametrosGeneralesUpdate,
-} from "@/types/configuracion-general"
+import type { ConfiguracionGeneral, ParametrosGeneralesUpdate } from "@/types/configuracion-general"
 
 type CampoEntero =
   | "dias_validez_cotizacion"
@@ -47,7 +34,6 @@ type CampoTexto =
 type Form = Record<CampoEntero, string> &
   Record<CampoTexto, string> & {
     requiere_documento_alcance: boolean
-    metodo_asignacion_leads: MetodoAsignacionLeads
   }
 
 /** Mínimo aceptado por campo: el cooldown puede ser 0 (sin espera); el resto, al menos 1. */
@@ -97,7 +83,6 @@ function formDesde(row: ConfiguracionGeneral): Form {
     consideraciones_default_texto: row.consideraciones_default_texto ?? "",
     por_que_geeks_default_texto: row.por_que_geeks_default_texto ?? "",
     requiere_documento_alcance: row.requiere_documento_alcance === true,
-    metodo_asignacion_leads: row.metodo_asignacion_leads ?? "round_robin",
   }
 }
 
@@ -221,9 +206,6 @@ export function ParametrosGeneralesPage() {
     if (form.requiere_documento_alcance !== (original.requiere_documento_alcance === true)) {
       patch.requiere_documento_alcance = form.requiere_documento_alcance
     }
-    if (form.metodo_asignacion_leads !== original.metodo_asignacion_leads) {
-      patch.metodo_asignacion_leads = form.metodo_asignacion_leads
-    }
     if (Object.keys(patch).length === 0) {
       toast.message("No hay cambios para guardar.")
       return
@@ -329,27 +311,14 @@ export function ParametrosGeneralesPage() {
             {campoEntero("linkedin_max_perfiles_por_corrida", "Tope de perfiles que trae cada búsqueda.")}
           </Seccion>
 
-          <Seccion titulo="Leads y agenda" descripcion="Cómo se reparten los leads nuevos y cuándo avisar cumpleaños.">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="metodo_asignacion_leads">Método de asignación de leads</Label>
-              <Select
-                value={form.metodo_asignacion_leads}
-                onValueChange={(value) =>
-                  setForm((prev) => (prev ? { ...prev, metodo_asignacion_leads: value as MetodoAsignacionLeads } : prev))
-                }
-              >
-                <SelectTrigger id="metodo_asignacion_leads" className="sm:max-w-64">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {METODOS_ASIGNACION_LEADS.map((metodo) => (
-                    <SelectItem key={metodo} value={metodo}>
-                      {METODO_ASIGNACION_LEADS_LABELS[metodo]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <Seccion titulo="Leads y agenda" descripcion="Cuándo avisar cumpleaños. El reparto de leads tiene su propia pantalla.">
+            <p className="text-ui">
+              Quién recibe leads, las reglas y el método de reparto se configuran en{" "}
+              <Link to="/configuracion/asignacion-leads" className="text-primary underline-offset-4 hover:underline">
+                Asignación de leads
+              </Link>
+              .
+            </p>
             {campoEntero("dias_anticipacion_cumpleanos", "Con cuántos días de anticipación aparece un cumpleaños.")}
           </Seccion>
 

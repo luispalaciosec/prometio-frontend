@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import { listLeadsPendientes } from "@/lib/api/atencion-lead"
 import type { LeadPendiente } from "@/types/atencion-lead"
@@ -12,6 +12,9 @@ const INTERVALO_MS = 60_000
 export function useLeadsPendientes() {
   const [leads, setLeads] = useState<LeadPendiente[] | null>(null)
   const [error, setError] = useState(false)
+  // Subirla vuelve a pedir la lista ya (p. ej. después de reasignar un lead).
+  const [version, setVersion] = useState(0)
+  const recargar = useCallback(() => setVersion((n) => n + 1), [])
 
   useEffect(() => {
     let cancelled = false
@@ -44,7 +47,7 @@ export function useLeadsPendientes() {
       window.clearInterval(intervalo)
       document.removeEventListener("visibilitychange", refrescarSiVisible)
     }
-  }, [])
+  }, [version])
 
-  return { leads, error }
+  return { leads, error, recargar }
 }

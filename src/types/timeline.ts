@@ -6,6 +6,7 @@ export const TIPOS_TIMELINE = [
   "lead_convertido",
   "oportunidad_asignada_automatica",
   "formulario_web_enviado",
+  "lead_reasignado",
 ] as const
 
 export type TipoTimeline = (typeof TIPOS_TIMELINE)[number]
@@ -18,6 +19,7 @@ export const TIPO_TIMELINE_LABELS: Record<TipoTimeline, string> = {
   lead_convertido: "Lead convertido",
   oportunidad_asignada_automatica: "Asignación automática",
   formulario_web_enviado: "Entró por el formulario web",
+  lead_reasignado: "Lead reasignado",
 }
 
 export type TimelineEvento = {

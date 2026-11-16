@@ -10,6 +10,7 @@ import {
   Palette,
   Percent,
   Plug,
+  Shuffle,
   Target,
   Users,
 } from "lucide-react"
@@ -68,8 +69,14 @@ export const CONFIG_NAV_GROUPS: ConfigNavGroup[] = [
       {
         to: "/configuracion/parametros",
         label: "Parámetros generales",
-        body: "Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn y reparto de leads.",
+        body: "Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn y cumpleaños.",
         icon: SlidersHorizontal,
+      },
+      {
+        to: "/configuracion/asignacion-leads",
+        label: "Asignación de leads",
+        body: "Quién recibe leads, reglas por producto, provincia o campaña, respaldo y simulador.",
+        icon: Shuffle,
       },
       {
         to: "/configuracion/meta-comercial",

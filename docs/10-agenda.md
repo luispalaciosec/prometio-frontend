@@ -132,6 +132,7 @@ y por persona.
 | `lead_convertido` | Una conversación de la bandeja se convierte en contacto |
 | `oportunidad_asignada_automatica` | Una conversión crea una oportunidad con asignación automática |
 | `formulario_web_enviado` | Un contacto envía el formulario web. Se muestra «Entró por el formulario web» o, si ya existía, «Volvió a entrar por el formulario» |
+| `lead_reasignado` | Un lead pendiente pasa a otra persona: a mano (supervisor o admin) o porque se desactivó a su responsable |
 
 Los eventos que genera el sistema no tienen persona: `perfil_id` llega nulo y `perfil_nombre` como «Sistema». La ficha
 de cada contacto muestra los suyos en el bloque **Recorrido** (`GET /timeline?entidad_id=<contacto_id>`).

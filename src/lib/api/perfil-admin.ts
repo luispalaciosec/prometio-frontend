@@ -2,6 +2,7 @@ import { apiFetch } from "@/lib/api-client"
 import type {
   InvitarPerfilInput,
   PerfilAdminUpdate,
+  PerfilDesactivado,
   PerfilDetalle,
   PerfilListado,
 } from "@/types/perfil"
@@ -35,7 +36,7 @@ export function updatePerfilAdmin(id: string, patch: PerfilAdminUpdate): Promise
   })
 }
 
-export function desactivarPerfil(id: string): Promise<PerfilDetalle> {
+export function desactivarPerfil(id: string): Promise<PerfilDesactivado> {
   return apiFetch(`/perfiles/${id}/desactivar`, { method: "POST" })
 }
 

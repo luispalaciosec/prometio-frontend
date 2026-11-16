@@ -23,7 +23,8 @@ las necesitan.
 | | Tipos de documento | Catálogo de documentos que un servicio puede requerir |
 | Reglas de negocio | Etapas y alertas | Probabilidad por etapa, umbral de alerta, multiplicador de escalamiento |
 | | Márgenes e impuestos | Margen y comisión por defecto, umbral de aprobación, tasa de impuesto, horas laborales del mes |
-| | Parámetros generales | Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn, reparto de leads y reloj de respuesta |
+| | Parámetros generales | Validez de cotizaciones, documento de alcance, aviso de renovación, LinkedIn, cumpleaños y reloj de respuesta |
+| | Asignación de leads | Quién recibe leads, reglas por producto, provincia, campaña u origen, método base, respaldo y simulador (ver [Bandeja y formulario web](./07-bandeja-formulario.md#asignacion-automatica)) |
 | | Meta comercial | Meta de la agencia y por vendedor (también supervisor de ventas) |
 | | Causas de pérdida | Catálogo para Cierre Perdido |
 | Marca e integraciones | Marca | Logos, colores y datos de contacto de la organización |
@@ -187,7 +188,7 @@ La misma fila guarda otros parámetros, que se editan en Configuración → **Pa
 | Documento de alcance | Interruptor de documento obligatorio y los textos por defecto (exclusiones, consideraciones, «por qué Geeks») |
 | Contratos de fee | Días de aviso de renovación |
 | Prospección en LinkedIn | Horas entre búsquedas, criterios y perfiles por búsqueda |
-| Leads y agenda | Método de asignación de leads y días de anticipación de cumpleaños |
+| Leads y agenda | Días de anticipación de cumpleaños (el reparto de leads está en Asignación de leads) |
 | Reloj de respuesta a leads | Meta de primer contacto en minutos hábiles (30) y horario laboral (8 a 18). La hora de inicio tiene que ser anterior a la de fin. El escalamiento usa el multiplicador de Etapas y alertas |
 
 ## Etapas y alertas

@@ -193,8 +193,20 @@ export function UsuariosPage() {
   async function toggleActivo(row: PerfilListado) {
     try {
       if (row.activo) {
-        await desactivarPerfil(row.id)
-        toast.success("Usuario desactivado.")
+        const resultado = await desactivarPerfil(row.id)
+        const reasignados = resultado.leads_reasignados ?? 0
+        const sinReasignar = resultado.leads_sin_reasignar ?? 0
+        toast.success(
+          reasignados > 0
+            ? `Usuario desactivado. Se reasignaron ${reasignados} ${reasignados === 1 ? "lead" : "leads"}.`
+            : "Usuario desactivado.",
+        )
+        if (sinReasignar > 0) {
+          toast.warning(
+            `${sinReasignar} ${sinReasignar === 1 ? "lead quedó" : "leads quedaron"} con esta persona porque nadie estaba disponible. Revisalos en Leads por atender.`,
+            { duration: 12_000 },
+          )
+        }
       } else {
         await reactivarPerfil(row.id)
         toast.success("Usuario reactivado.")

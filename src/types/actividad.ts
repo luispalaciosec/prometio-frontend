@@ -38,4 +38,14 @@ export type Actividad = {
   google_meet_url: string | null
   google_calendar_sync_error: string | null
   created_at: string
+  /** Solo en «Atender lead»: cómo se eligió al responsable. */
+  asignado_via?: "regla" | "metodo_base" | "respaldo" | "manual" | null
+  asignado_regla_id?: string | null
+}
+
+export const ASIGNADO_VIA_LABELS: Record<NonNullable<Actividad["asignado_via"]>, string> = {
+  regla: "Asignado por una regla",
+  metodo_base: "Asignado por el método base",
+  respaldo: "Asignado al respaldo",
+  manual: "Reasignado a mano",
 }

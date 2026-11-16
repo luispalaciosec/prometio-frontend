@@ -124,6 +124,22 @@ se cobran en un mes, el panel de contratos tiene «Fee que se cobran en…» (`v
 algún día de ese mes, distinto de «Termina desde / hasta», que mira la fecha de vencimiento. Al elegir un mes, «Activos»
 pasa a «Sí» si estaba sin filtro.
 
+### Asignación de leads
+
+| Método | Ruta | Quién | Para qué |
+|---|---|---|---|
+| GET | `/config/asignacion-leads` | Supervisor o admin | Método base, respaldo, reglas ordenadas y disponibilidad por persona |
+| PATCH | `/config/asignacion-leads` | Admin | `metodo_base` (`round_robin` / `carga_trabajo`) y `respaldo_perfil_id` (`null` lo quita) |
+| POST, PATCH, DELETE | `/config/asignacion-leads/reglas` | Admin | Reglas `{tipo, valor, destinos[], activa}` |
+| PUT | `/config/asignacion-leads/reglas/orden` | Admin | Nuevo orden: cada id exactamente una vez |
+| GET | `/config/asignacion-leads/valores` | Supervisor o admin | Productos del formulario, las 24 provincias y campañas/orígenes de los últimos 90 días |
+| POST | `/config/asignacion-leads/simular` | Admin | A quién iría un lead, sin efectos |
+| POST | `/atencion-leads/{actividad_id}/reasignar` | Supervisor o admin | Reasignar un lead pendiente. No reinicia el reloj |
+
+La disponibilidad de cada persona (`recibe_leads`, `leads_pausado_hasta`, `peso_reparto`, `tope_pendientes`) se edita
+con `PATCH /perfiles/{id}`. `POST /perfiles/{id}/desactivar` devuelve además `leads_reasignados` y
+`leads_sin_reasignar`.
+
 ### Atención de leads
 
 | Método | Ruta | Quién | Para qué |
@@ -396,7 +412,7 @@ Lectura: Usuario. Escritura: Admin. Salvo donde se indica, cada catálogo tiene 
 | Campos del formulario | `/config/formulario-campos` | |
 | Mapeo producto Contífico → pilar | `/config/contifico-producto-pilar` | |
 | Clientes "Medios" | `/config/clientes-medios` | Solo `GET`, `POST`, `DELETE /{id}` |
-| Asignación geográfica | `/config/asignacion-geografica` | Sin `GET /{id}` |
+| Asignación geográfica | `/config/asignacion-geografica` | Heredado: responde sobre las reglas de tipo provincia. La pantalla usa `/config/asignacion-leads` |
 | Etapas del pipeline | `/config/etapas-pipeline` | Solo `GET` y `PATCH /{id}` (las 9 etapas son fijas) |
 | Configuración general | `/config/general` | `GET` (404 si no existe), `POST` (409 si ya existe), `PATCH` |
 
